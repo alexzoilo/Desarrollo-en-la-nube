@@ -50,7 +50,7 @@ Incluye las siguientes clases principales:
 - **Main**: Gestiona la interacción con el usuario y flujo general.
 - **Dificultad**: Enum que define filas, columnas y número de minas.
 
->  UML (`Buscaminas.png`).
+>  UML (./Buscaminas/Buscaminas.png)
 
 ---
 
