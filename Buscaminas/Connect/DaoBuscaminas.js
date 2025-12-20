@@ -1,22 +1,21 @@
-import { supabase } from "../Connect/supabase.js";
+import { supabase } from "./supabase.js";
 import { Buscaminas } from "../Clases/Buscaminas.js";
-import { Dificultad } from "../Clases/Dificultad.js";
 
 export class DAOBuscaminas {
 
   // Crear partida
   async crearPartida(buscaminas) {
     const { data, error } = await supabase
-      .from("buscaminas")
+      .from("Buscaminas")
       .insert({
-        usuario: buscaminas.usuarioId,
+        usuarioId: buscaminas.usuarioId,
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
-        totalceldas: buscaminas.totalCeldas,
-        celdasdescubiertas: buscaminas.celdasDescubiertas,
+        totalCeldas: buscaminas.totalCeldas,
+        celdasDescubiertas: buscaminas.celdasDescubiertas,
         dificultad: buscaminas.dificultad,
-        tiempoinicio: buscaminas.tiempoInicio?.toISOString() || new Date().toISOString(),
-        tiempofin: buscaminas.tiempoFin ? buscaminas.tiempoFin.toISOString() : null
+        tiempoInicio: buscaminas.tiempoInicio?.toISOString() || new Date().toISOString(),
+        tiempoFin: buscaminas.tiempoFin ? buscaminas.tiempoFin.toISOString() : null
       })
       .select("id")
       .single();
@@ -29,9 +28,9 @@ export class DAOBuscaminas {
 
   // Actualizar celdas descubiertas
   async actualizarCeldasDescubiertas(id, nuevasDescubiertas) {
-    const { error, count } = await supabase
-      .from("buscaminas")
-      .update({ celdasdescubiertas: nuevasDescubiertas })
+    const { error } = await supabase
+      .from("Buscaminas")
+      .update({ celdasDescubiertas: nuevasDescubiertas })
       .eq("id", id);
 
     return !error;
@@ -40,8 +39,8 @@ export class DAOBuscaminas {
   // Finalizar partida
   async finalizarPartida(id, tiempoFin) {
     const { error } = await supabase
-      .from("buscaminas")
-      .update({ tiempofin: tiempoFin.toISOString() })
+      .from("Buscaminas")
+      .update({ tiempoFin: tiempoFin.toISOString() })
       .eq("id", id);
 
     return !error;
@@ -50,7 +49,7 @@ export class DAOBuscaminas {
   // Buscar partida por ID
   async findById(id) {
     const { data, error } = await supabase
-      .from("buscaminas")
+      .from("Buscaminas")
       .select("*")
       .eq("id", id)
       .single();
@@ -59,14 +58,14 @@ export class DAOBuscaminas {
 
     const b = new Buscaminas();
     b.id = data.id;
-    b.usuarioId = data.usuario;
+    b.usuarioId = data.usuarioId;
     b.filas = data.filas;
     b.columnas = data.columnas;
-    b.totalCeldas = data.totalceldas;
-    b.celdasDescubiertas = data.celdasdescubiertas;
+    b.totalCeldas = data.totalCeldas;
+    b.celdasDescubiertas = data.celdasDescubiertas;
     b.dificultad = data.dificultad;
-    b.tiempoInicio = data.tiempoinicio ? new Date(data.tiempoinicio) : null;
-    b.tiempoFin = data.tiempofin ? new Date(data.tiempofin) : null;
+    b.tiempoInicio = data.tiempoInicio ? new Date(data.tiempoInicio) : null;
+    b.tiempoFin = data.tiempoFin ? new Date(data.tiempoFin) : null;
 
     return b;
   }

@@ -1,10 +1,16 @@
+
 import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
-const supabaseURL = "db.domodruincjgomrjrbis.supabase.co";
+const supabaseURL = "https://domodruincjgomrjrbis.supabase.co";
+const SupabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvbW9kcnVpbmNqZ29tcmpyYmlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNzI4NzEsImV4cCI6MjA3OTg0ODg3MX0.EVoICyBq7TzChL-475wb36XlRuK7JdKRDX_XMavoGGI";
 
-const SupabaseKey ="Patitofeo63";
 
-export const supabase = createClient(supabaseURL ,SupabaseKey);
+console.log("URL:", supabaseURL);
+console.log("KEY:", SupabaseKey);
+
+
+export const supabase = createClient(supabaseURL, SupabaseKey);
 
 export async function hashPassword(password) {
   const encoder = new TextEncoder();

@@ -1,6 +1,6 @@
-import { supabase } from "../Connect/supabase.js";
+import { supabase } from "./supabase.js";
 import { Usuario } from "../Clases/Usuario.js";
-import { hashPassword, checkPassword } from "../Connect/supabase.js";
+import { hashPassword, checkPassword } from "./supabase.js";
 
 export class DAOUsuario {
 
@@ -9,14 +9,14 @@ export class DAOUsuario {
     const hashed = await hashPassword(usuario.contraseña);
 
     const { data, error } = await supabase
-      .from("usuarios")
+      .from("Usuarios")
       .insert({
         nombre: usuario.nombre,
         contraseña: hashed,
-        partidas_ganadas: 0,
-        partidas_perdidas: 0,
-        tiempo_total_jugado: 0,
-        tiempo_ultima_partida: null
+        partidasGanadas: 0,
+        partidasPerdidas: 0,
+        tiempoTotalJugado: 0,
+        tiempoUltimaPartida: null
       })
       .select("id")
       .single();
@@ -24,22 +24,22 @@ export class DAOUsuario {
     if (error) throw error;
 
     usuario.id = data.id;
-    usuario.contraseña = null; // no guardar en memoria
+    usuario.contraseña = null;
     return usuario;
   }
 
   // Autenticar usuario
   async autenticar(nombre, contraseñaRaw) {
     const { data, error } = await supabase
-      .from("usuarios")
+      .from("Usuarios")
       .select(`
         id,
         nombre,
         contraseña,
-        partidas_ganadas,
-        partidas_perdidas,
-        tiempo_ultima_partida,
-        tiempo_total_jugado
+        partidasGanadas,
+        partidasPerdidas,
+        tiempoUltimaPartida,
+        tiempoTotalJugado
       `)
       .eq("nombre", nombre)
       .single();
@@ -52,12 +52,12 @@ export class DAOUsuario {
     const u = new Usuario();
     u.id = data.id;
     u.nombre = data.nombre;
-    u.partidasGanadas = data.partidas_ganadas;
-    u.partidasPerdidas = data.partidas_perdidas;
-    u.tiempoUltimaPartida = data.tiempo_ultima_partida
-      ? new Date(data.tiempo_ultima_partida)
+    u.partidasGanadas = data.partidasGanadas;
+    u.partidasPerdidas = data.partidasPerdidas;
+    u.tiempoUltimaPartida = data.tiempoUltimaPartida
+      ? new Date(data.tiempoUltimaPartida)
       : null;
-    u.tiempoTotalJugado = data.tiempo_total_jugado;
+    u.tiempoTotalJugado = data.tiempoTotalJugado;
 
     return u;
   }
@@ -82,14 +82,14 @@ export class DAOUsuario {
   // Obtener usuario por ID
   async findById(id) {
     const { data, error } = await supabase
-      .from("usuarios")
+      .from("Usuarios")
       .select(`
         id,
         nombre,
-        partidas_ganadas,
-        partidas_perdidas,
-        tiempo_ultima_partida,
-        tiempo_total_jugado
+        partidasGanadas,
+        partidasPerdidas,
+        tiempoUltimaPartida,
+        tiempoTotalJugado
       `)
       .eq("id", id)
       .single();
@@ -99,12 +99,12 @@ export class DAOUsuario {
     const u = new Usuario();
     u.id = data.id;
     u.nombre = data.nombre;
-    u.partidasGanadas = data.partidas_ganadas;
-    u.partidasPerdidas = data.partidas_perdidas;
-    u.tiempoUltimaPartida = data.tiempo_ultima_partida
-      ? new Date(data.tiempo_ultima_partida)
+    u.partidasGanadas = data.partidasGanadas;
+    u.partidasPerdidas = data.partidasPerdidas;
+    u.tiempoUltimaPartida = data.tiempoUltimaPartida
+      ? new Date(data.tiempoUltimaPartida)
       : null;
-    u.tiempoTotalJugado = data.tiempo_total_jugado;
+    u.tiempoTotalJugado = data.tiempoTotalJugado;
 
     return u;
   }
