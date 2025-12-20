@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+    <!-- Cuerpo -->
+    <circle cx="120" cy="140" r="80"
+        fill="#e53935"
+        stroke="#000000"
+        stroke-width="10"/>
+
+    <!-- Detalles del cuerpo -->
+    <path d="M 85 89 C 95.6 80.9 108.9 76 123 75"
+        stroke="#000000"
+        stroke-width="8"
+        fill="none"/>
+
+    <circle cx="90" cy="135" r="8" fill="#ffffff"/>
+    <circle cx="110" cy="115" r="5" fill="#ffffff"/>
+
+    <!-- Cuello -->
+    <rect transform="matrix(0.7,0.7,-0.7,0.7,109.5,-103.7)" x="162.4" y="50.6" width="54" height="40" rx="8"
+        fill="#000000"/>
+
+    <!-- Mecha -->
+    <path d="M 200 75 C 215 7 225 85 235 80"
+        stroke="#000000"
+        stroke-width="8"
+        fill="none"/>
+
+    <!-- Explosión -->
+    <polygon
+    points="235,60 242,78 260,85 242,92 235,110 228,92 210,85 228,78"
+    fill="#ff9800"/>
+
+    <polygon
+    points="235,68 240,80 252,85 240,90 235,102 230,90 218,85 230,80"
+    fill="#f44336"/>
+    <rect x="55.6" y="95.5" width="2" height="2" transform="matrix(0.7,0.8,-0.8,0.7,117,-18.4)" fill="none" stroke="#000000" stroke-width="6"/>
+    <path transform="matrix(1,0,0,1,2.9,-3.6)" stroke-width="8" fill="none" stroke="#000000" d="M 85 519.1 C 95.6 519.1 108.9 519.1 123 519.1"/>
+</svg>
