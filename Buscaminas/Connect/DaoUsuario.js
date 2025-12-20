@@ -1,6 +1,6 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "../HTML/resources/javaScript/supabase.js";
 import { Usuario } from "../Clases/Usuario.js";
-import { hashPassword, checkPassword } from "./supabase.js";
+import { hashPassword, checkPassword } from "../HTML/resources/javaScript/supabase.js";
 
 export class DAOUsuario {
 
