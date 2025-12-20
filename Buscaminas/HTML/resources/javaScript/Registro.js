@@ -1,4 +1,4 @@
-import { supabase, hashPassword } from './supabase.js'
+import { supabase, hashPassword } from '../../../Connect/supabase.js'
 
 const form = document.querySelector('form')
 
