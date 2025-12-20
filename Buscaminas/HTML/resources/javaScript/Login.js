@@ -33,7 +33,7 @@ form.addEventListener("submit", async (e) => {
         localStorage.setItem("usuarioNombre", data.nombre);
 
         // Redirigir a la página de juego
-        window.location.href = "game.html";
+        window.location.href = "tablero.html";
     } catch (err) {
         console.error(err);
         alert("Error en login: " + err.message);
