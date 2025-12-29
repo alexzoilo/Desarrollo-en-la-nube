@@ -1,7 +1,6 @@
 import {
     supabase
-} from '../JS/Supabaseclient.js';
-
+} from './supabaseClient.js';
 
 const form = document.getElementById("loginForm");
 
@@ -12,15 +11,20 @@ form.addEventListener("submit", async (e) => {
     const password = document.getElementById("password").value;
 
     const {
+        data,
         error
     } = await supabase.auth.signInWithPassword({
         email: `${nombre}@buscaminas.com`,
-        password: password
+        password
     });
 
     if (error) {
         alert("Credenciales incorrectas");
-    } else {
-        window.location.href = "tablero.html";
+        return;
     }
+
+    console.log("Login correcto:", data);
+
+    // Redirigir al tablero
+    window.location.href = "tablero.html";
 });
