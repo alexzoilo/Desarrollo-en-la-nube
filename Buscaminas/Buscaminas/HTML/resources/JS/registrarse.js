@@ -1,9 +1,6 @@
 import {
     supabase
-} from '../JS/Supabaseclient.js';
-
-
-
+} from '../JS/supabaseClient.js';
 import {
     hashPassword
 } from '../JS/hashPassword.js';
@@ -16,10 +13,12 @@ form.addEventListener("submit", async (e) => {
     const nombre = document.getElementById("nombre").value;
     const password = document.getElementById("password").value;
 
+    // Hash opcional
     const hashed = await hashPassword(password);
 
-
+    // Crear usuario en Auth
     const {
+        data,
         error
     } = await supabase.auth.signUp({
         email: `${nombre}@buscaminas.com`,
@@ -31,12 +30,19 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-
-    await supabase.from("Usuarios").insert({
+    // Guardar en tabla Usuarios
+    const {
+        error: insertError
+    } = await supabase.from("Usuarios").insert({
         nombre: nombre,
-        password: data.user.id
+        user_id: data.user.id
     });
 
+    if (insertError) {
+        alert(insertError.message);
+        return;
+    }
 
+    // Redirigir
     window.location.href = "tablero.html";
 });
