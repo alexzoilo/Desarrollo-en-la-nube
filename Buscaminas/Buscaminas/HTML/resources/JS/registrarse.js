@@ -33,7 +33,7 @@ form.addEventListener("submit", async (e) => {
   // Guardar en tabla Usuarios
   const { error: insertError } = await supabase.from("Usuarios").insert({
     nombre: nombre,
-    user_id: data.user.id
+    password: data.user.id
   });
 
   if (insertError) {
