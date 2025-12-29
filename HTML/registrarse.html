@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta</title>
+    <link rel="icon" type="image/png" href="resources/img/Bomba.svg">
+    <link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+
+<div class="contenedor-formulario">
+    <form id="registerForm" class="caja-formulario">
+        <h1>Crear Cuenta</h1>
+
+        <div class="grupo-input">
+            <label for="nombre">Nombre de usuario</label>
+            <input type="text" id="nombre" name="nombre" required placeholder="Nombre de usuario">
+        </div>
+
+        <div class="grupo-input">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" required minlength="6" placeholder="Contraseña">
+        </div>
+
+        <div class="grupo-input">
+            <label for="repeatpassword">Repetir Contraseña</label>
+            <input type="password" id="repeatpassword" name="repeatpassword" required minlength="6" placeholder="Repetir contraseña">
+        </div>
+
+        <button type="submit" class="boton boton-submit boton-login-lila">Registrarse</button>
+
+        <p class="texto-footer">
+            ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </p>
+    </form>
+</div>
+
+<!-- Lógica JS para registro -->
+<script type="module" src="./resources/javaScript/Registro.js"></script>
+
+</body>
+</html>
