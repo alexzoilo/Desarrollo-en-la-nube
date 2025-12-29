@@ -1,6 +1,6 @@
 import {
     supabase
-} from '../JS/supabaseClient.js';
+} from '../JS/Supabaseclient.js';
 
 const form = document.getElementById("loginForm");
 
