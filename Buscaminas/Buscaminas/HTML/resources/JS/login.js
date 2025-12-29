@@ -1,12 +1,13 @@
 import {
     supabase
-} from '../JS/Supabaseclient.js';
+} from '../JS/supabaseClient.js';
 
 const form = document.getElementById("loginForm");
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // 1️⃣ Obtener y validar inputs
     const nombre = document.getElementById("nombre").value.trim();
     const password = document.getElementById("password").value.trim();
 
@@ -15,40 +16,32 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
+    // 2️⃣ Generar email a partir del nombre
     const email = `${nombre}@buscaminas.com`.toLowerCase();
 
-    // Comprobar que el usuario exista en la tabla (evita 400)
-    const {
-        data: userExists
-    } = await supabase
-        .from("Usuarios")
-        .select("*")
-        .eq("nombre", nombre)
-        .eq("password", password)
-        .single();
+    try {
+        // 3️⃣ Login con Supabase Auth
+        const {
+            data,
+            error
+        } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
 
-    if (!userExists) {
-        alert("Usuario no registrado");
-        return;
+        if (error) {
+            console.error("Error login:", error);
+            alert("Credenciales incorrectas");
+            return;
+        }
+
+        console.log("Login correcto:", data);
+
+        // 4️⃣ Redirigir al tablero
+        window.location.href = "tablero.html";
+
+    } catch (err) {
+        console.error("Error inesperado:", err);
+        alert("Ocurrió un error inesperado. Intenta nuevamente.");
     }
-
-    // Login en Supabase Auth
-    const {
-        data,
-        error
-    } = await supabase.auth.signInWithPassword({
-        email,
-        password
-    });
-
-    if (error) {
-        console.error("Error login:", error);
-        alert("Credenciales incorrectas");
-        return;
-    }
-
-    console.log("Login correcto:", data);
-
-    // Redirigir al tablero
-    window.location.href = "tablero.html";
 });
