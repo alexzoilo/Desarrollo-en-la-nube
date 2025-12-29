@@ -1,23 +1,29 @@
+import {
+    supabase
+} from '../JS/Supabaseclient';
+
+import {
+    tablero
+} from "../../../HTML/tablero.html";
+
+import {
+    hashPassword
+} from '../JS/hashPassword';
+
 const form = document.getElementById("registerForm");
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("submit interceptado");
 
     const nombre = document.getElementById("nombre").value;
     const password = document.getElementById("password").value;
-    const repeat = document.getElementById("repeatpassword").value;
 
-    if (password !== repeat) {
-        alert("Las contraseñas no coinciden");
-        return;
-    }
+    const hashed = await hashPassword(password);
 
-    // 1️⃣ Crear usuario en Auth
+
     const {
-        data,
         error
-    } = await window.supabase.auth.signUp({
+    } = await supabase.auth.signUp({
         email: `${nombre}@buscaminas.com`,
         password
     });
@@ -27,22 +33,16 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    console.log("Usuario creado en Auth:", data);
 
-    // 2️⃣ Insertar usuario en tabla Usuarios
-    const {
-        error: insertError
-    } = await window.supabase
-        .from("Usuarios")
-        .insert([{
-            nombre: nombre,
-            password: password
-        }]);
+    await supabase.from("Usuarios").insert({
+        nombre: nombre,
+        password: data.user.id
+    });
 
     if (insertError) {
-        alert("Error al guardar en tabla Usuarios: " + insertError.message);
+        alert(insertError.message);
         return;
     }
 
-    alert("Usuario creado correctamente y guardado en tabla Usuarios ✅");
+    window.location.href = tablero.html;
 });
