@@ -1,6 +1,3 @@
-import {
-    supabase
-} from '../JS/Supabaseclient';
 
 import {
     tablero
