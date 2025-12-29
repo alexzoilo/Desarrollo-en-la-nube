@@ -2,9 +2,7 @@ import {
     supabase
 } from '../JS/Supabaseclient.js';
 
-import {
-    tablero
-} from "../../../HTML/tablero.html";
+
 
 import {
     hashPassword
@@ -40,5 +38,5 @@ form.addEventListener("submit", async (e) => {
     });
 
 
-    window.location.href = tablero.html;
+    window.location.href = "tablero.html";
 });
