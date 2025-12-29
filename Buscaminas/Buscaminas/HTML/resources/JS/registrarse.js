@@ -1,3 +1,6 @@
+import {
+    supabase
+} from '../JS/Supabaseclient.js';
 
 import {
     tablero
@@ -5,7 +8,7 @@ import {
 
 import {
     hashPassword
-} from '../JS/hashPassword';
+} from '../JS/hashPassword.js';
 
 const form = document.getElementById("registerForm");
 
