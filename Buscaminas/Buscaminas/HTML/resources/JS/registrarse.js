@@ -39,10 +39,6 @@ form.addEventListener("submit", async (e) => {
         password: data.user.id
     });
 
-    if (insertError) {
-        alert(insertError.message);
-        return;
-    }
 
     window.location.href = tablero.html;
 });
