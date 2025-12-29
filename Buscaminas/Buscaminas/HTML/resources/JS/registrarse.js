@@ -1,5 +1,3 @@
-console.log("registrarse.js cargado");
-
 const form = document.getElementById("registerForm");
 
 form.addEventListener("submit", async (e) => {
@@ -15,7 +13,7 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    // Aquí usamos window.supabase
+    // 1️⃣ Crear usuario en Auth
     const {
         data,
         error
@@ -29,5 +27,21 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    alert("Usuario creado correctamente");
+    console.log("Usuario creado en Auth:", data);
+
+    // 2️⃣ Insertar usuario en tabla Usuarios
+    const {
+        error: insertError
+    } = await window.supabase
+        .from("Usuarios")
+        .insert([{
+            email: `${nombre}@buscaminas.com`
+        }]);
+
+    if (insertError) {
+        alert("Error al guardar en tabla Usuarios: " + insertError.message);
+        return;
+    }
+
+    alert("Usuario creado correctamente y guardado en tabla Usuarios ✅");
 });
