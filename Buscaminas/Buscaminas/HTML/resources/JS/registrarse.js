@@ -2,45 +2,38 @@ import {
     supabase
 } from '../JS/Supabaseclient.js';
 
-
-
-import {
-    hashPassword
-} from '../JS/hashPassword.js';
-
 const form = document.getElementById("registerForm");
 
 form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const nombre = document.getElementById("nombre").value;
-  const password = document.getElementById("password").value;
+    const nombre = document.getElementById("nombre").value;
+    const password = document.getElementById("password").value;
 
-  // Hash opcional
-  const hashed = await hashPassword(password);
+    const {
+        data,
+        error
+    } = await supabase.auth.signUp({
+        email: `${nombre}@buscaminas.com`,
+        password
+    });
 
-  // Crear usuario en Auth
-  const { data, error } = await supabase.auth.signUp({
-    email: `${nombre}@buscaminas.com`,
-    password
-  });
+    if (error) {
+        alert(error.message);
+        return;
+    }
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+    const {
+        error: insertError
+    } = await supabase.from("Usuarios").insert({
+        nombre: nombre,
+        password: data.user.id
+    });
 
-  // Guardar en tabla Usuarios
-  const { error: insertError } = await supabase.from("Usuarios").insert({
-    nombre: nombre,
-    password: data.user.id
-  });
+    if (insertError) {
+        alert(insertError.message);
+        return;
+    }
 
-  if (insertError) {
-    alert(insertError.message);
-    return;
-  }
-
-  // Redirigir
-  window.location.href = "tablero.html";
+    window.location.href = "tablero.html";
 });

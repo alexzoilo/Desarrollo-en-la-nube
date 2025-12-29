@@ -1,10 +1,7 @@
 import {
     supabase
-} from '../JS/Supabaseclient';
+} from '../JS/Supabaseclient.js';
 
-import {
-    tablero
-} from "../../../HTML/tablero.html";
 
 const form = document.getElementById("loginForm");
 
@@ -24,6 +21,6 @@ form.addEventListener("submit", async (e) => {
     if (error) {
         alert("Credenciales incorrectas");
     } else {
-        window.location.href = tablero;
+        window.location.href = "tablero.html";
     }
 });
