@@ -2,7 +2,7 @@
   "name": "desarrollo-en-la-nube",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",  
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "node test.js"

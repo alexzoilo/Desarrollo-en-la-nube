@@ -1,4 +1,4 @@
-import { Dificultad } from "../Clases/Dificultad";
+import { Dificultad } from "../Clases/Dificultad.js";
 
 export class Buscaminas {
   constructor(usuarioId = null, filas = 0, columnas = 0, dificultad = null) {
