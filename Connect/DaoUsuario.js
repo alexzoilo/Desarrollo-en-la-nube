@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { supabase } from "./supabase.js";
-import { Usuario } from "../Clases/Usuario.js";
-import { hashPassword, checkPassword } from "./supabase.js";
-=======
 import { supabase } from "../HTML/resources/javaScript/supabase.js";
 import { Usuario } from "../Clases/Usuario.js";
 import { hashPassword, checkPassword } from "../HTML/resources/javaScript/supabase.js";
->>>>>>> 9732374247932d79b178fdf76020216d4ac265fe
 
 export class DAOUsuario {
 

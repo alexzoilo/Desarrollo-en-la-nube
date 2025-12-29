@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { supabase } from "./supabase.js";
-=======
 import { supabase } from "../HTML/resources/javaScript/supabase.js";
->>>>>>> 9732374247932d79b178fdf76020216d4ac265fe
 import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
