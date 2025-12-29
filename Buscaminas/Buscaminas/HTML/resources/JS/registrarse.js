@@ -31,7 +31,7 @@ form.addEventListener("submit", async (e) => {
     .from("Usuarios")
     .insert([{
       nombre: nombre,
-      password: password
+      contrasseña: password
     }]);
 
   if (insertError) {
