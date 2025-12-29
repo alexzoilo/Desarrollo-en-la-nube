@@ -2,7 +2,7 @@
 # 🎮 Proyecto: Buscaminas en Java
 
 ## 📝 Descripción del proyecto
-Este proyecto consiste en una implementación del clásico juego **Buscaminas**, desarrollada en **Java**.  
+Este proyecto consiste en una implementación del clásico juego **Buscaminas**, desarrollada en **Java**.
 El jugador debe descubrir todas las celdas seguras del tablero sin activar ninguna mina.
 
 El sistema permite:
