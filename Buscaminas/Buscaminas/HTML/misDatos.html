@@ -1,107 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mis Datos - Buscaminas</title>
-  <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
-  <link rel="stylesheet" href="CSS/styles.css">
-  <style>
-    /* Contenedor centrado */
-    .contenedor-datos {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 80vh;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Datos - Buscaminas</title>
+    <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
+    <link rel="stylesheet" href="CSS/styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            /* o tu fondo */
+        }
 
-    .form-datos {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      background: rgba(0,0,0,0.6);
-      padding: 30px;
-      border-radius: 12px;
-      color: #fff;
-      width: 300px;
-    }
+        .grupo-input {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-    .grupo-input {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+        .grupo-input label {
+            width: 150px;
+            font-weight: bold;
+        }
 
-    .grupo-input label {
-      width: 120px;
-      font-weight: bold;
-      text-align: left;
-    }
+        .grupo-input input {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            background: #fff;
+            color: #2c3e50;
+        }
 
-    .grupo-input input {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-      background: #fff;
-      color: #2c3e50;
-    }
-
-    .grupo-input input:disabled {
-      background: #ddd;
-      color: #555;
-    }
-  </style>
+        .grupo-input input:disabled {
+            background: #ddd;
+            color: #555;
+        }
+    </style>
 </head>
+
 <body>
 
-  <div class="contenedor-datos">
+    <nav class="barra-navegacion">
+        <div class="botones-barra">
+            <button class="nav-btn active">Jugar partida</button>
+            <button class="nav-btn">Dificultad</button>
+            <button class="nav-btn">Mis datos</button>
+            <span class="indicador"></span>
+        </div>
+    </nav>
+
     <h1>Mis Datos</h1>
-    <form class="form-datos">
-      <div class="grupo-input">
+
+    <!-- Campos en la parte superior, etiquetas a la izquierda -->
+    <div class="grupo-input">
         <label for="nombre">Nombre de usuario:</label>
         <input type="text" id="nombre" disabled>
-      </div>
-      <div class="grupo-input">
+    </div>
+    <div class="grupo-input">
         <label for="password">Contraseña:</label>
         <input type="password" id="password" disabled>
-      </div>
-    </form>
-  </div>
+    </div>
 
-  <script type="module">
-    import { supabase } from '../JS/Supabaseclient.js';
+    <script type="module">
+        import {
+            supabase
+        } from '../JS/Supabaseclient.js';
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const user = supabase.auth.user();
-      if (!user) {
-        alert("No hay usuario logueado");
-        window.location.href = "login.html";
-        return;
-      }
+        document.addEventListener("DOMContentLoaded", async () => {
+            const user = supabase.auth.user();
+            if (!user) {
+                alert("No hay usuario logueado");
+                window.location.href = "login.html";
+                return;
+            }
 
-      // Traer datos de la tabla Usuarios
-      const { data, error } = await supabase
-        .from('Usuarios')
-        .select('*')
-        .eq('password', user.id) // si guardaste user.id en password
-        .single();
+            // Traer datos de la tabla Usuarios
+            const {
+                data,
+                error
+            } = await supabase
+                .from('Usuarios')
+                .select('*')
+                .eq('password', user.id)
+                .single();
 
-      if (error || !data) {
-        alert("No se pudieron cargar tus datos");
-        return;
-      }
+            if (error || !data) {
+                alert("No se pudieron cargar tus datos");
+                return;
+            }
 
-      // Rellenar campos
-      document.getElementById("nombre").value = data.nombre;
-      document.getElementById("password").value = "********"; // no mostrar la contraseña real
-    });
-  </script>
+            document.getElementById("nombre").value = data.nombre;
+            document.getElementById("password").value = "********";
+        });
+    </script>
 
-  <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
+    <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 
 </body>
+
 </html>
