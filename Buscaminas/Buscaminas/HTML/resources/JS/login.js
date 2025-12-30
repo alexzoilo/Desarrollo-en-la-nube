@@ -7,20 +7,19 @@ const form = document.getElementById("loginForm");
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 1️⃣ Leer datos
-    const nombre = document.getElementById("nombre").value.trim().toLowerCase();
+    const nombre = document.getElementById("nombre").value
+        .trim()
+        .toLowerCase();
+
     const password = document.getElementById("password").value;
 
-    // 2️⃣ Validar campos
     if (!nombre || !password) {
         alert("Debes completar todos los campos");
         return;
     }
 
-    // 3️⃣ Generar email interno
     const email = `${nombre}@buscaminas.com`;
 
-    // 4️⃣ Intentar login en Supabase Auth
     const {
         data,
         error
@@ -29,16 +28,12 @@ form.addEventListener("submit", async (e) => {
         password
     });
 
-    // 5️⃣ Si falla → usuario no existe o password incorrecta
     if (error) {
-        console.error("Login fallido:", error.message);
+        console.error(error.message);
         alert("Usuario o contraseña incorrectos");
         return;
     }
 
-    // 6️⃣ Login correcto
-    console.log("Login correcto:", data.user);
-
-    // 7️⃣ Redirigir al tablero
+    console.log("Login OK:", data.user.email);
     window.location.href = "tablero.html";
 });
