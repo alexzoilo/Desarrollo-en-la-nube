@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const pathname = window.location.pathname.toLowerCase();
     botones.forEach(boton => {
         const texto = boton.textContent.trim().toLowerCase();
-        if ((texto === "mis datos" && pathname.includes("misdatos")) ||
+        if ((texto === "mis datos" && pathname.includes("misDatos")) ||
             (texto === "ayuda" && pathname.includes("ayuda")) ||
             (texto === "jugar partida" && pathname.includes("tablero"))) {
             boton.classList.add("active");
