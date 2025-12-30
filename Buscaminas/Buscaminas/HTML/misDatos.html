@@ -1,69 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Datos - Buscaminas</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis Datos</title>
     <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
     <link rel="stylesheet" href="CSS/styles.css">
 </head>
-
 <body>
 
-    <!-- Contenedor principal -->
-    <div class="contenedor-tablero">
-        <h1>Mis Datos</h1>
-        <form class="caja-formulario">
-            <div class="grupo-input">
-                <label for="nombre">Nombre de usuario</label>
-                <input type="text" id="nombre" readonly>
-            </div>
-            <div class="grupo-input">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" readonly>
-            </div>
-        </form>
-    </div>
+    <nav class="barra-navegacion">
+        <div class="botones-barra">
+            <button class="nav-btn active">jugar partida</button>
+            <button class="nav-btn">Dificultad</button>
+            <button class="nav-btn">Mis datos</button>
 
-    <!-- Script de navegación y Supabase -->
-    <script type="module">
-        import {
-            supabase
-        } from '../JS/Supabaseclient.js';
-
-        document.addEventListener("DOMContentLoaded", async () => {
-            // Obtenemos el usuario logueado
-            const user = supabase.auth.user();
-            if (!user) {
-                alert("No hay usuario logueado");
-                window.location.href = "login.html";
-                return;
-            }
-
-            // Traer datos de la tabla Usuarios
-            const {
-                data,
-                error
-            } = await supabase
-                .from('Usuarios')
-                .select('*')
-                .eq('password', user.id)
-                .single(); // usamos user.id porque lo guardaste así en el registro
-
-            if (error || !data) {
-                alert("No se pudieron cargar tus datos");
-                return;
-            }
-
-            // Rellenar campos
-            document.getElementById("nombre").value = data.nombre;
-            document.getElementById("password").value = "********"; // no mostrar la contraseña real
-        });
-    </script>
-
+            <span class="indicador"></span>
+        </div>
+    </nav>
     <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
-
 </body>
 
 </html>
