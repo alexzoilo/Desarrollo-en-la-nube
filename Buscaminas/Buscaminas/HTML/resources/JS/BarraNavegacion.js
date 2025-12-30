@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     botones.forEach(boton => {
         boton.addEventListener("click", () => {
-
             document.querySelector(".nav-btn.active")?.classList.remove("active");
             boton.classList.add("active");
             moverIndicador(boton);
@@ -24,6 +23,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const activo = document.querySelector(".nav-btn.active");
-    if (activo) moverIndicador(activo);
+    // Detectar página actual y marcar el botón correcto
+    const pagina = window.location.pathname.split("/").pop().toLowerCase();
+    botones.forEach(boton => {
+        const texto = boton.textContent.trim().toLowerCase();
+        if ((pagina === "misdatos.html" && texto === "mis datos") ||
+            (pagina === "ayuda.html" && texto === "ayuda") ||
+            (pagina === "tablero.html" && texto === "jugar partida")) {
+            boton.classList.add("active");
+            moverIndicador(boton);
+        }
+    });
 });
