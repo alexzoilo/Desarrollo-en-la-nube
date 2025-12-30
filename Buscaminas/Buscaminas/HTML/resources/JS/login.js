@@ -7,16 +7,14 @@ const form = document.getElementById("loginForm");
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const email = document.getElementById("email").value.trim().toLowerCase();
     const nombre = document.getElementById("nombre").value.trim();
     const password = document.getElementById("password").value;
 
-    if (!nombre || !password) {
+    if (!email || !nombre || !password) {
         alert("Debes completar todos los campos");
         return;
     }
-
-    // ⚠️ Aquí pegamos el email exacto del usuario de Auth
-    const email = "ases@buscaminas.com"; // <--- pega exactamente el email de Auth
 
     const {
         data,
@@ -33,5 +31,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     console.log("Login correcto:", data.user);
+
     window.location.href = "tablero.html";
 });
