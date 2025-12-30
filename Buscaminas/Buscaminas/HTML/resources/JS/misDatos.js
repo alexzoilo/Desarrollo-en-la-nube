@@ -10,11 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         .eq('password', user.id)
         .single();
 
-    if (error || !data) {
-        alert("No se pudieron cargar tus datos");
-        return;
-    }
-
     document.getElementById("nombreUsuario").value = data.nombre;
     document.getElementById("passwordUsuario").value = "********";
 });

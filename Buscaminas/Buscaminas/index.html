@@ -20,21 +20,11 @@
             <div class="grupo-botones">
                 <a href="HTML/login.html" class="boton boton-principal boton-grande">Iniciar Sesión</a>
                 <a href="HTML/registrarse.html" class="boton boton-secundario boton-grande">Crear Cuenta</a>
-                <a href="HTML/tablero.html" class="boton boton-invitado boton-grande"
-                    onclick="iniciarInvitado()">Invitado</a>
             </div>
 
 
 
         </div>
-
-        <script>
-            function iniciarInvitado() {
-                const usuarioInvitado = 'Invitado' + Math.floor(Math.random() * 1000);
-                localStorage.setItem('usuario', usuarioInvitado);
-                window.location.href = 'HTML/juego.html';
-            }
-        </script>
 
 
     </body>
