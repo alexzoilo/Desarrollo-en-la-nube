@@ -8,28 +8,24 @@ document.addEventListener("DOMContentLoaded", () => {
         indicador.style.left = boton.offsetLeft - extra / 2 + "px";
     }
 
+    // Navegación al hacer clic
     botones.forEach(boton => {
         boton.addEventListener("click", () => {
             document.querySelector(".nav-btn.active")?.classList.remove("active");
             boton.classList.add("active");
             moverIndicador(boton);
 
-            const texto = boton.textContent.trim().toLowerCase();
-            if (texto === "mis datos") {
-                window.location.href = "misDatos.html";
-            } else if (texto === "ayuda") {
-                window.location.href = "ayuda.html";
+            const target = boton.getAttribute("data-target");
+            if (target) {
+                window.location.href = target;
             }
         });
     });
 
-    // Detectar página actual y marcar el botón correcto
-    const pagina = window.location.pathname.split("/").pop().toLowerCase();
+    // Inicializar indicador según la página actual
+    const paginaActual = window.location.pathname.split("/").pop();
     botones.forEach(boton => {
-        const texto = boton.textContent.trim().toLowerCase();
-        if ((pagina === "misdatos.html" && texto === "mis datos") ||
-            (pagina === "ayuda.html" && texto === "ayuda") ||
-            (pagina === "tablero.html" && texto === "jugar partida")) {
+        if (boton.getAttribute("data-target") === paginaActual) {
             boton.classList.add("active");
             moverIndicador(boton);
         }
