@@ -7,51 +7,60 @@
     <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
     <link rel="stylesheet" href="CSS/styles.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Contenedor principal centrado horizontalmente y en la parte superior */
+        .panel-datos {
+            max-width: 400px;
+            margin: 60px auto 0 auto;
+            padding: 30px 25px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             color: #fff;
-            margin: 0;
-            padding: 20px;
-            background: #000; /* fondo oscuro */
-        }
-
-        h1 {
-            margin-bottom: 20px;
-        }
-
-        /* Contenedor de los campos alineado a la izquierda */
-        .form-datos {
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* todo a la izquierda */
-            gap: 15px;
+            gap: 20px;
+        }
+
+        .panel-datos h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
         }
 
         .grupo-input {
             display: flex;
             align-items: center;
-            gap: 10px; /* espacio entre etiqueta y campo */
         }
 
         .grupo-input label {
-            min-width: 150px; /* ancho fijo de la etiqueta */
+            width: 140px; /* ancho fijo para alinear etiquetas */
             font-weight: bold;
-            text-align: left;
         }
 
         .grupo-input input {
-            padding: 8px 10px;
+            flex: 1;
+            padding: 10px;
             border-radius: 6px;
             border: none;
             outline: none;
             background: #fff;
             color: #2c3e50;
-            width: 200px;
         }
 
         .grupo-input input:disabled {
             background: #ddd;
             color: #555;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .panel-datos {
+                margin: 40px 15px 0 15px;
+                padding: 20px;
+            }
+            .grupo-input label {
+                width: 100px;
+            }
         }
     </style>
 </head>
@@ -66,9 +75,8 @@
         </div>
     </nav>
 
-    <h1>Mis Datos</h1>
-
-    <div class="form-datos">
+    <div class="panel-datos">
+        <h1>Mis Datos</h1>
         <div class="grupo-input">
             <label for="nombre">Nombre de usuario:</label>
             <input type="text" id="nombre" disabled>
