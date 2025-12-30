@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,29 +12,41 @@
             color: #fff;
             margin: 0;
             padding: 20px;
-            background: #000;
-            /* o tu fondo */
+            background: #000; /* fondo oscuro */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        /* Contenedor de los campos alineado a la izquierda */
+        .form-datos {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* todo a la izquierda */
+            gap: 15px;
         }
 
         .grupo-input {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            gap: 10px; /* espacio entre etiqueta y campo */
         }
 
         .grupo-input label {
-            width: 150px;
+            min-width: 150px; /* ancho fijo de la etiqueta */
             font-weight: bold;
+            text-align: left;
         }
 
         .grupo-input input {
-            flex: 1;
             padding: 8px 10px;
             border-radius: 6px;
             border: none;
             outline: none;
             background: #fff;
             color: #2c3e50;
+            width: 200px;
         }
 
         .grupo-input input:disabled {
@@ -44,7 +55,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <nav class="barra-navegacion">
@@ -58,20 +68,19 @@
 
     <h1>Mis Datos</h1>
 
-    <!-- Campos en la parte superior, etiquetas a la izquierda -->
-    <div class="grupo-input">
-        <label for="nombre">Nombre de usuario:</label>
-        <input type="text" id="nombre" disabled>
-    </div>
-    <div class="grupo-input">
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password" disabled>
+    <div class="form-datos">
+        <div class="grupo-input">
+            <label for="nombre">Nombre de usuario:</label>
+            <input type="text" id="nombre" disabled>
+        </div>
+        <div class="grupo-input">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" disabled>
+        </div>
     </div>
 
     <script type="module">
-        import {
-            supabase
-        } from '../JS/Supabaseclient.js';
+        import { supabase } from '../JS/Supabaseclient.js';
 
         document.addEventListener("DOMContentLoaded", async () => {
             const user = supabase.auth.user();
@@ -81,11 +90,7 @@
                 return;
             }
 
-            // Traer datos de la tabla Usuarios
-            const {
-                data,
-                error
-            } = await supabase
+            const { data, error } = await supabase
                 .from('Usuarios')
                 .select('*')
                 .eq('password', user.id)
@@ -104,5 +109,4 @@
     <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 
 </body>
-
 </html>
