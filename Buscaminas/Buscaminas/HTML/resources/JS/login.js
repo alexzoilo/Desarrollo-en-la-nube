@@ -7,10 +7,7 @@ const form = document.getElementById("loginForm");
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nombre = document.getElementById("nombre").value
-        .trim()
-        .toLowerCase();
-
+    const nombre = document.getElementById("nombre").value.trim();
     const password = document.getElementById("password").value;
 
     if (!nombre || !password) {
@@ -18,7 +15,8 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
-    const email = `${nombre}@buscaminas.com`;
+    // ⚠️ Aquí pegamos el email exacto del usuario de Auth
+    const email = "ases@buscaminas.com"; // <--- pega exactamente el email de Auth
 
     const {
         data,
@@ -28,6 +26,12 @@ form.addEventListener("submit", async (e) => {
         password
     });
 
-    console.log("Login OK:", data.user.email);
+    if (error) {
+        console.error("Login fallido:", error.message);
+        alert("Usuario o contraseña incorrectos");
+        return;
+    }
+
+    console.log("Login correcto:", data.user);
     window.location.href = "tablero.html";
 });
