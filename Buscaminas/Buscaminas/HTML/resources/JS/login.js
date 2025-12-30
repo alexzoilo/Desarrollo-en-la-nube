@@ -28,12 +28,6 @@ form.addEventListener("submit", async (e) => {
         password
     });
 
-    if (error) {
-        console.error(error.message);
-        alert("Usuario o contraseña incorrectos");
-        return;
-    }
-
     console.log("Login OK:", data.user.email);
     window.location.href = "tablero.html";
 });
