@@ -4,33 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buscaminas</title>
+<link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
 <link rel="stylesheet" href="CSS/styles.css">
-<style>
-    body { display: flex; flex-direction: column; align-items: center; padding-top: 80px; color: #fff; font-family: sans-serif; }
-    #panel-controles { display: flex; gap: 20px; margin-bottom: 20px; align-items: center; }
-    #tablero { display: grid; gap: 2px; }
-    .celda { width: 40px; height: 40px; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 18px; user-select: none; color: #fff; }
-    .celda.revelada { background: rgba(0,0,0,0.3); cursor: default; }
-    .celda.bandera { color: #FFD700; }
-    #mensajeJuego { margin: 20px 0; font-size: 24px; font-weight: bold; padding: 15px 30px; border-radius: 12px; display: none; }
-    #mensajeJuego.ganado { background-color: #2ecc71; color: #fff; }
-    #mensajeJuego.perdido { background-color: #e74c3c; color: #fff; }
-</style>
 </head>
 <body>
+<div id="Jugar-Buscaminas">
+    <div id="panel-controles">
+        <label for="dificultad">Dificultad:</label>
+        <select id="dificultad">
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+        <span id="temporizador">Tiempo: 0s</span>
+    </div>
 
-<div id="panel-controles">
-    <label for="dificultad">Dificultad:</label>
-    <select id="dificultad">
-        <option value="FACIL">Fácil</option>
-        <option value="MEDIO">Medio</option>
-        <option value="DIFICIL">Difícil</option>
-    </select>
-    <span id="temporizador">Tiempo: 0s</span>
+    <div id="mensajeJuego"></div>
+    <div id="tablero"></div>
 </div>
 
-<div id="mensajeJuego"></div>
-<div id="tablero"></div>
 
 <script type="module">
 import { Buscaminas } from "../Clases/Buscaminas.js";
