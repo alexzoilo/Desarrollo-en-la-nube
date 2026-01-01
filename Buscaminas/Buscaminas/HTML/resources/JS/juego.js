@@ -86,7 +86,7 @@ function formatTiempo(segundos) {
     const mStr = String(minutos).padStart(2, '0');
     const sStr = String(segundosRestantes).padStart(2, '0');
 
-    return `${hStr} : ${mStr} : ${sStr}`;
+    return `cronometro: ${hStr} : ${mStr} : ${sStr}`;
 }
 
 function mostrarMensaje(texto, tipo) {
