@@ -38,6 +38,6 @@ form.addEventListener("submit", async (e) => {
 
     } catch (err) {
         console.error("Error inesperado:", err);
-        alert("Ocurrió un error inesperado. Intenta nuevamente.");
+        window.location.href = "login.html";
     }
 });

@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .select('nombre, password')
             .limit(1);
 
-        if (error) return; // silencioso
+        if (error) return;
 
         if (!data || data.length === 0) return;
 
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         nombreInput.value = usuario.nombre;
         passwordInput.value = usuario.password;
 
-        // Botón guardar
+
         document.querySelector(".boton-guardar").addEventListener("click", async () => {
             try {
                 const {
@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // Botón eliminar
+
+
         document.querySelector(".boton-eliminar").addEventListener("click", async () => {
             const confirmar = confirm("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.");
             if (!confirmar) return;
@@ -65,7 +66,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
 
                 alert("Cuenta eliminada");
-                // Redirigir al login
                 window.location.href = "login.html";
 
             } catch (err) {
