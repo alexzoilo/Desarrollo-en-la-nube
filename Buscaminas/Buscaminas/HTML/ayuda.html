@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación Buscaminas</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+
+        /* Estilo del menú lateral */
+        nav {
+            width: 250px;
+            background-color: #f4f4f4;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            border-right: 1px solid #ccc;
+        }
+
+        nav h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin: 10px 0;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        nav ul li a:hover {
+            color: #007BFF;
+        }
+
+        /* Estilo del contenido */
+        main {
+            margin-left: 270px; /* Para que no quede debajo del nav */
+            padding: 20px;
+            flex: 1;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        section h2 {
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 5px;
+        }
+
+        /* Para que los enlaces internos funcionen suavemente */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h2>Ayuda / Documentación</h2>
+        <ul>
+            <li><a href="#introduccion">Introducción</a></li>
+            <li><a href="#instalacion">Instalación</a></li>
+            <li><a href="#reglas">Reglas del Juego</a></li>
+            <li><a href="#interfaz">Interfaz</a></li>
+            <li><a href="#codigo">Código</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="introduccion">
+            <h2>Introducción</h2>
+            <p>Bienvenido a la documentación del proyecto Buscaminas. Aquí aprenderás cómo funciona el juego y cómo está implementado.</p>
+        </section>
+
+        <section id="instalacion">
+            <h2>Instalación</h2>
+            <p>Para instalar el proyecto, simplemente clona el repositorio y abre el archivo <code>index.html</code> en tu navegador.</p>
+        </section>
+
+        <section id="reglas">
+            <h2>Reglas del Juego</h2>
+            <p>El objetivo del Buscaminas es descubrir todas las casillas que no contienen minas sin detonarlas. Cada número indica la cantidad de minas adyacentes.</p>
+        </section>
+
+        <section id="interfaz">
+            <h2>Interfaz</h2>
+            <p>El juego consiste en un tablero de celdas. Puedes hacer clic izquierdo para descubrir una celda y clic derecho para marcar una mina.</p>
+        </section>
+
+        <section id="codigo">
+            <h2>Código</h2>
+            <p>El proyecto utiliza HTML, CSS y JavaScript para la lógica del juego y la interacción con el usuario.</p>
+        </section>
+
+        <section id="contacto">
+            <h2>Contacto</h2>
+            <p>Si tienes dudas o sugerencias, puedes contactar con el desarrollador a través del correo: ejemplo@correo.com</p>
+        </section>
+    </main>
+</body>
+</html>
