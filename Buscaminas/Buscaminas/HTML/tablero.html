@@ -95,7 +95,7 @@ function actualizarTablero() {
             celdaDiv.classList.remove('revelada', 'bandera');
             if (juego && juego.descubiertas[i][j]) {
                 celdaDiv.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
+                if (juego.tablero[i][j] === -1) celdaDiv.innerHTML = '<img src="../HTML/resources/img/Bomba.svg" alt="Bomba" style="width:24px;height:24px;">';
                 else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
             }
         }
@@ -109,13 +109,13 @@ function iniciarTemporizador() {
         tiempo++;
         temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
     }, 1000);
-    selectDificultad.disabled = true; // bloquea dificultad mientras juegas
+    selectDificultad.disabled = true;
 }
 
 function detenerTemporizador() {
     clearInterval(timerInterval);
     timerInterval = null;
-    selectDificultad.disabled = false; // desbloquea dificultad
+    selectDificultad.disabled = false;
 }
 
 function mostrarMensaje(texto, tipo) {
@@ -133,16 +133,16 @@ function perderJuego() {
     detenerTemporizador();
     mostrarMensaje('💥 Has perdido, pulsa tecla para continuar', 'perdido');
 
-    // Bajar nivel
+
     switch(dificultadActual) {
         case "DIFICIL": dificultadActual = "MEDIO"; break;
         case "MEDIO": dificultadActual = "FACIL"; break;
         case "FACIL": dificultadActual = "FACIL"; break;
     }
 
-    selectDificultad.value = dificultadActual; // Reflejar cambio en el select
+    selectDificultad.value = dificultadActual;
 
-    // Revelar minas
+
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             if (juego.tablero[i][j] === -1) {
@@ -154,7 +154,7 @@ function perderJuego() {
     }
 
     juego = null;
-    selectDificultad.disabled = false; // Ya se puede cambiar dificultad manualmente
+    selectDificultad.disabled = false;
 }
 
 
@@ -162,15 +162,15 @@ function ganarNivel() {
     detenerTemporizador();
     mostrarMensaje('🏆 Has ganado! Subiendo de nivel', 'ganado');
 
-    // Subir nivel
+
     switch(dificultadActual) {
         case "FACIL": dificultadActual = "MEDIO"; break;
         case "MEDIO": dificultadActual = "DIFICIL"; break;
         case "DIFICIL": dificultadActual = "DIFICIL"; break;
     }
 
-     selectDificultad.value = dificultadActual; // Reflejar cambio en el select
-    
+    selectDificultad.value = dificultadActual;
+
     setTimeout(() => {
         selectDificultad.value = dificultadActual;
         iniciarJuego(dificultadActual);
@@ -180,7 +180,7 @@ function ganarNivel() {
 
 function iniciarJuego(dificultad) {
     dificultadActual = dificultad;
-    selectDificultad.value = dificultadActual; // Mostrar nivel actual
+    selectDificultad.value = dificultadActual;
     ajustarFilasColumnas(dificultad);
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
     crearTableroHTML();
@@ -190,7 +190,6 @@ function iniciarJuego(dificultad) {
     selectDificultad.disabled = true;
 }
 
-// Iniciar juego con cualquier tecla
 document.addEventListener('keydown', () => {
     if (!juego) iniciarJuego(selectDificultad.value);
 });
