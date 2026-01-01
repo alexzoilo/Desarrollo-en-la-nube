@@ -11,14 +11,15 @@
         /* ---------------- Menú lateral ---------------- */
         .menu-lateral {
             width: 220px;
-            background-color: #f4f4f4;
+            background-color: rgba(0, 0, 0, 0.6);
             padding: 20px;
             position: fixed;
-            top: 60px; /* Para que no quede debajo de la barra superior */
+            top: 60px; /* Ajusta según tu barra de navegación */
             left: 0;
             bottom: 0;
             overflow-y: auto;
-            border-right: 1px solid #ccc;
+            border-right: 1px solid #007BFF;
+            color: #fff;
         }
 
         .menu-lateral h2 {
@@ -37,16 +38,16 @@
 
         .menu-lateral ul li a {
             text-decoration: none;
-            color: #333;
+            color: #fff;
         }
 
         .menu-lateral ul li a:hover {
-            color: #007BFF;
+            color: #2ecc71;
         }
 
         /* ---------------- Contenido principal ---------------- */
         .contenido-principal {
-            margin-left: 240px; /* Deja espacio para el menú lateral */
+            margin-left: 240px; /* deja espacio para el menú lateral */
             padding: 20px;
         }
 
@@ -55,12 +56,12 @@
         }
 
         section h2 {
-            border-bottom: 2px solid #007BFF;
+            border-bottom: 2px solid #2ecc71;
             padding-bottom: 5px;
         }
 
         html {
-            scroll-behavior: smooth; /* Scroll suave para enlaces internos */
+            scroll-behavior: smooth;
         }
     </style>
 </head>
