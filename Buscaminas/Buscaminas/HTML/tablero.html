@@ -36,6 +36,7 @@
 import { Buscaminas } from "../Clases/Buscaminas.js";
 import { Dificultad } from "../Clases/Dificultad.js";
 
+// --- Variables globales ---
 let juego = null;
 let timerInterval = null;
 let filas = 9;
@@ -47,6 +48,7 @@ const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
 const mensajeDiv = document.getElementById('mensaje');
 
+// --- Funciones auxiliares ---
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
     switch(dificultad) {
@@ -54,12 +56,14 @@ function ajustarFilasColumnas(dificultad) {
         case "MEDIO": filas = 16; columnas = 16; break;
         case "DIFICIL": filas = 16; columnas = 30; break;
     }
+    selectDificultad.value = dificultadActual; // actualizar el select siempre
 }
 
 function crearTableroHTML() {
     tableroDiv.innerHTML = '';
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
     tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
+
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             const celdaDiv = document.createElement('div');
@@ -67,20 +71,8 @@ function crearTableroHTML() {
             celdaDiv.dataset.fila = i;
             celdaDiv.dataset.col = j;
 
-            celdaDiv.addEventListener('click', () => {
-                if (!juego) return;
-                const exito = juego.descubrir(i,j);
-                actualizarTablero();
-                if (!exito) perderJuego();
-                else if (juego.verificarVictoria()) ganarNivel();
-            });
-
-            celdaDiv.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                if (!juego) return;
-                if (celdaDiv.classList.contains('revelada')) return;
-                celdaDiv.classList.toggle('bandera');
-            });
+            celdaDiv.addEventListener('click', () => handleClick(i, j));
+            celdaDiv.addEventListener('contextmenu', (e) => handleRightClick(e, celdaDiv));
 
             tableroDiv.appendChild(celdaDiv);
         }
@@ -90,23 +82,14 @@ function crearTableroHTML() {
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = tableroDiv.children[i * columnas + j];
-
-            // Limpiar contenido y clases (pero no quitamos bandera si está marcada)
-            if (!celdaDiv.classList.contains('bandera')) {
-                celdaDiv.textContent = '';
-            }
-            celdaDiv.classList.remove('revelada');
+            const celdaDiv = tableroDiv.children[i*columnas+j];
+            celdaDiv.textContent = '';
+            celdaDiv.classList.remove('revelada', 'bandera');
 
             if (juego && juego.descubiertas[i][j]) {
                 celdaDiv.classList.add('revelada');
-
-                if (juego.tablero[i][j] === -1) {
-                    // Mostrar la bomba como imagen
-                    celdaDiv.innerHTML = '<img src="../HTML/resources/img/Bomba.svg" alt="Bomba" style="width:24px;height:24px;">';
-                } else if (juego.tablero[i][j] > 0) {
-                    celdaDiv.textContent = juego.tablero[i][j];
-                }
+                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
+                else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
             }
         }
     }
@@ -130,8 +113,7 @@ function detenerTemporizador() {
 
 function mostrarMensaje(texto, tipo) {
     mensajeDiv.textContent = texto;
-    mensajeDiv.className = '';
-    mensajeDiv.classList.add(tipo);
+    mensajeDiv.className = tipo;
 }
 
 function ocultarMensaje() {
@@ -139,20 +121,45 @@ function ocultarMensaje() {
     mensajeDiv.className = '';
 }
 
+// --- Manejo de eventos del juego ---
+function handleClick(fila, col) {
+    if (!juego) return;
+
+    const exito = juego.descubrir(fila, col);
+    actualizarTablero();
+
+    if (!exito) perderJuego();
+    else if (juego.verificarVictoria()) ganarNivel();
+}
+
+function handleRightClick(e, celdaDiv) {
+    e.preventDefault();
+    if (!juego || celdaDiv.classList.contains('revelada')) return;
+    celdaDiv.classList.toggle('bandera');
+}
+
+// --- Inicio, victoria y derrota ---
+function iniciarJuego(dificultad) {
+    ajustarFilasColumnas(dificultad);
+    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
+    ocultarMensaje();
+}
+
 function perderJuego() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido, pulsa tecla para continuar', 'perdido');
+    mostrarMensaje('💥 Has perdido, pulsa cualquier tecla para continuar', 'perdido');
 
-
+    // Bajar nivel automáticamente
     switch(dificultadActual) {
         case "DIFICIL": dificultadActual = "MEDIO"; break;
         case "MEDIO": dificultadActual = "FACIL"; break;
-        case "FACIL": dificultadActual = "FACIL"; break;
     }
-
     selectDificultad.value = dificultadActual;
 
-
+    // Revelar minas
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             if (juego.tablero[i][j] === -1) {
@@ -164,48 +171,31 @@ function perderJuego() {
     }
 
     juego = null;
-    selectDificultad.disabled = false;
 }
-
 
 function ganarNivel() {
     detenerTemporizador();
     mostrarMensaje('🏆 Has ganado! Subiendo de nivel', 'ganado');
 
-
+    // Subir nivel automáticamente
     switch(dificultadActual) {
         case "FACIL": dificultadActual = "MEDIO"; break;
         case "MEDIO": dificultadActual = "DIFICIL"; break;
-        case "DIFICIL": dificultadActual = "DIFICIL"; break;
     }
-
     selectDificultad.value = dificultadActual;
 
     setTimeout(() => {
-        selectDificultad.value = dificultadActual;
         iniciarJuego(dificultadActual);
         ocultarMensaje();
     }, 1200);
 }
 
-function iniciarJuego(dificultad) {
-    dificultadActual = dificultad;
-    selectDificultad.value = dificultadActual;
-    ajustarFilasColumnas(dificultad);
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
-    crearTableroHTML();
-    actualizarTablero();
-    iniciarTemporizador();
-    ocultarMensaje();
-    selectDificultad.disabled = true;
-}
-
+// --- Evento global de teclado ---
 document.addEventListener('keydown', () => {
     if (!juego) iniciarJuego(selectDificultad.value);
 });
 </script>
 
 <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
-
 </body>
 </html>
