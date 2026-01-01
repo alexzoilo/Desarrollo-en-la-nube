@@ -344,59 +344,6 @@ body {
     background-color: #c0392b;
 }
 
-.menu-lateral {
-    width: 220px;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 20px;
-    position: fixed;
-    top: 60px;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
-    border-right: 1px solid #007BFF;
-    color: #fff;
-}
-
-.menu-lateral h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.menu-lateral ul {
-    list-style: none;
-    padding: 0;
-}
-
-.menu-lateral ul li {
-    margin: 10px 0;
-}
-
-.menu-lateral ul li a {
-    text-decoration: none;
-    color: #fff;
-}
-
-.menu-lateral ul li a:hover {
-    color: #2ecc71;
-}
-
-.contenido-principal {
-    margin-left: 240px;
-    padding: 20px;
-}
-
-section {
-    margin-bottom: 50px;
-}
-
-section h2 {
-    border-bottom: 2px solid #2ecc71;
-    padding-bottom: 5px;
-}
-
-html {
-    scroll-behavior: smooth;
-}
 
 @media (max-width: 480px) {
     .panel-datos {

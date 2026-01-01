@@ -3,22 +3,197 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Buscaminas</title>
+    <title>Buscaminas - Tablero</title>
     <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
     <link rel="stylesheet" href="CSS/styles.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 100px;
+            color: #fff;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #tablero {
+            display: grid;
+            grid-template-columns: repeat(9, 40px);
+            grid-template-rows: repeat(9, 40px);
+            gap: 2px;
+        }
+
+        .celda {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0,0,0,0.6);
+            border: 1px solid #2ecc71;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 18px;
+            user-select: none;
+        }
+
+        .celda.revelada {
+            background-color: rgba(0,0,0,0.3);
+            cursor: default;
+        }
+
+        .celda.mina {
+            background-color: red;
+        }
+
+        #instrucciones {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body>
 
-   <nav class="barra-navegacion">
+<nav class="barra-navegacion">
     <div class="botones-barra">
         <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
         <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
-        <button class="nav-btn" data-target="ayuda.html">Ayuda</button>
         <span class="indicador"></span>
     </div>
 </nav>
 
-    <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
-</body>
+<h1>Buscaminas</h1>
+<p id="instrucciones">Presiona cualquier tecla para iniciar el juego</p>
+<div id="tablero"></div>
 
+<script>
+    const filas = 9;
+    const columnas = 9;
+    const numMinas = 10;
+    let tablero = [];
+    let juegoIniciado = false;
+
+    const tableroDiv = document.getElementById('tablero');
+    const instrucciones = document.getElementById('instrucciones');
+
+    // Crear tablero vacío
+    function crearTablero() {
+        tableroDiv.innerHTML = '';
+        tablero = [];
+        for (let i = 0; i < filas; i++) {
+            const fila = [];
+            for (let j = 0; j < columnas; j++) {
+                const celda = document.createElement('div');
+                celda.classList.add('celda');
+                celda.dataset.fila = i;
+                celda.dataset.col = j;
+                celda.addEventListener('click', () => descubrirCelda(i, j));
+                tableroDiv.appendChild(celda);
+                fila.push({ mina: false, revelada: false, elemento: celda, adyacente: 0 });
+            }
+            tablero.push(fila);
+        }
+    }
+
+    // Colocar minas aleatoriamente
+    function colocarMinas() {
+        let minasColocadas = 0;
+        while (minasColocadas < numMinas) {
+            const i = Math.floor(Math.random() * filas);
+            const j = Math.floor(Math.random() * columnas);
+            if (!tablero[i][j].mina) {
+                tablero[i][j].mina = true;
+                minasColocadas++;
+            }
+        }
+    }
+
+    // Contar minas adyacentes
+    function contarMinas() {
+        for (let i = 0; i < filas; i++) {
+            for (let j = 0; j < columnas; j++) {
+                if (tablero[i][j].mina) continue;
+                let contador = 0;
+                for (let x = i-1; x <= i+1; x++) {
+                    for (let y = j-1; y <= j+1; y++) {
+                        if (x >= 0 && x < filas && y >=0 && y < columnas) {
+                            if (tablero[x][y].mina) contador++;
+                        }
+                    }
+                }
+                tablero[i][j].adyacente = contador;
+            }
+        }
+    }
+
+    // Descubrir celda
+    function descubrirCelda(i, j) {
+        const celdaObj = tablero[i][j];
+        if (celdaObj.revelada) return;
+        celdaObj.revelada = true;
+        celdaObj.elemento.classList.add('revelada');
+
+        if (celdaObj.mina) {
+            celdaObj.elemento.classList.add('mina');
+            celdaObj.elemento.textContent = '💣';
+            alert('¡Has tocado una mina! Fin del juego.');
+            reiniciarJuego();
+            return;
+        }
+
+        if (celdaObj.adyacente > 0) {
+            celdaObj.elemento.textContent = celdaObj.adyacente;
+        } else {
+            // Descubrir celdas vacías adyacentes
+            for (let x = i-1; x <= i+1; x++) {
+                for (let y = j-1; y <= j+1; y++) {
+                    if (x >= 0 && x < filas && y >=0 && y < columnas) {
+                        descubrirCelda(x, y);
+                    }
+                }
+            }
+        }
+
+        // Comprobar si ganó
+        comprobarVictoria();
+    }
+
+    function comprobarVictoria() {
+        let celdasSeguras = 0;
+        for (let i=0;i<filas;i++){
+            for (let j=0;j<columnas;j++){
+                if (!tablero[i][j].mina && tablero[i][j].revelada) celdasSeguras++;
+            }
+        }
+        if (celdasSeguras === filas*columnas - numMinas) {
+            alert('¡Felicidades! Has ganado.');
+            reiniciarJuego();
+        }
+    }
+
+    function reiniciarJuego() {
+        juegoIniciado = false;
+        instrucciones.textContent = 'Presiona cualquier tecla para iniciar el juego';
+        crearTablero();
+    }
+
+    // Iniciar juego al presionar tecla
+    document.addEventListener('keydown', () => {
+        if (!juegoIniciado) {
+            juegoIniciado = true;
+            instrucciones.textContent = 'Haz clic en una celda para descubrir';
+            crearTablero();
+            colocarMinas();
+            contarMinas();
+        }
+    });
+
+    // Crear tablero inicial vacío
+    crearTablero();
+</script>
+
+</body>
 </html>
