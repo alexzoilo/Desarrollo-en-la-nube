@@ -356,6 +356,62 @@ body {
     }
 }
 
+#Jugar-Buscaminas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 80px;
+    color: #fff;
+}
+
+#panel-controles {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+#tablero {
+    display: grid;
+    gap: 2px;
+}
+
+.celda {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    user-select: none;
+    color: #fff;
+}
+
+.celda.revelada {
+    background: rgba(0, 0, 0, 0.3);
+    cursor: default;
+}
+
+.celda.mina {
+    background: red;
+}
+
+.celda.bandera {
+    color: #FFD700;
+}
+
+#mensaje {
+    margin: 15px 0;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+#mensaje.ganado { color: #2ecc71; }
+#mensaje.perdido { color: #e74c3c; }
+
 @media (max-width: 480px) {
     .titulo-inicio {
         font-size: 2.5rem;
