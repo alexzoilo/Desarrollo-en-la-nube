@@ -7,67 +7,9 @@
     <title>Ayuda - Buscaminas</title>
     <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
     <link rel="stylesheet" href="CSS/styles.css">
-    <style>
-        /* ---------------- Menú lateral ---------------- */
-        .menu-lateral {
-            width: 220px;
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 20px;
-            position: fixed;
-            top: 60px; /* Ajusta según tu barra de navegación */
-            left: 0;
-            bottom: 0;
-            overflow-y: auto;
-            border-right: 1px solid #007BFF;
-            color: #fff;
-        }
-
-        .menu-lateral h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .menu-lateral ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .menu-lateral ul li {
-            margin: 10px 0;
-        }
-
-        .menu-lateral ul li a {
-            text-decoration: none;
-            color: #fff;
-        }
-
-        .menu-lateral ul li a:hover {
-            color: #2ecc71;
-        }
-
-        /* ---------------- Contenido principal ---------------- */
-        .contenido-principal {
-            margin-left: 240px; /* deja espacio para el menú lateral */
-            padding: 20px;
-        }
-
-        section {
-            margin-bottom: 50px;
-        }
-
-        section h2 {
-            border-bottom: 2px solid #2ecc71;
-            padding-bottom: 5px;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-    </style>
 </head>
 
 <body>
-    <!-- Barra de navegación existente -->
     <nav class="barra-navegacion">
         <div class="botones-barra">
             <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
@@ -77,7 +19,6 @@
         </div>
     </nav>
 
-    <!-- Menú lateral de ayuda -->
     <aside class="menu-lateral">
         <h2>Ayuda / Documentación</h2>
         <ul>
@@ -90,7 +31,6 @@
         </ul>
     </aside>
 
-    <!-- Contenido principal -->
     <main class="contenido-principal">
         <section id="introduccion">
             <h2>Introducción</h2>
