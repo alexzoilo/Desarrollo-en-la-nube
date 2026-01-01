@@ -1,45 +1,79 @@
-import { supabase } from './Supabaseclient.js';
+import {
+    supabase
+} from './Supabaseclient.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const { data, error } = await supabase
-        .from('Usuarios')
-        .select('nombre, password')
-        .limit(1);
-
-    if (error) {
-        console.error(error);
-        alert("Error cargando datos");
-        return;
-    }
-
-    // ⚠️ Si no hay usuarios
-    if (data.length === 0) {
-        alert("No hay ningún usuario en la base de datos");
-        return;
-    }
-
-    const usuario = data[0];
-
-    document.getElementById("nombreUsuario").value = usuario.nombre;
-    document.getElementById("passwordUsuario").value = usuario.password;
-
-    document.querySelector(".boton-guardar").addEventListener("click", async () => {
-
-        const { error: updateError } = await supabase
+    try {
+        const {
+            data,
+            error
+        } = await supabase
             .from('Usuarios')
-            .update({
-                nombre: document.getElementById("nombreUsuario").value,
-                password: document.getElementById("passwordUsuario").value
-            })
-            .eq('nombre', usuario.nombre);
+            .select('nombre, password')
+            .limit(1);
 
-        if (updateError) {
-            console.error(updateError);
-            alert("Error al guardar");
-            return;
-        }
+        if (error) return; // silencioso
 
-        alert("Datos guardados correctamente");
-    });
+        if (!data || data.length === 0) return;
+
+        const usuario = data[0];
+
+        const nombreInput = document.getElementById("nombreUsuario");
+        const passwordInput = document.getElementById("passwordUsuario");
+
+        nombreInput.value = usuario.nombre;
+        passwordInput.value = usuario.password;
+
+        // Botón guardar
+        document.querySelector(".boton-guardar").addEventListener("click", async () => {
+            try {
+                const {
+                    error: updateError
+                } = await supabase
+                    .from('Usuarios')
+                    .update({
+                        nombre: nombreInput.value,
+                        password: passwordInput.value
+                    })
+                    .eq('nombre', usuario.nombre);
+
+                if (updateError) return;
+
+                console.log("Datos guardados");
+            } catch (err) {
+                console.error("Error al guardar los datos:", err);
+            }
+        });
+
+        // Botón eliminar
+        document.querySelector(".boton-eliminar").addEventListener("click", async () => {
+            const confirmar = confirm("¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer.");
+            if (!confirmar) return;
+
+            try {
+                const {
+                    error: deleteError
+                } = await supabase
+                    .from('Usuarios')
+                    .delete()
+                    .eq('nombre', usuario.nombre);
+
+                if (deleteError) {
+                    console.error("Error al eliminar la cuenta:", deleteError);
+                    return;
+                }
+
+                alert("Cuenta eliminada");
+                // Redirigir al login
+                window.location.href = "login.html";
+
+            } catch (err) {
+                console.error("Error al eliminar la cuenta:", err);
+            }
+        });
+
+    } catch (err) {
+        console.error("Error al cargar los datos:", err);
+    }
 });
