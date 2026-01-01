@@ -1,4 +1,4 @@
-import { supabase } from '../JS/Supabaseclient.js';
+import { supabase } from './Supabaseclient.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 
