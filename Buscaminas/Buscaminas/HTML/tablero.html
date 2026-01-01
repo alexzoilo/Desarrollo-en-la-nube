@@ -1,38 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Juego - Buscaminas</title>
-    <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
-    <link rel="stylesheet" href="CSS/styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Juego - Buscaminas</title>
+<link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
+<link rel="stylesheet" href="CSS/styles.css">
 </head>
-
 <body>
 
-    <nav class="barra-navegacion">
-        <div class="botones-barra">
-            <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
-            <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
-            <span class="indicador"></span>
-        </div>
-    </nav>
-
-    <div id="Jugar-Buscaminas">
-        <div id="panel-controles">
-            <label for="dificultad">Dificultad:</label>
-            <select id="dificultad">
-                <option value="FACIL">Fácil</option>
-                <option value="MEDIO">Medio</option>
-                <option value="DIFICIL">Difícil</option>
-            </select>
-            <span id="temporizador">Tiempo: 0s</span>
-        </div>
-
-        <p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
-        <div id="tablero"></div>
+<nav class="barra-navegacion">
+    <div class="botones-barra">
+        <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
+        <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
+        <span class="indicador"></span>
     </div>
+</nav>
+
+<div id="Jugar-Buscaminas">
+    <div id="panel-controles">
+        <label for="dificultad">Dificultad:</label>
+        <select id="dificultad">
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+        <span id="temporizador">Tiempo: 0s</span>
+    </div>
+
+    <p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
+    <div id="tablero"></div>
+</div>
 
 <script type="module">
 import { Buscaminas } from "../Clases/Buscaminas.js";
@@ -47,7 +45,7 @@ let dificultadActual = "FACIL";
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
-const mensajeJuegoDiv = document.getElementById('mensajeJuego');
+const mensajeDiv = document.getElementById('mensaje');
 
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
@@ -111,24 +109,24 @@ function iniciarTemporizador() {
         tiempo++;
         temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
     }, 1000);
-    selectDificultad.disabled = true; // mientras corre el temporizador no se puede cambiar
+    selectDificultad.disabled = true; // bloquea dificultad mientras juegas
 }
 
 function detenerTemporizador() {
     clearInterval(timerInterval);
     timerInterval = null;
-    selectDificultad.disabled = false; // cuando se detiene, se puede cambiar dificultad
+    selectDificultad.disabled = false; // desbloquea dificultad
 }
 
 function mostrarMensaje(texto, tipo) {
-    mensajeJuegoDiv.textContent = texto;
-    mensajeJuegoDiv.className = '';
-    mensajeJuegoDiv.classList.add(tipo);
-    mensajeJuegoDiv.style.display = 'block';
+    mensajeDiv.textContent = texto;
+    mensajeDiv.className = '';
+    mensajeDiv.classList.add(tipo);
 }
 
 function ocultarMensaje() {
-    mensajeJuegoDiv.style.display = 'none';
+    mensajeDiv.textContent = 'Presiona cualquier tecla para iniciar el juego';
+    mensajeDiv.className = '';
 }
 
 function perderJuego() {
@@ -152,6 +150,7 @@ function perderJuego() {
             }
         }
     }
+
     juego = null;
 }
 
@@ -187,8 +186,8 @@ document.addEventListener('keydown', () => {
     if (!juego) iniciarJuego(selectDificultad.value);
 });
 </script>
-    <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
+
+<script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 
 </body>
-
 </html>
