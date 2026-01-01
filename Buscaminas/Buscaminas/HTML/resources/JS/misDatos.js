@@ -1,12 +1,11 @@
-import { supabase } from '../JS/Supabaseclient.js';
+import { supabase } from './Supabaseclient.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 
     const { data, error } = await supabase
         .from('Usuarios')
         .select('nombre, password')
-        .limit(1)
-        .single();
+        .limit(1);
 
     if (error) {
         console.error(error);
@@ -14,21 +13,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const nombreInput = document.getElementById("nombreUsuario");
-    const passInput = document.getElementById("passwordUsuario");
+    // ⚠️ Si no hay usuarios
+    if (data.length === 0) {
+        alert("No hay ningún usuario en la base de datos");
+        return;
+    }
 
-    nombreInput.value = data.nombre;
-    passInput.value = data.password;
+    const usuario = data[0];
+
+    document.getElementById("nombreUsuario").value = usuario.nombre;
+    document.getElementById("passwordUsuario").value = usuario.password;
 
     document.querySelector(".boton-guardar").addEventListener("click", async () => {
 
         const { error: updateError } = await supabase
             .from('Usuarios')
             .update({
-                nombre: nombreInput.value,
-                password: passInput.value
+                nombre: document.getElementById("nombreUsuario").value,
+                password: document.getElementById("passwordUsuario").value
             })
-            .eq('nombre', data.nombre);
+            .eq('nombre', usuario.nombre);
 
         if (updateError) {
             console.error(updateError);
