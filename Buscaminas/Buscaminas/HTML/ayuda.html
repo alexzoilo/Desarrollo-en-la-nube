@@ -1,55 +1,53 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación Buscaminas</title>
+    <title>Ayuda - Buscaminas</title>
+    <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
+    <link rel="stylesheet" href="CSS/styles.css">
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-        }
-
-        /* Estilo del menú lateral */
-        nav {
-            width: 250px;
+        /* ---------------- Menú lateral ---------------- */
+        .menu-lateral {
+            width: 220px;
             background-color: #f4f4f4;
             padding: 20px;
-            height: 100vh;
             position: fixed;
+            top: 60px; /* Para que no quede debajo de la barra superior */
+            left: 0;
+            bottom: 0;
             overflow-y: auto;
             border-right: 1px solid #ccc;
         }
 
-        nav h2 {
+        .menu-lateral h2 {
             font-size: 18px;
             margin-bottom: 10px;
         }
 
-        nav ul {
-            list-style-type: none;
+        .menu-lateral ul {
+            list-style: none;
             padding: 0;
         }
 
-        nav ul li {
+        .menu-lateral ul li {
             margin: 10px 0;
         }
 
-        nav ul li a {
+        .menu-lateral ul li a {
             text-decoration: none;
             color: #333;
         }
 
-        nav ul li a:hover {
+        .menu-lateral ul li a:hover {
             color: #007BFF;
         }
 
-        /* Estilo del contenido */
-        main {
-            margin-left: 270px; /* Para que no quede debajo del nav */
+        /* ---------------- Contenido principal ---------------- */
+        .contenido-principal {
+            margin-left: 240px; /* Deja espacio para el menú lateral */
             padding: 20px;
-            flex: 1;
         }
 
         section {
@@ -61,23 +59,25 @@
             padding-bottom: 5px;
         }
 
-        /* Para que los enlaces internos funcionen suavemente */
         html {
-            scroll-behavior: smooth;
+            scroll-behavior: smooth; /* Scroll suave para enlaces internos */
         }
     </style>
 </head>
-<body>
-        <nav class="barra-navegacion">
-    <div class="botones-barra">
-        <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
-        <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
-        <button class="nav-btn" data-target="ayuda.html">Ayuda</button>
-        <span class="indicador"></span>
-    </div>
-</nav>
 
-    <nav>
+<body>
+    <!-- Barra de navegación existente -->
+    <nav class="barra-navegacion">
+        <div class="botones-barra">
+            <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
+            <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
+            <button class="nav-btn" data-target="ayuda.html">Ayuda</button>
+            <span class="indicador"></span>
+        </div>
+    </nav>
+
+    <!-- Menú lateral de ayuda -->
+    <aside class="menu-lateral">
         <h2>Ayuda / Documentación</h2>
         <ul>
             <li><a href="#introduccion">Introducción</a></li>
@@ -87,9 +87,10 @@
             <li><a href="#codigo">Código</a></li>
             <li><a href="#contacto">Contacto</a></li>
         </ul>
-    </nav>
+    </aside>
 
-    <main>
+    <!-- Contenido principal -->
+    <main class="contenido-principal">
         <section id="introduccion">
             <h2>Introducción</h2>
             <p>Bienvenido a la documentación del proyecto Buscaminas. Aquí aprenderás cómo funciona el juego y cómo está implementado.</p>
@@ -120,7 +121,8 @@
             <p>Si tienes dudas o sugerencias, puedes contactar con el desarrollador a través del correo: ejemplo@correo.com</p>
         </section>
     </main>
+
+    <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 </body>
 
-<script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 </html>
