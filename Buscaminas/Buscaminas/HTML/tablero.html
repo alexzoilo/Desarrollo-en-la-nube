@@ -131,7 +131,7 @@ function ocultarMensaje() {
 
 function perderJuego() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido', 'perdido');
+    mostrarMensaje('💥 Has perdido, pulsa tecla para continuar', 'perdido');
 
     // Bajar nivel
     switch(dificultadActual) {
@@ -139,6 +139,8 @@ function perderJuego() {
         case "MEDIO": dificultadActual = "FACIL"; break;
         case "FACIL": dificultadActual = "FACIL"; break;
     }
+
+    selectDificultad.value = dificultadActual; // Reflejar cambio en el select
 
     // Revelar minas
     for (let i = 0; i < filas; i++) {
@@ -152,7 +154,9 @@ function perderJuego() {
     }
 
     juego = null;
+    selectDificultad.disabled = false; // Ya se puede cambiar dificultad manualmente
 }
+
 
 function ganarNivel() {
     detenerTemporizador();
@@ -165,6 +169,8 @@ function ganarNivel() {
         case "DIFICIL": dificultadActual = "DIFICIL"; break;
     }
 
+     selectDificultad.value = dificultadActual; // Reflejar cambio en el select
+    
     setTimeout(() => {
         selectDificultad.value = dificultadActual;
         iniciarJuego(dificultadActual);
@@ -173,12 +179,15 @@ function ganarNivel() {
 }
 
 function iniciarJuego(dificultad) {
+    dificultadActual = dificultad;
+    selectDificultad.value = dificultadActual; // Mostrar nivel actual
     ajustarFilasColumnas(dificultad);
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
     ocultarMensaje();
+    selectDificultad.disabled = true;
 }
 
 // Iniciar juego con cualquier tecla
