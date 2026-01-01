@@ -1,160 +1,162 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Juego - Buscaminas</title>
-    <link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
-    <link rel="stylesheet" href="CSS/styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Juego - Buscaminas</title>
+<link rel="icon" type="image/png" href="../HTML/resources/img/Bomba.svg">
+<link rel="stylesheet" href="CSS/styles.css">
 </head>
-
 <body>
 
-    <nav class="barra-navegacion">
-        <div class="botones-barra">
-            <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
-            <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
-            <span class="indicador"></span>
-        </div>
-    </nav>
+<nav class="barra-navegacion">
+    <div class="botones-barra">
+        <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
+        <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
+        <span class="indicador"></span>
+    </div>
+</nav>
 
-    <div id="Jugar-Buscaminas">
-        <div id="panel-controles">
-            <label for="dificultad">Dificultad:</label>
-            <select id="dificultad">
-                <option value="FACIL">Fácil</option>
-                <option value="MEDIO">Medio</option>
-                <option value="DIFICIL">Difícil</option>
-            </select>
-            <span id="temporizador">Tiempo: 0s</span>
-        </div>
-
-        <p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
-        <div id="tablero"></div>
+<div id="Jugar-Buscaminas">
+    <div id="panel-controles">
+        <label for="dificultad">Dificultad:</label>
+        <select id="dificultad">
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+        <span id="temporizador">Tiempo: 0s</span>
     </div>
 
+    <p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
+    <div id="tablero"></div>
+</div>
 
+<script type="module">
+import { Buscaminas } from "../Clases/Buscaminas.js";
+import { Dificultad } from "../Clases/Dificultad.js";
 
-    <script type="module">
-        import {
-            Buscaminas
-        } from "../Clases/Buscaminas.js";
-        import {
-            Dificultad
-        } from "../Clases/Dificultad.js";
+let juego;
+let timerInterval = null;
+const tableroDiv = document.getElementById('tablero');
+const mensaje = document.getElementById('mensaje');
+const selectDificultad = document.getElementById('dificultad');
+const temporizadorSpan = document.getElementById('temporizador');
 
-        let juego;
-        let timerInterval = null;
-        const tableroDiv = document.getElementById('tablero');
-        const mensaje = document.getElementById('mensaje');
-        const selectDificultad = document.getElementById('dificultad');
-        const temporizadorSpan = document.getElementById('temporizador');
+let filas = 9;
+let columnas = 9;
 
-        let filas = 9;
-        let columnas = 9;
+function ajustarFilasColumnas(dificultad) {
+    switch(dificultad) {
+        case "FACIL": filas = 9; columnas = 9; break;
+        case "MEDIO": filas = 16; columnas = 16; break;
+        case "DIFICIL": filas = 16; columnas = 30; break;
+    }
+}
 
-        function ajustarFilasColumnas(dificultad) {
-            switch (dificultad) {
-                case "FACIL":
-                    filas = 9;
-                    columnas = 9;
-                    break;
-                case "MEDIO":
-                    filas = 16;
-                    columnas = 16;
-                    break;
-                case "DIFICIL":
-                    filas = 16;
-                    columnas = 30;
-                    break;
-            }
-        }
+function crearTableroHTML() {
+    tableroDiv.innerHTML = '';
+    tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
+    tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
+    for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+            const celdaDiv = document.createElement('div');
+            celdaDiv.classList.add('celda');
+            celdaDiv.dataset.fila = i;
+            celdaDiv.dataset.col = j;
 
-        function crearTableroHTML() {
-            tableroDiv.innerHTML = '';
-            tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
-            tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
-            for (let i = 0; i < filas; i++) {
-                for (let j = 0; j < columnas; j++) {
-                    const celdaDiv = document.createElement('div');
-                    celdaDiv.classList.add('celda');
-                    celdaDiv.dataset.fila = i;
-                    celdaDiv.dataset.col = j;
-
-                    celdaDiv.addEventListener('click', () => {
-                        if (!juego) return;
-                        const exito = juego.descubrir(i, j);
-                        actualizarTablero();
-
-                        if (!exito) {
-                            mensaje.textContent = '💥 ¡Has perdido! Presiona cualquier tecla para reiniciar';
-                            mensaje.classList.add('perdido');
-                            mensaje.classList.remove('ganado');
-                        }
-
-                        if (juego && juego.verificarVictoria()) {
-                            mensaje.textContent = '🏆 ¡Has ganado! Presiona cualquier tecla para reiniciar';
-                            mensaje.classList.add('ganado');
-                            mensaje.classList.remove('perdido');
-                        }
-
-                    });
-
-                    celdaDiv.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        if (!juego) return;
-                        if (celdaDiv.classList.contains('revelada')) return;
-                        celdaDiv.classList.toggle('bandera');
-                    });
-
-                    tableroDiv.appendChild(celdaDiv);
-                }
-            }
-        }
-
-        function actualizarTablero() {
-            for (let i = 0; i < filas; i++) {
-                for (let j = 0; j < columnas; j++) {
-                    const celdaDiv = tableroDiv.children[i * columnas + j];
-                    if (juego.descubiertas[i][j]) {
-                        celdaDiv.classList.add('revelada');
-                        if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
-                        else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
-                    }
-                }
-            }
-        }
-
-        function iniciarTemporizador() {
-            let tiempo = 0;
-            temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
-            timerInterval = setInterval(() => {
-                tiempo++;
-                temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
-            }, 1000);
-        }
-
-        function detenerTemporizador() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-
-        // Iniciar juego al presionar cualquier tecla
-        document.addEventListener('keydown', () => {
-            if (!juego) {
-                const dificultad = selectDificultad.value;
-                ajustarFilasColumnas(dificultad);
-                juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
-                crearTableroHTML();
+            celdaDiv.addEventListener('click', () => {
+                if (!juego) return;
+                const exito = juego.descubrir(i,j);
                 actualizarTablero();
-                iniciarTemporizador();
-                mensaje.textContent = 'Haz clic izquierdo para descubrir, derecho para marcar bandera';
+                if (!exito) {
+                    perderJuego();
+                } else if (juego.verificarVictoria()) {
+                    ganarJuego();
+                }
+            });
+
+            celdaDiv.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (!juego) return;
+                if (celdaDiv.classList.contains('revelada')) return;
+                celdaDiv.classList.toggle('bandera');
+            });
+
+            tableroDiv.appendChild(celdaDiv);
+        }
+    }
+}
+
+function actualizarTablero() {
+    for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+            const celdaDiv = tableroDiv.children[i*columnas+j];
+            if (juego.descubiertas[i][j]) {
+                celdaDiv.classList.add('revelada');
+                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
+                else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
             }
-        });
-    </script>
-    <script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
+        }
+    }
+}
+
+function perderJuego() {
+    detenerTemporizador();
+    mensaje.textContent = '💥 ¡Has perdido! Presiona cualquier tecla para reiniciar';
+    mensaje.classList.add('perdido');
+    mensaje.classList.remove('ganado');
+
+    // Revelar todas las minas
+    for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+            if (juego.tablero[i][j] === -1) {
+                const celdaDiv = tableroDiv.children[i*columnas+j];
+                celdaDiv.textContent = '💣';
+                celdaDiv.classList.add('revelada');
+            }
+        }
+    }
+    juego = null;
+}
+
+function ganarJuego() {
+    detenerTemporizador();
+    mensaje.textContent = '🏆 ¡Has ganado! Presiona cualquier tecla para reiniciar';
+    mensaje.classList.add('ganado');
+    mensaje.classList.remove('perdido');
+    juego = null;
+}
+
+function iniciarTemporizador() {
+    let tiempo = 0;
+    temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
+    timerInterval = setInterval(() => {
+        tiempo++;
+        temporizadorSpan.textContent = `Tiempo: ${tiempo}s`;
+    }, 1000);
+}
+
+function detenerTemporizador() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+}
+
+// Iniciar juego al presionar cualquier tecla
+document.addEventListener('keydown', () => {
+    if (!juego) {
+        const dificultad = selectDificultad.value;
+        ajustarFilasColumnas(dificultad);
+        juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
+        crearTableroHTML();
+        actualizarTablero();
+        iniciarTemporizador();
+        mensaje.textContent = 'Haz clic izquierdo para descubrir, derecho para marcar bandera';
+        mensaje.classList.remove('ganado','perdido');
+    }
+});
+</script>
+<script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 
 </body>
-
 </html>
