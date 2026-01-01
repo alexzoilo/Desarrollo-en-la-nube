@@ -1,17 +1,16 @@
-import { supabase } from './Supabaseclient.js';
+import { supabase } from '../JS/Supabaseclient.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    // 1️⃣ Cargar datos
     const { data, error } = await supabase
         .from('Usuarios')
-        .select('*')
+        .select('nombre, password')
         .limit(1)
         .single();
 
-    if (error || !data) {
-        alert("No se pudieron cargar tus datos");
+    if (error) {
         console.error(error);
+        alert("Error cargando datos");
         return;
     }
 
@@ -19,30 +18,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     const passInput = document.getElementById("passwordUsuario");
 
     nombreInput.value = data.nombre;
-    passInput.value = data.contrasseña;
+    passInput.value = data.password;
 
-    // 2️⃣ Guardar cambios
     document.querySelector(".boton-guardar").addEventListener("click", async () => {
-
-        const nuevoNombre = nombreInput.value.trim();
-        const nuevaPass = passInput.value.trim();
-
-        if (!nuevoNombre || !nuevaPass) {
-            alert("Los campos no pueden estar vacíos");
-            return;
-        }
 
         const { error: updateError } = await supabase
             .from('Usuarios')
             .update({
-                nombre: nuevoNombre,
-                contrasseña: nuevaPass
+                nombre: nombreInput.value,
+                password: passInput.value
             })
-            .eq('nombre', data.nombre); // identifica la fila
+            .eq('nombre', data.nombre);
 
         if (updateError) {
-            alert("Error al guardar");
             console.error(updateError);
+            alert("Error al guardar");
             return;
         }
 
