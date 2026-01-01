@@ -1,6 +1,6 @@
 import {
     createClient
-} from '@supabase/supabase-js';
+} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabase = createClient(
     import.meta.env.VITE_SUPABASE_URL,

@@ -22,7 +22,6 @@ export class Buscaminas {
     }
   }
 
-  // Inicia una nueva partida
   iniciar(filas, columnas, numMinas) {
     this.filas = filas;
     this.columnas = columnas;
@@ -43,7 +42,6 @@ export class Buscaminas {
     this.iniciarCronometro();
   }
 
-  // Descubre una celda
   descubrir(fil, col) {
     if (!this.esCeldaValida(fil, col) || this.descubiertas[fil][col]) {
       return true;
@@ -52,13 +50,11 @@ export class Buscaminas {
     this.descubiertas[fil][col] = true;
     this.celdasDescubiertas++;
 
-    // Mina = perder
     if (this.tablero[fil][col] === -1) {
       this.detenerCronometro();
       return false;
     }
 
-    // Si es 0, descubrir alrededor
     if (this.tablero[fil][col] === 0) {
       for (let i = fil - 1; i <= fil + 1; i++) {
         for (let j = col - 1; j <= col + 1; j++) {
@@ -69,7 +65,6 @@ export class Buscaminas {
     return true;
   }
 
-  // Cuenta minas cercanas
   contarMinasCercanas(fil, col) {
     let contador = 0;
 
@@ -83,7 +78,6 @@ export class Buscaminas {
     return contador;
   }
 
-  // Verifica victoria
   verificarVictoria() {
     const celdasSinMinas = this.totalCeldas - this.numMinas;
     if (this.celdasDescubiertas >= celdasSinMinas) {
@@ -93,17 +87,14 @@ export class Buscaminas {
     return false;
   }
 
-  // Reiniciar partida
   reiniciar() {
     this.iniciar(this.filas, this.columnas, this.numMinas);
   }
 
-  // Validar celda
   esCeldaValida(fil, col) {
     return fil >= 0 && fil < this.filas && col >= 0 && col < this.columnas;
   }
 
-  // Colocar minas
   colocarMinas(numMinas) {
     let colocadas = 0;
 
@@ -118,7 +109,6 @@ export class Buscaminas {
     }
   }
 
-  // Calcular números
   calcularNumeros() {
     for (let i = 0; i < this.filas; i++) {
       for (let j = 0; j < this.columnas; j++) {
@@ -129,7 +119,6 @@ export class Buscaminas {
     }
   }
 
-  // Puntuación
   calcularPuntuacion() {
     let puntos = this.celdasDescubiertas * 10;
 
