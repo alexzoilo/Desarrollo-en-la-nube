@@ -31,20 +31,22 @@
     </div>
 </nav>
 
-<h1>Buscaminas</h1>
+<div id="bloque">
+    <div id="panel-controles">
+        <label for="dificultad">Dificultad:</label>
+        <select id="dificultad">
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+        <span id="temporizador">Tiempo: 0s</span>
+    </div>
 
-<div id="panel-controles">
-    <label for="dificultad">Dificultad:</label>
-    <select id="dificultad">
-        <option value="FACIL">Fácil</option>
-        <option value="MEDIO">Medio</option>
-        <option value="DIFICIL">Difícil</option>
-    </select>
-    <span id="temporizador">Tiempo: 0s</span>
+    <p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
+    <div id="tablero"></div>
 </div>
 
-<p id="mensaje">Presiona cualquier tecla para iniciar el juego</p>
-<div id="tablero"></div>
+
 
 <script type="module">
 import { Buscaminas } from "../Clases/Buscaminas.js";
@@ -148,7 +150,9 @@ document.addEventListener('keydown', () => {
         mensaje.textContent = 'Haz clic izquierdo para descubrir, derecho para marcar bandera';
     }
 });
+
 </script>
+<script type="module" src="../HTML/resources/JS/BarraNavegacion.js"></script>
 
 </body>
 </html>
