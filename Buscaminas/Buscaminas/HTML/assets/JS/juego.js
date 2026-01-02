@@ -3,6 +3,7 @@ import { supabase } from "./Supabaseclient.js";
 import { Buscaminas } from "./Clases/Buscaminas.js";
 import { Dificultad } from "./Clases/Dificultad.js";
 
+/* ================= VARIABLES ================= */
 let juego = null;
 let timerInterval = null;
 let filas = 9;
@@ -11,7 +12,6 @@ let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
 
-// Elementos DOM
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
@@ -19,72 +19,39 @@ const mensajeDiv = document.getElementById('mensaje');
 const btnControl = document.getElementById('btnControl');
 const btnGuardar = document.getElementById('btnGuardar');
 
-// =====================================
-// UTILIDADES
-// =====================================
-function ajustarFilasColumnas(dificultad) {
-    dificultadActual = dificultad;
-    switch(dificultad) {
-        case "FACIL": filas = columnas = 10; break;
-        case "MEDIO": filas = columnas = 15; break;
-        case "DIFICIL": filas = columnas = 20; break;
-    }
+/* ================= UTILIDADES ================= */
+function ajustarFilasColumnas(dif) {
+    dificultadActual = dif;
+    filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
+    selectDificultad.value = dificultadActual;
 }
 
-function formatTiempo(segundos) {
-    const h = String(Math.floor(segundos / 3600)).padStart(2,'0');
-    const m = String(Math.floor((segundos % 3600) / 60)).padStart(2,'0');
-    const s = String(segundos % 60).padStart(2,'0');
-    return `Cronómetro: ${h} : ${m} : ${s}`;
+function formatTiempo(seg) {
+    const h = String(Math.floor(seg / 3600)).padStart(2, '0');
+    const m = String(Math.floor((seg % 3600) / 60)).padStart(2, '0');
+    const s = String(seg % 60).padStart(2, '0');
+    return `Cronómetro: ${h}:${m}:${s}`;
 }
 
-function mostrarMensaje(texto, tipo='') {
-    mensajeDiv.textContent = texto;
-    mensajeDiv.className = tipo;
+function mostrarMensaje(txt) {
+    mensajeDiv.textContent = txt;
 }
 
 function ocultarMensaje() {
     mensajeDiv.textContent = '';
-    mensajeDiv.className = '';
 }
 
-// =====================================
-// TEMPORIZADOR
-// =====================================
-function iniciarTemporizador() {
-    temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    timerInterval = setInterval(() => {
-        segundosTotales++;
-        temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    }, 1000);
-    selectDificultad.disabled = true;
-}
-
-function detenerTemporizador() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    selectDificultad.disabled = false;
-}
-
-// =====================================
-// TABLERO
-// =====================================
+/* ================= TABLERO ================= */
 function crearTableroHTML() {
     tableroDiv.innerHTML = '';
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
-    tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
 
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = document.createElement('div');
-            celdaDiv.classList.add('celda');
-            celdaDiv.dataset.fila = i;
-            celdaDiv.dataset.col = j;
-
-            celdaDiv.addEventListener('click', () => handleClick(i, j));
-            celdaDiv.addEventListener('contextmenu', (e) => handleRightClick(e, celdaDiv));
-
-            tableroDiv.appendChild(celdaDiv);
+            const c = document.createElement('div');
+            c.className = 'celda';
+            c.onclick = () => clickCelda(i, j);
+            tableroDiv.appendChild(c);
         }
     }
 }
@@ -92,55 +59,37 @@ function crearTableroHTML() {
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = tableroDiv.children[i * columnas + j];
-            celdaDiv.textContent = '';
-            celdaDiv.classList.remove('revelada', 'bandera');
+            const c = tableroDiv.children[i * columnas + j];
+            c.textContent = '';
+            c.classList.remove('revelada');
 
-            if (juego && juego.descubiertas[i][j]) {
-                celdaDiv.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
-                else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
+            if (juego.descubiertas[i][j]) {
+                c.classList.add('revelada');
+                if (juego.tablero[i][j] === -1) c.textContent = '💣';
+                else if (juego.tablero[i][j] > 0) c.textContent = juego.tablero[i][j];
             }
         }
     }
 }
 
-// =====================================
-// EVENTOS CELDAS
-// =====================================
-function handleClick(fila, col) {
-    if (!juego || juegoPausado) return;
-
-    const exito = juego.descubrir(fila, col);
-    actualizarTablero();
-
-    if (!exito) perderJuego();
-    else if (juego.verificarVictoria()) ganarNivel();
+/* ================= TEMPORIZADOR ================= */
+function iniciarTemporizador() {
+    temporizadorSpan.textContent = formatTiempo(segundosTotales);
+    timerInterval = setInterval(() => {
+        segundosTotales++;
+        temporizadorSpan.textContent = formatTiempo(segundosTotales);
+    }, 1000);
 }
 
-function handleRightClick(e, celdaDiv) {
-    e.preventDefault();
-    if (!juego || celdaDiv.classList.contains('revelada') || juegoPausado) return;
-    celdaDiv.classList.toggle('bandera');
+function detenerTemporizador() {
+    clearInterval(timerInterval);
+    timerInterval = null;
 }
 
-// =====================================
-// SUPABASE: usuario logueado
-// =====================================
-async function getUsuarioLogueado() {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
-    if (!user) throw new Error("No hay usuario logueado");
-    return user;
-}
-
-// =====================================
-// CRUD PARTIDA
-// =====================================
-async function crearPartida() {
-    const usuario = await getUsuarioLogueado();
-
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultadActual]);
+/* ================= API SUPABASE ================= */
+async function crearPartidaEnBD() {
+    const usuario = supabase.auth.user();
+    if (!usuario) throw new Error("Usuario no logueado");
 
     const { data, error } = await supabase
         .from('Buscaminas')
@@ -149,48 +98,46 @@ async function crearPartida() {
             filas,
             columnas,
             totalCeldas: filas * columnas,
+            celdasDescubiertas: juego.descubiertas,
             dificultad: dificultadActual,
             tiempoInicio: new Date().toISOString(),
             tiempoFin: null,
-            tablero: JSON.stringify(juego.tablero),
-            minas: JSON.stringify(juego.minas),
-            celdasDescubiertas: JSON.stringify(juego.descubiertas)
+            tablero: juego.tablero,
+            minas: juego.minas
         })
         .select('id')
         .single();
 
     if (error) throw error;
     juego.id = data.id;
-
-    crearTableroHTML();
-    actualizarTablero();
-    iniciarTemporizador();
-    ocultarMensaje();
-    btnControl.textContent = '⏸ Pausar';
-    segundosTotales = 0;
-    juegoPausado = false;
 }
 
-async function guardarPartida() {
+async function guardarPartidaEnBD() {
     if (!juego) return;
-    const usuario = await getUsuarioLogueado();
-
     const { error } = await supabase
         .from('Buscaminas')
         .update({
-            tablero: JSON.stringify(juego.tablero),
-            minas: JSON.stringify(juego.minas),
-            celdasDescubiertas: JSON.stringify(juego.descubiertas)
+            celdasDescubiertas: juego.descubiertas,
+            tablero: juego.tablero
         })
-        .eq('id', juego.id)
-        .eq('usuarioId', usuario.id);
+        .eq('id', juego.id);
 
     if (error) throw error;
-    mostrarMensaje('💾 Partida guardada');
 }
 
-async function cargarPartida() {
-    const usuario = await getUsuarioLogueado();
+async function finalizarPartidaEnBD() {
+    if (!juego) return;
+    const { error } = await supabase
+        .from('Buscaminas')
+        .update({ tiempoFin: new Date().toISOString() })
+        .eq('id', juego.id);
+
+    if (error) throw error;
+}
+
+async function cargarPartidaActiva() {
+    const usuario = supabase.auth.user();
+    if (!usuario) return null;
 
     const { data, error } = await supabase
         .from('Buscaminas')
@@ -201,94 +148,89 @@ async function cargarPartida() {
         .limit(1)
         .single();
 
-    if (error || !data) return;
+    if (error || !data) return null;
+    return data;
+}
 
-    filas = data.filas;
-    columnas = data.columnas;
-    dificultadActual = data.dificultad;
-    segundosTotales = 0;
-
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultadActual]);
-    juego.id = data.id;
-    juego.tablero = JSON.parse(data.tablero);
-    juego.minas = JSON.parse(data.minas);
-    juego.descubiertas = JSON.parse(data.celdasDescubiertas);
+/* ================= PARTIDA ================= */
+async function iniciarJuego(dif) {
+    ajustarFilasColumnas(dif);
+    juego = new Buscaminas(null, filas, columnas, Dificultad[dif]);
+    juego.descubiertas = Array.from({ length: filas }, () => Array(columnas).fill(false));
+    juego.minas = juego.generarMinas(); // función propia de la clase Buscaminas
 
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
+    ocultarMensaje();
+
+    await crearPartidaEnBD();
 }
 
-// Finalizar partida
-async function finalizarPartida() {
+function clickCelda(f, c) {
     if (!juego) return;
-    await supabase
-        .from('Buscaminas')
-        .update({ tiempoFin: new Date().toISOString() })
-        .eq('id', juego.id);
+    const exito = juego.descubrir(f, c);
+    actualizarTablero();
 
-    juego = null;
-    btnControl.textContent = '▶ Iniciar';
+    if (!exito) perderJuego();
+    else if (juego.verificarVictoria()) ganarNivel();
 }
 
-// =====================================
-// GANAR / PERDER
-// =====================================
 function perderJuego() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido', 'perdido');
-
-    for (let i = 0; i < filas; i++) {
-        for (let j = 0; j < columnas; j++) {
-            if (juego.tablero[i][j] === -1) {
-                const celdaDiv = tableroDiv.children[i*columnas + j];
-                celdaDiv.textContent = '💣';
-                celdaDiv.classList.add('revelada');
-            }
-        }
-    }
-
+    mostrarMensaje('💥 Has perdido');
+    finalizarPartidaEnBD();
     juego = null;
     btnControl.textContent = '▶ Iniciar';
 }
 
 function ganarNivel() {
     detenerTemporizador();
-    mostrarMensaje('🏆 Has ganado!', 'ganado');
-    setTimeout(() => {
-        juego = null;
-        crearPartida(); // nueva partida
-        ocultarMensaje();
-    }, 1000);
+    mostrarMensaje('🏆 Has ganado');
+    finalizarPartidaEnBD();
+    juego = null;
+    btnControl.textContent = '▶ Iniciar';
 }
 
-// =====================================
-// EVENTOS BOTONES
-// =====================================
-btnControl.addEventListener('click', () => {
-    if (!juego) crearPartida();
-    else if (!juegoPausado) {
-        juegoPausado = true;
-        detenerTemporizador();
-        btnControl.textContent = '▶ Reanudar';
-        mostrarMensaje('⏸ Juego en pausa');
+/* ================= EVENTOS ================= */
+btnControl.onclick = async () => {
+    if (!juego) {
+        await iniciarJuego(selectDificultad.value);
     } else {
-        juegoPausado = false;
-        iniciarTemporizador();
-        btnControl.textContent = '⏸ Pausar';
-        ocultarMensaje();
+        juegoPausado = !juegoPausado;
+        if (juegoPausado) {
+            detenerTemporizador();
+            btnControl.textContent = '▶ Reanudar';
+            mostrarMensaje('⏸ Juego en pausa');
+        } else {
+            iniciarTemporizador();
+            btnControl.textContent = '⏸ Pausar';
+            ocultarMensaje();
+        }
     }
-});
+};
 
-btnGuardar.addEventListener('click', guardarPartida);
+btnGuardar.onclick = async () => {
+    if (!juego) return mostrarMensaje('❌ No hay partida');
+    await guardarPartidaEnBD();
+    mostrarMensaje('💾 Partida guardada');
+};
 
-// =====================================
-// INICIO AUTOMÁTICO
-// =====================================
+/* ================= CARGA INICIAL ================= */
 window.onload = async () => {
-    try {
-        await cargarPartida();
-    } catch (e) {
-        console.log("No hay partida activa: ", e.message);
-    }
+    const data = await cargarPartidaActiva();
+    if (!data) return;
+
+    juego = new Buscaminas(null, data.filas, data.columnas, Dificultad[data.dificultad]);
+    juego.id = data.id;
+    juego.tablero = data.tablero;
+    juego.descubiertas = data.celdasDescubiertas;
+    juego.minas = data.minas;
+    filas = data.filas;
+    columnas = data.columnas;
+    dificultadActual = data.dificultad;
+
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
 };
