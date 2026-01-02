@@ -8,6 +8,7 @@ let columnas = 9;
 let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
+let juegoIniciado = false;
 
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
