@@ -16,7 +16,7 @@ const temporizadorSpan = document.getElementById('temporizador');
 const mensajeDiv = document.getElementById('mensaje');
 const btnControl = document.getElementById('btnControl');
 
-
+// Ajusta filas y columnas según la dificultad
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
     switch(dificultad) {
@@ -27,6 +27,7 @@ function ajustarFilasColumnas(dificultad) {
     selectDificultad.value = dificultadActual;
 }
 
+// Crear tablero HTML
 function crearTableroHTML() {
     tableroDiv.innerHTML = '';
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -47,10 +48,11 @@ function crearTableroHTML() {
     }
 }
 
+// Actualiza la visualización del tablero
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = tableroDiv.children[i*columnas+j];
+            const celdaDiv = tableroDiv.children[i*columnas + j];
             celdaDiv.textContent = '';
             celdaDiv.classList.remove('revelada', 'bandera');
 
@@ -63,6 +65,7 @@ function actualizarTablero() {
     }
 }
 
+// Temporizador
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
 
@@ -74,25 +77,20 @@ function iniciarTemporizador() {
     selectDificultad.disabled = true;
 }
 
-
 function detenerTemporizador() {
     clearInterval(timerInterval);
     timerInterval = null;
 }
-
 
 function formatTiempo(segundos) {
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
     const segundosRestantes = segundos % 60;
 
-    const hStr = String(horas).padStart(2, '0');
-    const mStr = String(minutos).padStart(2, '0');
-    const sStr = String(segundosRestantes).padStart(2, '0');
-
-    return `Cronometro: ${hStr} : ${mStr} : ${sStr}`;
+    return `Cronometro: ${String(horas).padStart(2,'0')} : ${String(minutos).padStart(2,'0')} : ${String(segundosRestantes).padStart(2,'0')}`;
 }
 
+// Mensajes de estado
 function mostrarMensaje(texto, tipo) {
     mensajeDiv.textContent = texto;
     mensajeDiv.className = tipo;
@@ -103,6 +101,7 @@ function ocultarMensaje() {
     mensajeDiv.className = '';
 }
 
+// Eventos de clic en celdas
 function handleClick(fila, col) {
     if (!juego || juegoPausado) return;
 
@@ -119,6 +118,7 @@ function handleRightClick(e, celdaDiv) {
     celdaDiv.classList.toggle('bandera');
 }
 
+// Iniciar juego
 function iniciarJuego(dificultad) {
     ajustarFilasColumnas(dificultad);
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
@@ -127,19 +127,17 @@ function iniciarJuego(dificultad) {
     iniciarTemporizador();
     ocultarMensaje();
     juegoIniciado = true;
+    juegoPausado = false;
+    btnControl.textContent = '⏸ Pausar';
+    segundosTotales = 0;
 }
 
+// Perder juego
 function perderJuego() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido, pulsa cualquier tecla para continuar', 'perdido');
-    
+    mostrarMensaje('💥 Has perdido', 'perdido');
 
-    switch(dificultadActual) {
-        case "DIFICIL": dificultadActual = "MEDIO"; break;
-        case "MEDIO": dificultadActual = "FACIL"; break;
-    }
-    selectDificultad.value = dificultadActual;
-
+    // Revelar todas las bombas
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             if (juego.tablero[i][j] === -1) {
@@ -150,14 +148,21 @@ function perderJuego() {
         }
     }
 
+    // Ajustar dificultad al perder
+    switch(dificultadActual) {
+        case "DIFICIL": dificultadActual = "MEDIO"; break;
+        case "MEDIO": dificultadActual = "FACIL"; break;
+    }
+    selectDificultad.value = dificultadActual;
+
     juego = null;
+    btnControl.textContent = '▶ Iniciar';
 }
 
+// Ganar nivel
 function ganarNivel() {
     detenerTemporizador();
     mostrarMensaje('🏆 Has ganado! Subiendo de nivel', 'ganado');
-    btnControl.textContent = '▶ Iniciar';
-juegoPausado = false;
 
     switch(dificultadActual) {
         case "FACIL": dificultadActual = "MEDIO"; break;
@@ -171,38 +176,29 @@ juegoPausado = false;
     }, 1200);
 }
 
+// Control del teclado (solo para iniciar juego si aún no comenzó)
 document.addEventListener('keydown', () => {
     if (!juego) {
         iniciarJuego(selectDificultad.value);
-
-        if (!juegoIniciado) {
-            ocultarMensaje();
-        }
     }
 });
 
+// Botón iniciar/pausar/reanudar
 btnControl.addEventListener('click', () => {
-
-    // ▶ INICIAR
-    if (!juego) {
-        segundosTotales = 0;
+    if (!juego) { // ▶ INICIAR
         iniciarJuego(selectDificultad.value);
-        btnControl.textContent = '⏸ Pausar';
         return;
     }
 
-    // ⏸ PAUSAR
-    if (!juegoPausado) {
+    if (!juegoPausado) { // ⏸ PAUSAR
         juegoPausado = true;
         detenerTemporizador();
         btnControl.textContent = '▶ Reanudar';
         mostrarMensaje('⏸ Juego en pausa', '');
-        return;
+    } else { // ▶ REANUDAR
+        juegoPausado = false;
+        iniciarTemporizador();
+        btnControl.textContent = '⏸ Pausar';
+        ocultarMensaje();
     }
-
-    // ▶ REANUDAR
-    juegoPausado = false;
-    iniciarTemporizador();
-    ocultarMensaje();
-    btnControl.textContent = '⏸ Pausar';
 });
