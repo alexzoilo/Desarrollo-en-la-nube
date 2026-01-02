@@ -6,11 +6,13 @@ let timerInterval = null;
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
+let juegoIniciado = false;
 
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
 const mensajeDiv = document.getElementById('mensaje');
+
 
 
 function ajustarFilasColumnas(dificultad) {
@@ -95,7 +97,7 @@ function mostrarMensaje(texto, tipo) {
 }
 
 function ocultarMensaje() {
-    mensajeDiv.textContent = 'Presiona cualquier tecla para iniciar el juego';
+    mensajeDiv.textContent = '';
     mensajeDiv.className = '';
 }
 
@@ -122,6 +124,7 @@ function iniciarJuego(dificultad) {
     actualizarTablero();
     iniciarTemporizador();
     ocultarMensaje();
+    juegoIniciado = true;
 }
 
 function perderJuego() {
@@ -164,5 +167,11 @@ function ganarNivel() {
 }
 
 document.addEventListener('keydown', () => {
-    if (!juego) iniciarJuego(selectDificultad.value);
+    if (!juego) {
+        iniciarJuego(selectDificultad.value);
+
+        if (!juegoIniciado) {
+            ocultarMensaje();
+        }
+    }
 });
