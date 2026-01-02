@@ -3,12 +3,12 @@ import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
 
-  // Crear partida nueva
+  // Crear nueva partida
   async crearPartida(buscaminas) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId,
+        usuarioId: buscaminas.usuarioId,       // usuario logueado
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
@@ -27,7 +27,7 @@ export class DAOBuscaminas {
     return buscaminas;
   }
 
-  // Guardar partida (update)
+  // Guardar partida en curso
   async guardarPartida(id, celdasDescubiertas, tablero) {
     const { error } = await supabase
       .from("Buscaminas")
@@ -47,12 +47,13 @@ export class DAOBuscaminas {
     if (error) throw error;
   }
 
-  // Última partida sin terminar del usuario
+  // Última partida activa del usuario
   async findPartidaActiva(usuarioId) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .select("*")
-      .match({ usuarioId: usuarioId, tiempoFin: null }) // ← usuario real como string
+      .eq("usuarioId", usuarioId)
+      .is("tiempoFin", null)
       .order("id", { ascending: false })
       .limit(1)
       .single();
