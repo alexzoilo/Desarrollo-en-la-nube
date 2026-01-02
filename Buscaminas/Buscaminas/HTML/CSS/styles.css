@@ -3,7 +3,7 @@ body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #fff;
-    background-image: url('../resources/img/Fondo_Imagen_Buscaminas.png');
+    background-image: url('../assets/img/Fondo_Imagen_Buscaminas.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;

@@ -6,7 +6,6 @@ let timerInterval = null;
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
-let juegoIniciado = false;
 let juegoPausado = false;
 let segundosTotales = 0;
 
