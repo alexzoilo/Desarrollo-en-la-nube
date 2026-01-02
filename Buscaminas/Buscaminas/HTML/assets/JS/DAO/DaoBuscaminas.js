@@ -1,12 +1,14 @@
 import { supabase } from "../Supabaseclient.js";
+import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
 
+  // Crear partida nueva
   async crearPartida(buscaminas) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId,
+        usuarioId: buscaminas.usuarioId,          // UUID del usuario logueado
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
@@ -25,18 +27,23 @@ export class DAOBuscaminas {
     return buscaminas;
   }
 
-  async guardarPartida(id, celdasDescubiertas, tablero) {
+  // Guardar partida (update)
+  async guardarPartida(id, celdasDescubiertas, tablero, minas=null) {
+    const payload = {
+      celdasDescubiertas: JSON.stringify(celdasDescubiertas),
+      tablero: JSON.stringify(tablero)
+    };
+    if (minas) payload.minas = JSON.stringify(minas);
+
     const { error } = await supabase
       .from("Buscaminas")
-      .update({
-        celdasDescubiertas: JSON.stringify(celdasDescubiertas),
-        tablero: JSON.stringify(tablero)
-      })
+      .update(payload)
       .eq("id", id);
 
     if (error) throw error;
   }
 
+  // Finalizar partida
   async finalizarPartida(id) {
     const { error } = await supabase
       .from("Buscaminas")
@@ -46,6 +53,7 @@ export class DAOBuscaminas {
     if (error) throw error;
   }
 
+  // Última partida sin terminar del usuario
   async findPartidaActiva(usuarioId) {
     const { data, error } = await supabase
       .from("Buscaminas")
@@ -56,7 +64,14 @@ export class DAOBuscaminas {
       .limit(1)
       .single();
 
-    if (error) return null;
-    return data;
+    if (error || !data) return null;
+
+    // Convertir JSONB a objetos
+    return {
+      ...data,
+      tablero: data.tablero ? JSON.parse(data.tablero) : [],
+      celdasDescubiertas: data.celdasDescubiertas ? JSON.parse(data.celdasDescubiertas) : [],
+      minas: data.minas ? JSON.parse(data.minas) : []
+    };
   }
 }
