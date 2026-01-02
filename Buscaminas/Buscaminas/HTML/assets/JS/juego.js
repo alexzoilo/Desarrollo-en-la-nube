@@ -88,13 +88,13 @@ function detenerTemporizador() {
 
 /* ================= API SUPABASE ================= */
 async function crearPartidaEnBD() {
-    const usuario = supabase.auth.user();
-    if (!usuario) throw new Error("Usuario no logueado");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Usuario no logueado");
 
     const { data, error } = await supabase
         .from('Buscaminas')
         .insert({
-            usuarioId: usuario.id,
+            usuarioId: user.id,   // UUID del usuario logueado
             filas,
             columnas,
             totalCeldas: filas * columnas,
@@ -136,13 +136,13 @@ async function finalizarPartidaEnBD() {
 }
 
 async function cargarPartidaActiva() {
-    const usuario = supabase.auth.user();
-    if (!usuario) return null;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
 
     const { data, error } = await supabase
         .from('Buscaminas')
         .select('*')
-        .eq('usuarioId', usuario.id)
+        .eq('usuarioId', user.id)
         .is('tiempoFin', null)
         .order('tiempoInicio', { ascending: false })
         .limit(1)
