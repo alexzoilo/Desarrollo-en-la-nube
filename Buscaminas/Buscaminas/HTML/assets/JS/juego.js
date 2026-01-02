@@ -1,47 +1,70 @@
+import { supabase } from "./Supabaseclient.js";
 import { Buscaminas } from "./Clases/Buscaminas.js";
 import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 
+const dao = new DAOBuscaminas();
+let usuarioId = null; // se obtiene dinámicamente
+
+/* ================= ESTADO ================= */
 let juego = null;
-let timerInterval = null;
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
-let juegoIniciado = false;
+let timerInterval = null;
 
-const tableroDiv = document.getElementById('tablero');
-const selectDificultad = document.getElementById('dificultad');
-const temporizadorSpan = document.getElementById('temporizador');
-const mensajeDiv = document.getElementById('mensaje');
-const btnControl = document.getElementById('btnControl');
+/* ================= ELEMENTOS ================= */
+const tableroDiv = document.getElementById("tablero");
+const selectDificultad = document.getElementById("dificultad");
+const temporizadorSpan = document.getElementById("temporizador");
+const mensajeDiv = document.getElementById("mensaje");
+const btnControl = document.getElementById("btnControl");
+const btnGuardar = document.getElementById("btnGuardar");
 
-function ajustarFilasColumnas(dificultad) {
-    dificultadActual = dificultad;
-    switch(dificultad) {
-        case "FACIL": filas = 10; columnas = 10; break;
-        case "MEDIO": filas = 15; columnas = 15; break;
-        case "DIFICIL": filas = 20; columnas = 20; break;
-    }
+/* ================= UTILIDADES ================= */
+function ajustarFilasColumnas(dif) {
+    dificultadActual = dif;
+    if (dif === "FACIL") filas = columnas = 10;
+    else if (dif === "MEDIO") filas = columnas = 15;
+    else if (dif === "DIFICIL") filas = columnas = 20;
+
     selectDificultad.value = dificultadActual;
 }
 
+function formatTiempo(segundos) {
+    const h = String(Math.floor(segundos / 3600)).padStart(2, "0");
+    const m = String(Math.floor((segundos % 3600) / 60)).padStart(2, "0");
+    const s = String(segundos % 60).padStart(2, "0");
+    return `Cronometro: ${h} : ${m} : ${s}`;
+}
+
+function mostrarMensaje(txt, tipo = "") {
+    mensajeDiv.textContent = txt;
+    mensajeDiv.className = tipo;
+}
+
+function ocultarMensaje() {
+    mensajeDiv.textContent = "";
+    mensajeDiv.className = "";
+}
+
+/* ================= TABLERO ================= */
 function crearTableroHTML() {
-    tableroDiv.innerHTML = '';
+    tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
     tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
 
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = document.createElement('div');
-            celdaDiv.classList.add('celda');
-            celdaDiv.dataset.fila = i;
-            celdaDiv.dataset.col = j;
-
-            celdaDiv.addEventListener('click', () => handleClick(i, j));
-            celdaDiv.addEventListener('contextmenu', (e) => handleRightClick(e, celdaDiv));
-
-            tableroDiv.appendChild(celdaDiv);
+            const celda = document.createElement("div");
+            celda.className = "celda";
+            celda.dataset.fila = i;
+            celda.dataset.col = j;
+            celda.addEventListener("click", () => clickCelda(i, j));
+            celda.addEventListener("contextmenu", (e) => handleRightClick(e, celda));
+            tableroDiv.appendChild(celda);
         }
     }
 }
@@ -49,27 +72,26 @@ function crearTableroHTML() {
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = tableroDiv.children[i*columnas + j];
-            celdaDiv.textContent = '';
-            celdaDiv.classList.remove('revelada', 'bandera');
+            const celda = tableroDiv.children[i * columnas + j];
+            celda.textContent = "";
+            celda.classList.remove("revelada", "bandera");
 
             if (juego && juego.descubiertas[i][j]) {
-                celdaDiv.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
-                else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
+                celda.classList.add("revelada");
+                if (juego.tablero[i][j] === -1) celda.textContent = "💣";
+                else if (juego.tablero[i][j] > 0) celda.textContent = juego.tablero[i][j];
             }
         }
     }
 }
 
+/* ================= TEMPORIZADOR ================= */
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
-
     timerInterval = setInterval(() => {
         segundosTotales++;
         temporizadorSpan.textContent = formatTiempo(segundosTotales);
     }, 1000);
-
     selectDificultad.disabled = true;
 }
 
@@ -79,25 +101,31 @@ function detenerTemporizador() {
     selectDificultad.disabled = false;
 }
 
-function formatTiempo(segundos) {
-    const horas = Math.floor(segundos / 3600);
-    const minutos = Math.floor((segundos % 3600) / 60);
-    const segundosRestantes = segundos % 60;
+/* ================= PARTIDA ================= */
+async function iniciarJuego(dif) {
+    if (!usuarioId) {
+        mostrarMensaje("❌ Usuario no logueado");
+        return;
+    }
 
-    return `Cronometro: ${String(horas).padStart(2,'0')} : ${String(minutos).padStart(2,'0')} : ${String(segundosRestantes).padStart(2,'0')}`;
+    ajustarFilasColumnas(dif);
+
+    juego = new Buscaminas(null, filas, columnas, Dificultad[dif]);
+    juego.usuarioId = usuarioId;
+
+    // Crear partida en Supabase
+    await dao.crearPartida(juego);
+
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
+    ocultarMensaje();
+    juegoPausado = false;
+    segundosTotales = 0;
+    btnControl.textContent = "⏸ Pausar";
 }
 
-function mostrarMensaje(texto, tipo='') {
-    mensajeDiv.textContent = texto;
-    mensajeDiv.className = tipo;
-}
-
-function ocultarMensaje() {
-    mensajeDiv.textContent = '';
-    mensajeDiv.className = '';
-}
-
-function handleClick(fila, col) {
+function clickCelda(fila, col) {
     if (!juego || juegoPausado) return;
 
     const exito = juego.descubrir(fila, col);
@@ -107,59 +135,43 @@ function handleClick(fila, col) {
     else if (juego.verificarVictoria()) ganarNivel();
 }
 
-function handleRightClick(e, celdaDiv) {
+function handleRightClick(e, celda) {
     e.preventDefault();
-    if (!juego || celdaDiv.classList.contains('revelada') || juegoPausado) return;
-    celdaDiv.classList.toggle('bandera');
+    if (!juego || celda.classList.contains("revelada") || juegoPausado) return;
+    celda.classList.toggle("bandera");
 }
 
-function iniciarJuego(dificultad) {
-    if (!juego) {
-        ajustarFilasColumnas(dificultad);
-        juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
-        crearTableroHTML();
-        actualizarTablero();
-        iniciarTemporizador();
-        ocultarMensaje();
-        juegoIniciado = true;
-        juegoPausado = false;
-        btnControl.textContent = '⏸ Pausar';
-        segundosTotales = 0;
-    }
-}
-
-function perderJuego() {
+async function perderJuego() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido', 'perdido');
+    mostrarMensaje("💥 Has perdido", "perdido");
 
+    // Revelar bombas
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             if (juego.tablero[i][j] === -1) {
-                const celdaDiv = tableroDiv.children[i*columnas + j];
-                celdaDiv.textContent = '💣';
-                celdaDiv.classList.add('revelada');
+                const celda = tableroDiv.children[i * columnas + j];
+                celda.textContent = "💣";
+                celda.classList.add("revelada");
             }
         }
     }
 
-    switch(dificultadActual) {
-        case "DIFICIL": dificultadActual = "MEDIO"; break;
-        case "MEDIO": dificultadActual = "FACIL"; break;
-    }
+    // Ajustar dificultad
+    if (dificultadActual === "DIFICIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "FACIL";
     selectDificultad.value = dificultadActual;
 
+    await dao.finalizarPartida(juego.id);
     juego = null;
-    btnControl.textContent = '▶ Iniciar';
+    btnControl.textContent = "▶ Iniciar";
 }
 
-function ganarNivel() {
+async function ganarNivel() {
     detenerTemporizador();
-    mostrarMensaje('🏆 Has ganado! Subiendo de nivel', 'ganado');
+    mostrarMensaje("🏆 Has ganado! Subiendo de nivel", "ganado");
 
-    switch(dificultadActual) {
-        case "FACIL": dificultadActual = "MEDIO"; break;
-        case "MEDIO": dificultadActual = "DIFICIL"; break;
-    }
+    if (dificultadActual === "FACIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "DIFICIL";
     selectDificultad.value = dificultadActual;
 
     setTimeout(() => {
@@ -169,21 +181,38 @@ function ganarNivel() {
     }, 1200);
 }
 
-btnControl.addEventListener('click', () => {
-    if (!juego) {
-        iniciarJuego(selectDificultad.value);
-        return;
-    }
-
-    if (!juegoPausado) {
+/* ================= BOTONES ================= */
+btnControl.addEventListener("click", () => {
+    if (!juego) iniciarJuego(selectDificultad.value);
+    else if (!juegoPausado) {
         juegoPausado = true;
         detenerTemporizador();
-        btnControl.textContent = '▶ Reanudar';
-        mostrarMensaje('⏸ Juego en pausa');
+        btnControl.textContent = "▶ Reanudar";
+        mostrarMensaje("⏸ Juego en pausa");
     } else {
         juegoPausado = false;
         iniciarTemporizador();
-        btnControl.textContent = '⏸ Pausar';
+        btnControl.textContent = "⏸ Pausar";
         ocultarMensaje();
     }
 });
+
+btnGuardar.addEventListener("click", async () => {
+    if (!juego) return mostrarMensaje("❌ No hay partida");
+    await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
+    mostrarMensaje("💾 Partida guardada");
+});
+
+/* ================= OBTENER USUARIO LOGUEADO ================= */
+async function obtenerUsuario() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        usuarioId = user.id;
+        // Opcional: cargar última partida automáticamente
+        // cargarPartida();
+    } else {
+        mostrarMensaje("❌ No hay usuario logueado");
+    }
+}
+
+window.onload = obtenerUsuario;
