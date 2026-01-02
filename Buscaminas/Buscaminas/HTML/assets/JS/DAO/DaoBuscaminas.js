@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase } from "../Supabaseclient.js";
 import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
