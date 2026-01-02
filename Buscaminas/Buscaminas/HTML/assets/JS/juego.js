@@ -1,25 +1,26 @@
-// juego.js
-import { supabase } from './Supabaseclient.js';
-import { Buscaminas } from './Clases/Buscaminas.js';
-import { Dificultad } from './Clases/Dificultad.js';
-import { DAOBuscaminas } from './DAO/DaoBuscaminas.js';
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 
 const dao = new DAOBuscaminas();
+
+// Este ID viene del usuario logueado, ejemplo:
+const usuarioId = "1606ab19-3c5b-4f9c-9d91-cad257ef0781";
 
 let juego = null;
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
-let timerInterval = null;
-let segundosTotales = 0;
 let juegoPausado = false;
+let segundosTotales = 0;
+let timerInterval = null;
 
-const tableroDiv = document.getElementById('tablero');
-const selectDificultad = document.getElementById('dificultad');
-const temporizadorSpan = document.getElementById('temporizador');
-const mensajeDiv = document.getElementById('mensaje');
-const btnControl = document.getElementById('btnControl');
-const btnGuardar = document.getElementById('btnGuardar');
+const tableroDiv = document.getElementById("tablero");
+const selectDificultad = document.getElementById("dificultad");
+const temporizadorSpan = document.getElementById("temporizador");
+const mensajeDiv = document.getElementById("mensaje");
+const btnControl = document.getElementById("btnControl");
+const btnGuardar = document.getElementById("btnGuardar");
 
 /* ================= UTILIDADES ================= */
 function ajustarFilasColumnas(dif) {
@@ -27,46 +28,42 @@ function ajustarFilasColumnas(dif) {
     filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
 }
 
-function mostrarMensaje(txt) {
-    mensajeDiv.textContent = txt;
-}
-
-function ocultarMensaje() {
-    mensajeDiv.textContent = "";
-}
-
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2,"0");
-    const m = String(Math.floor((s % 3600) / 60)).padStart(2,"0");
+    const m = String(Math.floor((s % 3600)/60)).padStart(2,"0");
     const ss = String(s % 60).padStart(2,"0");
     return `Cronometro: ${h} : ${m} : ${ss}`;
 }
+
+function mostrarMensaje(txt) { mensajeDiv.textContent = txt; }
+function ocultarMensaje() { mensajeDiv.textContent = ""; }
 
 /* ================= TABLERO ================= */
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
+    tableroDiv.style.gridTemplateRows = `repeat(${filas}, 40px)`;
 
-    for (let i = 0; i < filas; i++) {
-        for (let j = 0; j < columnas; j++) {
+    for (let i=0;i<filas;i++) {
+        for (let j=0;j<columnas;j++) {
             const c = document.createElement("div");
             c.className = "celda";
-            c.onclick = () => clickCelda(i, j);
+            c.onclick = () => clickCelda(i,j);
             tableroDiv.appendChild(c);
         }
     }
 }
 
 function actualizarTablero() {
-    for (let i = 0; i < filas; i++) {
-        for (let j = 0; j < columnas; j++) {
-            const c = tableroDiv.children[i * columnas + j];
+    for (let i=0;i<filas;i++) {
+        for (let j=0;j<columnas;j++) {
+            const c = tableroDiv.children[i*columnas+j];
             c.textContent = "";
             c.classList.remove("revelada");
-            if (juego.descubiertas[i][j]) {
+            if (juego && juego.descubiertas[i][j]) {
                 c.classList.add("revelada");
                 if (juego.tablero[i][j] === -1) c.textContent = "💣";
-                else if (juego.tablero[i][j] > 0) c.textContent = juego.tablero[i][j];
+                else if (juego.tablero[i][j]>0) c.textContent = juego.tablero[i][j];
             }
         }
     }
@@ -75,10 +72,10 @@ function actualizarTablero() {
 /* ================= TEMPORIZADOR ================= */
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    timerInterval = setInterval(() => {
+    timerInterval = setInterval(()=>{
         segundosTotales++;
         temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    }, 1000);
+    },1000);
 }
 
 function detenerTemporizador() {
@@ -86,40 +83,26 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-/* ================= USUARIO ================= */
-async function obtenerUsuarioLogueado() {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-        mostrarMensaje("❌ Usuario no logueado");
-        return null;
-    }
-    return data.user.id; // UUID del usuario
-}
-
 /* ================= PARTIDA ================= */
 async function iniciarJuego(dif) {
     ajustarFilasColumnas(dif);
-    const usuarioId = await obtenerUsuarioLogueado();
-    if (!usuarioId) return;
 
     juego = new Buscaminas(null, filas, columnas, Dificultad[dif]);
     juego.usuarioId = usuarioId;
 
-    // Crear partida en BBDD
+    // Crear partida en Supabase
     await dao.crearPartida(juego);
 
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
-    ocultarMensaje();
     btnControl.textContent = "⏸ Pausar";
-    segundosTotales = 0;
 }
 
 function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
 
-    const ok = juego.descubrir(f, c);
+    const ok = juego.descubrir(f,c);
     actualizarTablero();
 
     if (!ok) finalizar("💥 Has perdido");
@@ -129,10 +112,8 @@ function clickCelda(f, c) {
 async function finalizar(msg) {
     detenerTemporizador();
     mostrarMensaje(msg);
-    if (juego) {
-        await dao.finalizarPartida(juego.id);
-        juego = null;
-    }
+    if (juego) await dao.finalizarPartida(juego.id);
+    juego = null;
     btnControl.textContent = "▶ Iniciar";
 }
 
@@ -145,17 +126,12 @@ btnGuardar.onclick = async () => {
 
 /* ================= CARGAR ================= */
 async function cargarPartida() {
-    const usuarioId = await obtenerUsuarioLogueado();
-    if (!usuarioId) return;
-
     const data = await dao.findPartidaActiva(usuarioId);
     if (!data) return;
 
     dificultadActual = data.dificultad;
     filas = data.filas;
     columnas = data.columnas;
-    segundosTotales = 0; // opcional, puedes guardarlo en json si quieres
-    juegoPausado = false;
 
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultadActual]);
     juego.id = data.id;
@@ -165,26 +141,17 @@ async function cargarPartida() {
 
     crearTableroHTML();
     actualizarTablero();
+    temporizadorSpan.textContent = formatTiempo(0);
 }
 
 window.onload = cargarPartida;
 
 /* ================= BOTÓN CONTROL ================= */
 btnControl.onclick = () => {
-    if (!juego) {
-        iniciarJuego(selectDificultad.value);
-        return;
-    }
-
-    if (!juegoPausado) {
-        juegoPausado = true;
-        detenerTemporizador();
-        btnControl.textContent = "▶ Reanudar";
-        mostrarMensaje("⏸ Juego en pausa");
-    } else {
-        juegoPausado = false;
-        iniciarTemporizador();
-        btnControl.textContent = "⏸ Pausar";
-        ocultarMensaje();
+    if (!juego) iniciarJuego(selectDificultad.value);
+    else {
+        juegoPausado = !juegoPausado;
+        if (juegoPausado) detenerTemporizador();
+        else iniciarTemporizador();
     }
 };
