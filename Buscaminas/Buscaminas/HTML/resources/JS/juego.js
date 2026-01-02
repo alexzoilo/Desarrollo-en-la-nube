@@ -1,9 +1,6 @@
 import { Buscaminas } from "../../../Clases/Buscaminas.js";
 import { Dificultad } from "../../../Clases/Dificultad.js";
 
-/* =========================
-   VARIABLES DE ESTADO
-========================= */
 let juego = null;
 let timerInterval = null;
 let filas = 10;
@@ -12,9 +9,6 @@ let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
 
-/* =========================
-   ELEMENTOS DOM
-========================= */
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
@@ -22,22 +16,20 @@ const mensajeDiv = document.getElementById('mensaje');
 const btnControl = document.getElementById('btnControl');
 
 /* =========================
-   CONFIGURACIÓN
+   AJUSTAR TABLERO
 ========================= */
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
-
     switch (dificultad) {
-        case "FACIL":   filas = 10; columnas = 10; break;
-        case "MEDIO":   filas = 15; columnas = 15; break;
+        case "FACIL": filas = 10; columnas = 10; break;
+        case "MEDIO": filas = 15; columnas = 15; break;
         case "DIFICIL": filas = 20; columnas = 20; break;
     }
-
     selectDificultad.value = dificultadActual;
 }
 
 /* =========================
-   TABLERO
+   TABLERO HTML
 ========================= */
 function crearTableroHTML() {
     tableroDiv.innerHTML = '';
@@ -69,11 +61,10 @@ function actualizarTablero() {
             if (juego && juego.descubiertas[i][j]) {
                 celda.classList.add('revelada');
 
-                if (juego.tablero[i][j] === -1) {
-                    celda.textContent = '💣';
-                } else if (juego.tablero[i][j] > 0) {
-                    celda.textContent = juego.tablero[i][j];
-                }
+                if (juego.tablero[i][j] === -1) celda.textContent = '💣';
+                else if (juego.tablero[i][j] > 0) celda.textContent = juego.tablero[i][j];
+
+                if (juego.banderas[i][j]) celda.classList.add('bandera');
             }
         }
     }
@@ -88,6 +79,7 @@ function iniciarTemporizador() {
     timerInterval = setInterval(() => {
         segundosTotales++;
         temporizadorSpan.textContent = formatTiempo(segundosTotales);
+        guardarPartida(); // Guardar automáticamente cada segundo
     }, 1000);
 
     selectDificultad.disabled = true;
@@ -102,7 +94,6 @@ function formatTiempo(segundos) {
     const h = String(Math.floor(segundos / 3600)).padStart(2, '0');
     const m = String(Math.floor((segundos % 3600) / 60)).padStart(2, '0');
     const s = String(segundos % 60).padStart(2, '0');
-
     return `Cronómetro: ${h}:${m}:${s}`;
 }
 
@@ -122,13 +113,20 @@ function ocultarMensaje() {
 /* =========================
    JUEGO
 ========================= */
-function iniciarJuego(dificultad) {
+function iniciarJuego(dificultad, estadoGuardado = null) {
     ajustarFilasColumnas(dificultad);
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
 
-    segundosTotales = 0;
+    if (estadoGuardado) {
+        juego = new Buscaminas(estadoGuardado.tablero, filas, columnas, Dificultad[dificultad]);
+        juego.descubiertas = estadoGuardado.descubiertas;
+        juego.banderas = estadoGuardado.banderas;
+        segundosTotales = estadoGuardado.segundos;
+    } else {
+        juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
+        segundosTotales = 0;
+    }
+
     juegoPausado = false;
-
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
@@ -137,6 +135,9 @@ function iniciarJuego(dificultad) {
     ocultarMensaje();
 }
 
+/* =========================
+   PERDER / GANAR
+========================= */
 function perderJuego() {
     detenerTemporizador();
     mostrarMensaje('💥 Has perdido', 'perdido');
@@ -160,6 +161,7 @@ function perderJuego() {
 
     juego = null;
     selectDificultad.disabled = false;
+    localStorage.removeItem('buscaminasPartida');
 }
 
 function ganarNivel() {
@@ -177,7 +179,7 @@ function ganarNivel() {
 }
 
 /* =========================
-   INTERACCIONES
+   CLICK
 ========================= */
 function handleClick(fila, col) {
     if (!juego || juegoPausado) return;
@@ -192,11 +194,13 @@ function handleClick(fila, col) {
 function handleRightClick(e, celda) {
     e.preventDefault();
     if (!juego || juegoPausado || celda.classList.contains('revelada')) return;
+
     celda.classList.toggle('bandera');
+    juego.banderas[celda.dataset.fila][celda.dataset.col] = celda.classList.contains('bandera');
 }
 
 /* =========================
-   PAUSA / REANUDAR
+   PAUSAR / REANUDAR
 ========================= */
 function togglePausa() {
     if (!juego) return;
@@ -215,11 +219,36 @@ function togglePausa() {
 }
 
 /* =========================
+   GUARDAR / CARGAR
+========================= */
+function guardarPartida() {
+    if (!juego) return;
+
+    const estado = {
+        tablero: juego.tablero,
+        descubiertas: juego.descubiertas,
+        banderas: juego.banderas,
+        dificultad: dificultadActual,
+        segundos: segundosTotales
+    };
+
+    localStorage.setItem('buscaminasPartida', JSON.stringify(estado));
+}
+
+function cargarPartida() {
+    const partida = localStorage.getItem('buscaminasPartida');
+    if (partida) {
+        const estado = JSON.parse(partida);
+        iniciarJuego(estado.dificultad, estado);
+    }
+}
+
+/* =========================
    EVENTOS
 ========================= */
 btnControl.addEventListener('click', () => {
     if (!juego) {
-        iniciarJuego(selectDificultad.value);
+        cargarPartida(); // Si hay partida guardada, la carga
     } else {
         togglePausa();
     }
@@ -229,5 +258,12 @@ document.addEventListener('keydown', e => {
     if (e.code === 'Space') {
         e.preventDefault();
         togglePausa();
+    }
+});
+
+// Al iniciar la página, intentar cargar partida
+window.addEventListener('load', () => {
+    if (localStorage.getItem('buscaminasPartida')) {
+        mostrarMensaje('🔄 Partida guardada encontrada. Pulsa Iniciar para continuar', '');
     }
 });
