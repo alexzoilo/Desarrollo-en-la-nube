@@ -1,45 +1,44 @@
-import {
-    Buscaminas
-} from "../../../Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "../../../Clases/Dificultad.js";
+import { Buscaminas } from "../../../Clases/Buscaminas.js";
+import { Dificultad } from "../../../Clases/Dificultad.js";
 
+/* =========================
+   VARIABLES DE ESTADO
+========================= */
 let juego = null;
 let timerInterval = null;
-let filas = 9;
-let columnas = 9;
+let filas = 10;
+let columnas = 10;
 let dificultadActual = "FACIL";
-let juegoIniciado = false;
 let juegoPausado = false;
 let segundosTotales = 0;
 
+/* =========================
+   ELEMENTOS DOM
+========================= */
 const tableroDiv = document.getElementById('tablero');
 const selectDificultad = document.getElementById('dificultad');
 const temporizadorSpan = document.getElementById('temporizador');
 const mensajeDiv = document.getElementById('mensaje');
 const btnControl = document.getElementById('btnControl');
 
-
+/* =========================
+   CONFIGURACIÓN
+========================= */
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
+
     switch (dificultad) {
-        case "FACIL":
-            filas = 10;
-            columnas = 10;
-            break;
-        case "MEDIO":
-            filas = 15;
-            columnas = 15;
-            break;
-        case "DIFICIL":
-            filas = 20;
-            columnas = 20;
-            break;
+        case "FACIL":   filas = 10; columnas = 10; break;
+        case "MEDIO":   filas = 15; columnas = 15; break;
+        case "DIFICIL": filas = 20; columnas = 20; break;
     }
+
     selectDificultad.value = dificultadActual;
 }
 
+/* =========================
+   TABLERO
+========================= */
 function crearTableroHTML() {
     tableroDiv.innerHTML = '';
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -47,15 +46,15 @@ function crearTableroHTML() {
 
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = document.createElement('div');
-            celdaDiv.classList.add('celda');
-            celdaDiv.dataset.fila = i;
-            celdaDiv.dataset.col = j;
+            const celda = document.createElement('div');
+            celda.classList.add('celda');
+            celda.dataset.fila = i;
+            celda.dataset.col = j;
 
-            celdaDiv.addEventListener('click', () => handleClick(i, j));
-            celdaDiv.addEventListener('contextmenu', (e) => handleRightClick(e, celdaDiv));
+            celda.addEventListener('click', () => handleClick(i, j));
+            celda.addEventListener('contextmenu', e => handleRightClick(e, celda));
 
-            tableroDiv.appendChild(celdaDiv);
+            tableroDiv.appendChild(celda);
         }
     }
 }
@@ -63,19 +62,26 @@ function crearTableroHTML() {
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const celdaDiv = tableroDiv.children[i * columnas + j];
-            celdaDiv.textContent = '';
-            celdaDiv.classList.remove('revelada', 'bandera');
+            const celda = tableroDiv.children[i * columnas + j];
+            celda.textContent = '';
+            celda.classList.remove('revelada', 'bandera');
 
             if (juego && juego.descubiertas[i][j]) {
-                celdaDiv.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) celdaDiv.textContent = '💣';
-                else if (juego.tablero[i][j] > 0) celdaDiv.textContent = juego.tablero[i][j];
+                celda.classList.add('revelada');
+
+                if (juego.tablero[i][j] === -1) {
+                    celda.textContent = '💣';
+                } else if (juego.tablero[i][j] > 0) {
+                    celda.textContent = juego.tablero[i][j];
+                }
             }
         }
     }
 }
 
+/* =========================
+   TEMPORIZADOR
+========================= */
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
 
@@ -87,28 +93,25 @@ function iniciarTemporizador() {
     selectDificultad.disabled = true;
 }
 
-
 function detenerTemporizador() {
     clearInterval(timerInterval);
     timerInterval = null;
 }
 
-
 function formatTiempo(segundos) {
-    const horas = Math.floor(segundos / 3600);
-    const minutos = Math.floor((segundos % 3600) / 60);
-    const segundosRestantes = segundos % 60;
+    const h = String(Math.floor(segundos / 3600)).padStart(2, '0');
+    const m = String(Math.floor((segundos % 3600) / 60)).padStart(2, '0');
+    const s = String(segundos % 60).padStart(2, '0');
 
-    const hStr = String(horas).padStart(2, '0');
-    const mStr = String(minutos).padStart(2, '0');
-    const sStr = String(segundosRestantes).padStart(2, '0');
-
-    return `Cronometro: ${hStr} : ${mStr} : ${sStr}`;
+    return `Cronómetro: ${h}:${m}:${s}`;
 }
 
-function mostrarMensaje(texto, tipo) {
+/* =========================
+   MENSAJES
+========================= */
+function mostrarMensaje(texto, clase = '') {
     mensajeDiv.textContent = texto;
-    mensajeDiv.className = tipo;
+    mensajeDiv.className = clase;
 }
 
 function ocultarMensaje() {
@@ -116,6 +119,66 @@ function ocultarMensaje() {
     mensajeDiv.className = '';
 }
 
+/* =========================
+   JUEGO
+========================= */
+function iniciarJuego(dificultad) {
+    ajustarFilasColumnas(dificultad);
+    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
+
+    segundosTotales = 0;
+    juegoPausado = false;
+
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
+
+    btnControl.textContent = '⏸ Pausar';
+    ocultarMensaje();
+}
+
+function perderJuego() {
+    detenerTemporizador();
+    mostrarMensaje('💥 Has perdido', 'perdido');
+    btnControl.textContent = '▶ Iniciar';
+    juegoPausado = false;
+
+    if (dificultadActual === "DIFICIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "FACIL";
+
+    selectDificultad.value = dificultadActual;
+
+    for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+            if (juego.tablero[i][j] === -1) {
+                const celda = tableroDiv.children[i * columnas + j];
+                celda.textContent = '💣';
+                celda.classList.add('revelada');
+            }
+        }
+    }
+
+    juego = null;
+    selectDificultad.disabled = false;
+}
+
+function ganarNivel() {
+    detenerTemporizador();
+    mostrarMensaje('🏆 Has ganado! Subiendo nivel', 'ganado');
+    btnControl.textContent = '▶ Iniciar';
+    juegoPausado = false;
+
+    if (dificultadActual === "FACIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "DIFICIL";
+
+    selectDificultad.value = dificultadActual;
+
+    setTimeout(() => iniciarJuego(dificultadActual), 1200);
+}
+
+/* =========================
+   INTERACCIONES
+========================= */
 function handleClick(fila, col) {
     if (!juego || juegoPausado) return;
 
@@ -126,105 +189,45 @@ function handleClick(fila, col) {
     else if (juego.verificarVictoria()) ganarNivel();
 }
 
-function handleRightClick(e, celdaDiv) {
+function handleRightClick(e, celda) {
     e.preventDefault();
-    if (!juego || celdaDiv.classList.contains('revelada') || juegoPausado) return;
-    celdaDiv.classList.toggle('bandera');
+    if (!juego || juegoPausado || celda.classList.contains('revelada')) return;
+    celda.classList.toggle('bandera');
 }
 
-function iniciarJuego(dificultad) {
-    ajustarFilasColumnas(dificultad);
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
-    crearTableroHTML();
-    actualizarTablero();
-    iniciarTemporizador();
-    ocultarMensaje();
-    juegoIniciado = true;
-}
+/* =========================
+   PAUSA / REANUDAR
+========================= */
+function togglePausa() {
+    if (!juego) return;
 
-function perderJuego() {
-    detenerTemporizador();
-    mostrarMensaje('💥 Has perdido, pulsa cualquier tecla para continuar', 'perdido');
-    btnControl.textContent = '▶ Iniciar';
-    juegoPausado = false;
-
-    switch (dificultadActual) {
-        case "DIFICIL":
-            dificultadActual = "MEDIO";
-            break;
-        case "MEDIO":
-            dificultadActual = "FACIL";
-            break;
-    }
-    selectDificultad.value = dificultadActual;
-
-    for (let i = 0; i < filas; i++) {
-        for (let j = 0; j < columnas; j++) {
-            if (juego.tablero[i][j] === -1) {
-                const celdaDiv = tableroDiv.children[i * columnas + j];
-                celdaDiv.textContent = '💣';
-                celdaDiv.classList.add('revelada');
-            }
-        }
-    }
-
-    juego = null;
-}
-
-function ganarNivel() {
-    detenerTemporizador();
-    mostrarMensaje('🏆 Has ganado! Subiendo de nivel', 'ganado');
-    btnControl.textContent = '▶ Iniciar';
-    juegoPausado = false;
-
-    switch (dificultadActual) {
-        case "FACIL":
-            dificultadActual = "MEDIO";
-            break;
-        case "MEDIO":
-            dificultadActual = "DIFICIL";
-            break;
-    }
-    selectDificultad.value = dificultadActual;
-
-    setTimeout(() => {
-        iniciarJuego(dificultadActual);
-        ocultarMensaje();
-    }, 1200);
-}
-
-document.addEventListener('keydown', () => {
-    if (!juego) {
-        iniciarJuego(selectDificultad.value);
-
-        if (!juegoIniciado) {
-            ocultarMensaje();
-        }
-    }
-});
-
-btnControl.addEventListener('click', () => {
-
-    // ▶ INICIAR
-    if (!juego) {
-        segundosTotales = 0;
-        iniciarJuego(selectDificultad.value);
-        btnControl.textContent = '⏸ Pausar';
-        return;
-    }
-
-    // ⏸ PAUSAR
     if (!juegoPausado) {
         juegoPausado = true;
         detenerTemporizador();
         btnControl.textContent = '▶ Reanudar';
-        mostrarMensaje('⏸ Juego en pausa', '');
-        return;
+        mostrarMensaje('⏸ Juego en pausa');
+    } else {
+        juegoPausado = false;
+        iniciarTemporizador();
+        btnControl.textContent = '⏸ Pausar';
+        ocultarMensaje();
     }
+}
 
-    // ▶ REANUDAR
-    juegoPausado = false;
-    iniciarTemporizador();
-    ocultarMensaje();
-    btnControl.textContent = '⏸ Pausar';
+/* =========================
+   EVENTOS
+========================= */
+btnControl.addEventListener('click', () => {
+    if (!juego) {
+        iniciarJuego(selectDificultad.value);
+    } else {
+        togglePausa();
+    }
+});
+
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        togglePausa();
+    }
 });
