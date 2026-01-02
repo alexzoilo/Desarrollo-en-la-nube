@@ -26,11 +26,13 @@ const btnControl = document.getElementById('btnControl');
 ========================= */
 function ajustarFilasColumnas(dificultad) {
     dificultadActual = dificultad;
-    switch(dificultad) {
-        case "FACIL": filas = 10; columnas = 10; break;
-        case "MEDIO": filas = 15; columnas = 15; break;
+
+    switch (dificultad) {
+        case "FACIL":   filas = 10; columnas = 10; break;
+        case "MEDIO":   filas = 15; columnas = 15; break;
         case "DIFICIL": filas = 20; columnas = 20; break;
     }
+
     selectDificultad.value = dificultadActual;
 }
 
@@ -66,8 +68,12 @@ function actualizarTablero() {
 
             if (juego && juego.descubiertas[i][j]) {
                 celda.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) celda.textContent = '💣';
-                else if (juego.tablero[i][j] > 0) celda.textContent = juego.tablero[i][j];
+
+                if (juego.tablero[i][j] === -1) {
+                    celda.textContent = '💣';
+                } else if (juego.tablero[i][j] > 0) {
+                    celda.textContent = juego.tablero[i][j];
+                }
             }
         }
     }
@@ -96,21 +102,21 @@ function formatTiempo(segundos) {
     const h = String(Math.floor(segundos / 3600)).padStart(2, '0');
     const m = String(Math.floor((segundos % 3600) / 60)).padStart(2, '0');
     const s = String(segundos % 60).padStart(2, '0');
-    return `${h}:${m}:${s}`;
+
+    return `Cronómetro: ${h}:${m}:${s}`;
 }
 
 /* =========================
-   MENSAJES VISUALES
+   MENSAJES
 ========================= */
 function mostrarMensaje(texto, clase = '') {
     mensajeDiv.textContent = texto;
-    mensajeDiv.className = `mensaje ${clase}`;
-    mensajeDiv.style.display = 'flex';
+    mensajeDiv.className = clase;
 }
 
 function ocultarMensaje() {
     mensajeDiv.textContent = '';
-    mensajeDiv.style.display = 'none';
+    mensajeDiv.className = '';
 }
 
 /* =========================
@@ -119,6 +125,7 @@ function ocultarMensaje() {
 function iniciarJuego(dificultad) {
     ajustarFilasColumnas(dificultad);
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultad]);
+
     segundosTotales = 0;
     juegoPausado = false;
 
@@ -136,15 +143,15 @@ function perderJuego() {
     btnControl.textContent = '▶ Iniciar';
     juegoPausado = false;
 
-    if(dificultadActual === "DIFICIL") dificultadActual = "MEDIO";
-    else if(dificultadActual === "MEDIO") dificultadActual = "FACIL";
+    if (dificultadActual === "DIFICIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "FACIL";
 
     selectDificultad.value = dificultadActual;
 
-    for(let i=0;i<filas;i++){
-        for(let j=0;j<columnas;j++){
-            if(juego.tablero[i][j]===-1){
-                const celda = tableroDiv.children[i*columnas+j];
+    for (let i = 0; i < filas; i++) {
+        for (let j = 0; j < columnas; j++) {
+            if (juego.tablero[i][j] === -1) {
+                const celda = tableroDiv.children[i * columnas + j];
                 celda.textContent = '💣';
                 celda.classList.add('revelada');
             }
@@ -157,46 +164,48 @@ function perderJuego() {
 
 function ganarNivel() {
     detenerTemporizador();
-    mostrarMensaje('🏆 ¡Ganaste! Subiendo nivel', 'ganado');
+    mostrarMensaje('🏆 Has ganado! Subiendo nivel', 'ganado');
     btnControl.textContent = '▶ Iniciar';
     juegoPausado = false;
 
-    if(dificultadActual === "FACIL") dificultadActual = "MEDIO";
-    else if(dificultadActual === "MEDIO") dificultadActual = "DIFICIL";
+    if (dificultadActual === "FACIL") dificultadActual = "MEDIO";
+    else if (dificultadActual === "MEDIO") dificultadActual = "DIFICIL";
 
     selectDificultad.value = dificultadActual;
 
-    setTimeout(()=> iniciarJuego(dificultadActual), 1200);
+    setTimeout(() => iniciarJuego(dificultadActual), 1200);
 }
 
 /* =========================
    INTERACCIONES
 ========================= */
 function handleClick(fila, col) {
-    if(!juego || juegoPausado) return;
+    if (!juego || juegoPausado) return;
+
     const exito = juego.descubrir(fila, col);
     actualizarTablero();
-    if(!exito) perderJuego();
-    else if(juego.verificarVictoria()) ganarNivel();
+
+    if (!exito) perderJuego();
+    else if (juego.verificarVictoria()) ganarNivel();
 }
 
-function handleRightClick(e, celda){
+function handleRightClick(e, celda) {
     e.preventDefault();
-    if(!juego || juegoPausado || celda.classList.contains('revelada')) return;
+    if (!juego || juegoPausado || celda.classList.contains('revelada')) return;
     celda.classList.toggle('bandera');
 }
 
 /* =========================
    PAUSA / REANUDAR
 ========================= */
-function togglePausa(){
-    if(!juego) return;
+function togglePausa() {
+    if (!juego) return;
 
-    if(!juegoPausado){
+    if (!juegoPausado) {
         juegoPausado = true;
         detenerTemporizador();
         btnControl.textContent = '▶ Reanudar';
-        mostrarMensaje('⏸ Juego en pausa','pausa');
+        mostrarMensaje('⏸ Juego en pausa');
     } else {
         juegoPausado = false;
         iniciarTemporizador();
@@ -208,13 +217,16 @@ function togglePausa(){
 /* =========================
    EVENTOS
 ========================= */
-btnControl.addEventListener('click', ()=>{
-    if(!juego) iniciarJuego(selectDificultad.value);
-    else togglePausa();
+btnControl.addEventListener('click', () => {
+    if (!juego) {
+        iniciarJuego(selectDificultad.value);
+    } else {
+        togglePausa();
+    }
 });
 
-document.addEventListener('keydown', e=>{
-    if(e.code === 'Space'){
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
         e.preventDefault();
         togglePausa();
     }
