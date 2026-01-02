@@ -1,51 +1,26 @@
-import {
-    Buscaminas
-} from "./Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "./Clases/Dificultad.js";
-import {
-    DAOBuscaminas
-} from "./DAO/DaoBuscaminas.js";
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 
 const dao = new DAOBuscaminas();
-const usuarioId = 1; // ← pon aquí el usuario logueado real
+const usuarioId = 1; // usuario logueado
 
 let juego = null;
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
-let juegoPausado = false;
-let segundosTotales = 0;
 let timerInterval = null;
 
 const tableroDiv = document.getElementById("tablero");
 const selectDificultad = document.getElementById("dificultad");
-const temporizadorSpan = document.getElementById("temporizador");
 const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
 const btnGuardar = document.getElementById("btnGuardar");
 
 /* ================= UTILIDADES ================= */
-
 function ajustarFilasColumnas(dif) {
     dificultadActual = dif;
-    if (dif === "FACIL") {
-        filas = columnas = 10;
-    }
-    if (dif === "MEDIO") {
-        filas = columnas = 15;
-    }
-    if (dif === "DIFICIL") {
-        filas = columnas = 20;
-    }
-}
-
-function formatTiempo(s) {
-    const h = String(Math.floor(s / 3600)).padStart(2, "0");
-    const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
-    const ss = String(s % 60).padStart(2, "0");
-    return `Cronometro: ${h} : ${m} : ${ss}`;
+    filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
 }
 
 function mostrarMensaje(txt) {
@@ -57,7 +32,6 @@ function ocultarMensaje() {
 }
 
 /* ================= TABLERO ================= */
-
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -88,49 +62,22 @@ function actualizarTablero() {
     }
 }
 
-/* ================= TEMPORIZADOR ================= */
-
-function iniciarTemporizador() {
-    temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    timerInterval = setInterval(() => {
-        segundosTotales++;
-        temporizadorSpan.textContent = formatTiempo(segundosTotales);
-    }, 1000);
-}
-
-function detenerTemporizador() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-}
-
 /* ================= PARTIDA ================= */
-
-function estadoJuego() {
-    return {
-        tablero: juego.tablero,
-        descubiertas: juego.descubiertas,
-        segundos: segundosTotales,
-        pausado: juegoPausado
-    };
-}
-
 async function iniciarJuego(dif) {
     ajustarFilasColumnas(dif);
 
     juego = new Buscaminas(null, filas, columnas, Dificultad[dif]);
     juego.usuarioId = usuarioId;
 
-    await dao.crearPartida(juego, estadoJuego());
+    await dao.crearPartida(juego); // solo crea partida con campos de la BBDD
 
     crearTableroHTML();
     actualizarTablero();
-    iniciarTemporizador();
-
     btnControl.textContent = "⏸ Pausar";
 }
 
 function clickCelda(f, c) {
-    if (!juego || juegoPausado) return;
+    if (!juego) return;
 
     const ok = juego.descubrir(f, c);
     actualizarTablero();
@@ -140,60 +87,41 @@ function clickCelda(f, c) {
 }
 
 async function finalizar(msg) {
-    detenerTemporizador();
     mostrarMensaje(msg);
     await dao.finalizarPartida(juego.id);
     juego = null;
     btnControl.textContent = "▶ Iniciar";
 }
 
-/* ================= GUARDAR / CARGAR ================= */
-
+/* ================= GUARDAR ================= */
 btnGuardar.onclick = async () => {
     if (!juego) return mostrarMensaje("❌ No hay partida");
-    await dao.guardarPartida(juego.id, juego.celdasDescubiertas, estadoJuego());
+    await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
     mostrarMensaje("💾 Partida guardada");
 };
 
+/* ================= CARGAR ================= */
 async function cargarPartida() {
     const data = await dao.findPartidaActiva(usuarioId);
     if (!data) return;
 
-    const e = data.tablero;
-
     dificultadActual = data.dificultad;
     filas = data.filas;
     columnas = data.columnas;
-    segundosTotales = e.segundos;
-    juegoPausado = e.pausado;
 
     juego = new Buscaminas(null, filas, columnas, Dificultad[dificultadActual]);
     juego.id = data.id;
-    juego.tablero = e.tablero;
-    juego.descubiertas = e.descubiertas;
+    juego.tablero = data.tablero;
+    juego.descubiertas = data.celdasDescubiertas;
     juego.minas = data.minas;
 
     crearTableroHTML();
     actualizarTablero();
-    temporizadorSpan.textContent = formatTiempo(segundosTotales);
-
-    if (!juegoPausado) iniciarTemporizador();
-    btnControl.textContent = juegoPausado ? "▶ Reanudar" : "⏸ Pausar";
 }
 
 window.onload = cargarPartida;
 
 /* ================= BOTÓN CONTROL ================= */
-
 btnControl.onclick = () => {
     if (!juego) iniciarJuego(selectDificultad.value);
-    else if (!juegoPausado) {
-        juegoPausado = true;
-        detenerTemporizador();
-        btnControl.textContent = "▶ Reanudar";
-    } else {
-        juegoPausado = false;
-        iniciarTemporizador();
-        btnControl.textContent = "⏸ Pausar";
-    }
 };
