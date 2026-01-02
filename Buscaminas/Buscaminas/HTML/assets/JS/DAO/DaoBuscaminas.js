@@ -2,21 +2,20 @@ import { supabase } from "../Supabaseclient.js";
 
 export class DAOBuscaminas {
 
-  // Crear partida nueva
   async crearPartida(buscaminas) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId,   // UUID del usuario logueado
+        usuarioId: buscaminas.usuarioId,
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
-        celdasDescubiertas: buscaminas.descubiertas, // JSON
         dificultad: buscaminas.dificultad,
         tiempoInicio: new Date().toISOString(),
         tiempoFin: null,
-        tablero: buscaminas.tablero,       // JSON
-        minas: buscaminas.minas            // JSON
+        tablero: JSON.stringify(buscaminas.tablero),
+        minas: JSON.stringify(buscaminas.minas),
+        celdasDescubiertas: JSON.stringify(buscaminas.descubiertas)
       })
       .select("id")
       .single();
@@ -26,17 +25,18 @@ export class DAOBuscaminas {
     return buscaminas;
   }
 
-  // Guardar partida (update)
   async guardarPartida(id, celdasDescubiertas, tablero) {
     const { error } = await supabase
       .from("Buscaminas")
-      .update({ celdasDescubiertas, tablero })
+      .update({
+        celdasDescubiertas: JSON.stringify(celdasDescubiertas),
+        tablero: JSON.stringify(tablero)
+      })
       .eq("id", id);
 
     if (error) throw error;
   }
 
-  // Finalizar partida
   async finalizarPartida(id) {
     const { error } = await supabase
       .from("Buscaminas")
@@ -46,17 +46,17 @@ export class DAOBuscaminas {
     if (error) throw error;
   }
 
-  // Última partida activa de un usuario
   async findPartidaActiva(usuarioId) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .select("*")
-      .match({ usuarioId, tiempoFin: null })
+      .eq("usuarioId", usuarioId)
+      .is("tiempoFin", null)
       .order("tiempoInicio", { ascending: false })
       .limit(1)
       .single();
 
-    if (error || !data) return null;
+    if (error) return null;
     return data;
   }
 }
