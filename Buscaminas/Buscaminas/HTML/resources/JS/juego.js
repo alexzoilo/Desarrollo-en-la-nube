@@ -74,12 +74,13 @@ function iniciarTemporizador() {
         temporizadorSpan.textContent = formatTiempo(segundosTotales);
     }, 1000);
 
-    selectDificultad.disabled = true;
+    selectDificultad.disabled = true; // bloquear dificultad mientras juega
 }
 
 function detenerTemporizador() {
     clearInterval(timerInterval);
     timerInterval = null;
+    selectDificultad.disabled = false; // desbloquear al detener
 }
 
 function formatTiempo(segundos) {
@@ -150,7 +151,7 @@ function perderJuego() {
         }
     }
 
-    // Ajustar dificultad
+    // Ajustar dificultad al perder
     switch(dificultadActual) {
         case "DIFICIL": dificultadActual = "MEDIO"; break;
         case "MEDIO": dificultadActual = "FACIL"; break;
@@ -173,19 +174,11 @@ function ganarNivel() {
     selectDificultad.value = dificultadActual;
 
     setTimeout(() => {
-        juego = null; // reinicia juego
+        juego = null;
         iniciarJuego(dificultadActual);
         ocultarMensaje();
     }, 1200);
 }
-
-/* ======= TECLADO ======= */
-document.addEventListener('keydown', () => {
-    if (!juegoIniciado) {
-        iniciarJuego(selectDificultad.value);
-        juegoIniciado = true;
-    }
-});
 
 /* ======= BOTÓN INICIAR / PAUSAR / REANUDAR ======= */
 btnControl.addEventListener('click', () => {
