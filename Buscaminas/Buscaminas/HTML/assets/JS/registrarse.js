@@ -3,7 +3,7 @@ import { supabase } from './Supabaseclient.js';
 const form = document.getElementById("registerForm");
 const mensajeDiv = document.getElementById("mensaje");
 
-// Mostrar mensajes
+
 function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
@@ -12,7 +12,6 @@ function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
 
-// Mostrar/ocultar contraseña
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {
         const input = document.getElementById(btn.dataset.target);
@@ -26,13 +25,11 @@ document.querySelectorAll(".toggle-password").forEach(btn => {
     });
 });
 
-// Validar email
 function validarEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     return re.test(email);
 }
 
-// Registro
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     ocultarMensaje();
@@ -48,7 +45,7 @@ form.addEventListener("submit", async (e) => {
     }
 
     if (!validarEmail(email)) {
-        mostrarMensaje("Ingresa un email válido (ej: usuario@dominio.com)", "error");
+        mostrarMensaje("Ingresa un email válido (ej: pepe@gmail.com)", "error");
         return;
     }
 
@@ -58,19 +55,25 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
-        // ✅ Comprobar si ya existe el nombre en la tabla Usuarios
-        const { data: nombreExistente } = await supabase
+        const { data: usuariosExistentes } = await supabase
             .from("Usuarios")
-            .select("id")
-            .eq("nombre", nombre)
-            .single();
+            .select("*")
+            .or(`nombre.eq.${nombre},email.eq.${email}`);
 
-        if (nombreExistente) {
-            mostrarMensaje("❌ Nombre de usuario ya existente", "error");
+        if (usuariosExistentes && usuariosExistentes.length > 0) {
+            const nombreExistente = usuariosExistentes.some(u => u.nombre === nombre);
+            const emailExistente = usuariosExistentes.some(u => u.email === email);
+
+            if (nombreExistente && emailExistente) {
+                mostrarMensaje("El nombre y el email ya existen", "error");
+            } else if (nombreExistente) {
+                mostrarMensaje("El nombre de usuario ya está en uso", "error");
+            } else {
+                mostrarMensaje("El email ya existe", "error");
+            }
             return;
         }
 
-        // 1️⃣ Registro en Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password
@@ -81,7 +84,6 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        // 2️⃣ Insertar en tabla Usuarios
         const { error: insertError } = await supabase
             .from("Usuarios")
             .insert({
@@ -99,8 +101,7 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        mostrarMensaje("Registro exitoso, redirigiendo...", "success");
-        setTimeout(() => window.location.href = "tablero.html", 1000);
+        window.location.href = "tablero.html";
 
     } catch (err) {
         console.error("Error inesperado:", err);

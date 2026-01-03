@@ -3,16 +3,15 @@ import { supabase } from './Supabaseclient.js';
 const form = document.getElementById("loginForm");
 const mensajeDiv = document.getElementById("mensaje");
 
-// Mostrar / ocultar mensajes
 function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
 }
+
 function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
 
-// Toggle contraseña (igual que en registro)
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {
         const input = document.getElementById(btn.dataset.target);
@@ -26,18 +25,24 @@ document.querySelectorAll(".toggle-password").forEach(btn => {
     });
 });
 
-// Validar email
 function validarEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     return re.test(email);
 }
 
-// Login
+let intentosFallidos = 0;
+const MAX_INTENTOS = 5;
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     ocultarMensaje();
 
-    const email = document.getElementById("email").value.trim();
+    if (intentosFallidos >= MAX_INTENTOS) {
+        mostrarMensaje("Has alcanzado el límite de intentos fallidos. Intentalo más tarde.", "error");
+        return;
+    }
+
+    const email = document.getElementById("email").value.trim().toLowerCase();
     const password = document.getElementById("password").value.trim();
 
     if (!email || !password) {
@@ -51,25 +56,47 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
-        // 1️⃣ Login con Supabase Auth
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email.toLowerCase(),
-            password
-        });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error || !data.user) {
-            mostrarMensaje("Credenciales incorrectas", "error");
+            intentosFallidos++;
+
+            const { data: usuarioDB } = await supabase
+                .from("Usuarios")
+                .select("*")
+                .eq("email", email)
+                .single()
+                .catch(() => null);
+
+            if (!usuarioDB) {
+                mostrarMensaje("Usuario no encontrado", "error");
+            } else {
+                mostrarMensaje("Contraseña incorrecta", "error");
+            }
             return;
         }
 
-        // 2️⃣ Guardar datos en sessionStorage
+        intentosFallidos = 0;
+
+        const { data: usuarioDB, error: usuarioError } = await supabase
+            .from("Usuarios")
+            .select("*")
+            .eq("email", email)
+            .single();
+
+        if (usuarioError || !usuarioDB) {
+            mostrarMensaje("Usuario no encontrado", "error");
+            console.error(usuarioError);
+            return;
+        }
+
         sessionStorage.setItem("usuarioActual", JSON.stringify({
-            id: data.user.id,
-            email: data.user.email
+            id: usuarioDB.id,
+            nombre: usuarioDB.nombre,
+            email: usuarioDB.email
         }));
 
-        mostrarMensaje("Login correcto, redirigiendo...", "success");
-        setTimeout(() => window.location.href = "tablero.html", 800);
+        window.location.href = "tablero.html";
 
     } catch (err) {
         console.error("Error inesperado:", err);
