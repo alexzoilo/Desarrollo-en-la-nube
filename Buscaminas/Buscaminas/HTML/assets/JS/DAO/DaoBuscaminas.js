@@ -1,5 +1,4 @@
 import { supabase } from "../Supabaseclient.js";
-import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
 
@@ -8,16 +7,16 @@ export class DAOBuscaminas {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId,
+        usuarioId: buscaminas.usuarioId, // UUID del usuario logueado
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
+        celdasDescubiertas: buscaminas.descubiertas,
         dificultad: buscaminas.dificultad,
         tiempoInicio: new Date().toISOString(),
         tiempoFin: null,
         tablero: buscaminas.tablero,
-        minas: buscaminas.minas,
-        celdasDescubiertas: buscaminas.descubiertas
+        minas: buscaminas.minas
       })
       .select("id")
       .single();
@@ -27,7 +26,7 @@ export class DAOBuscaminas {
     return buscaminas;
   }
 
-  // Guardar partida
+  // Guardar partida (update)
   async guardarPartida(id, celdasDescubiertas, tablero) {
     const { error } = await supabase
       .from("Buscaminas")
@@ -47,7 +46,7 @@ export class DAOBuscaminas {
     if (error) throw error;
   }
 
-  // Buscar la última partida activa (sin tiempoFin) de un usuario
+  // Última partida sin terminar del usuario
   async findPartidaActiva(usuarioId) {
     const { data, error } = await supabase
       .from("Buscaminas")

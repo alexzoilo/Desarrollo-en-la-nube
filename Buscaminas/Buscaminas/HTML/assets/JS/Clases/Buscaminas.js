@@ -1,4 +1,4 @@
-import { Dificultad } from "../Clases/Dificultad.js";
+import { Dificultad } from "./Dificultad.js";
 
 export class Buscaminas {
   constructor(usuarioId = null, filas = 0, columnas = 0, dificultad = null) {
@@ -9,144 +9,82 @@ export class Buscaminas {
     this.totalCeldas = filas * columnas;
     this.celdasDescubiertas = 0;
     this.dificultad = dificultad;
-    this.tiempoInicio = new Date();
-    this.tiempoFin = null;
 
     this.tablero = [];
     this.descubiertas = [];
-    this.numMinas = 0;
+    this.minas = [];
 
     if (filas > 0 && columnas > 0 && dificultad) {
       this.numMinas = this.calcularMinasPorDificultad(dificultad);
-      this.iniciar(filas, columnas, this.numMinas);
+      this.iniciarTablero(filas, columnas, this.numMinas);
     }
   }
 
-  iniciar(filas, columnas, numMinas) {
+  iniciarTablero(filas, columnas, numMinas) {
     this.filas = filas;
     this.columnas = columnas;
-    this.numMinas = numMinas;
     this.totalCeldas = filas * columnas;
-    this.celdasDescubiertas = 0;
 
-    this.tablero = Array.from({ length: filas }, () =>
-      Array(columnas).fill(0)
-    );
+    // Inicializar tablero y descubiertas
+    this.tablero = Array.from({ length: filas }, () => Array(columnas).fill(0));
+    this.descubiertas = Array.from({ length: filas }, () => Array(columnas).fill(false));
 
-    this.descubiertas = Array.from({ length: filas }, () =>
-      Array(columnas).fill(false)
-    );
+    // Colocar minas aleatoriamente
+    this.minas = [];
+    let colocadas = 0;
+    while (colocadas < numMinas) {
+      const f = Math.floor(Math.random() * filas);
+      const c = Math.floor(Math.random() * columnas);
+      if (this.tablero[f][c] !== -1) {
+        this.tablero[f][c] = -1;
+        this.minas.push([f, c]);
+        colocadas++;
+      }
+    }
 
-    this.colocarMinas(numMinas);
-    this.calcularNumeros();
-    this.iniciarCronometro();
+    // Calcular números alrededor de minas
+    for (let i = 0; i < filas; i++) {
+      for (let j = 0; j < columnas; j++) {
+        if (this.tablero[i][j] === -1) continue;
+        let contador = 0;
+        for (let x = i - 1; x <= i + 1; x++) {
+          for (let y = j - 1; y <= j + 1; y++) {
+            if (x >= 0 && y >= 0 && x < filas && y < columnas && this.tablero[x][y] === -1)
+              contador++;
+          }
+        }
+        this.tablero[i][j] = contador;
+      }
+    }
   }
 
-  descubrir(fil, col) {
-    if (!this.esCeldaValida(fil, col) || this.descubiertas[fil][col]) {
+  descubrir(f, c) {
+    if (f < 0 || c < 0 || f >= this.filas || c >= this.columnas || this.descubiertas[f][c])
       return true;
-    }
 
-    this.descubiertas[fil][col] = true;
+    this.descubiertas[f][c] = true;
     this.celdasDescubiertas++;
 
-    if (this.tablero[fil][col] === -1) {
-      this.detenerCronometro();
-      return false;
-    }
+    if (this.tablero[f][c] === -1) return false;
 
-    if (this.tablero[fil][col] === 0) {
-      for (let i = fil - 1; i <= fil + 1; i++) {
-        for (let j = col - 1; j <= col + 1; j++) {
-          this.descubrir(i, j);
-        }
+    if (this.tablero[f][c] === 0) {
+      for (let i = f - 1; i <= f + 1; i++) {
+        for (let j = c - 1; j <= c + 1; j++) this.descubrir(i, j);
       }
     }
     return true;
   }
 
-  contarMinasCercanas(fil, col) {
-    let contador = 0;
-
-    for (let i = fil - 1; i <= fil + 1; i++) {
-      for (let j = col - 1; j <= col + 1; j++) {
-        if (this.esCeldaValida(i, j) && this.tablero[i][j] === -1) {
-          contador++;
-        }
-      }
-    }
-    return contador;
-  }
-
   verificarVictoria() {
-    const celdasSinMinas = this.totalCeldas - this.numMinas;
-    if (this.celdasDescubiertas >= celdasSinMinas) {
-      this.detenerCronometro();
-      return true;
-    }
-    return false;
-  }
-
-  reiniciar() {
-    this.iniciar(this.filas, this.columnas, this.numMinas);
-  }
-
-  esCeldaValida(fil, col) {
-    return fil >= 0 && fil < this.filas && col >= 0 && col < this.columnas;
-  }
-
-  colocarMinas(numMinas) {
-    let colocadas = 0;
-
-    while (colocadas < numMinas) {
-      const f = Math.floor(Math.random() * this.filas);
-      const c = Math.floor(Math.random() * this.columnas);
-
-      if (this.tablero[f][c] !== -1) {
-        this.tablero[f][c] = -1;
-        colocadas++;
-      }
-    }
-  }
-
-  calcularNumeros() {
-    for (let i = 0; i < this.filas; i++) {
-      for (let j = 0; j < this.columnas; j++) {
-        if (this.tablero[i][j] !== -1) {
-          this.tablero[i][j] = this.contarMinasCercanas(i, j);
-        }
-      }
-    }
-  }
-
-  calcularPuntuacion() {
-    let puntos = this.celdasDescubiertas * 10;
-
-    if (this.dificultad === Dificultad.MEDIO) puntos *= 1.5;
-    if (this.dificultad === Dificultad.DIFICIL) puntos *= 2;
-
-    return Math.floor(puntos);
-  }
-
-  iniciarCronometro() {
-    this.tiempoInicio = new Date();
-  }
-
-  detenerCronometro() {
-    this.tiempoFin = new Date();
-    return Math.floor((this.tiempoFin - this.tiempoInicio) / 1000);
+    return this.celdasDescubiertas >= this.totalCeldas - this.minas.length;
   }
 
   calcularMinasPorDificultad(dificultad) {
     switch (dificultad) {
-      case Dificultad.FACIL:
-        return Math.floor((this.filas * this.columnas) / 5);
-      case Dificultad.MEDIO:
-        return Math.floor((this.filas * this.columnas) / 8);
-      case Dificultad.DIFICIL:
-        return Math.floor((this.filas * this.columnas) / 20);
-      default:
-        return Math.floor((this.filas * this.columnas) / 5);
+      case Dificultad.FACIL: return Math.floor(this.filas * this.columnas / 10);
+      case Dificultad.MEDIO: return Math.floor(this.filas * this.columnas / 6);
+      case Dificultad.DIFICIL: return Math.floor(this.filas * this.columnas / 4);
+      default: return Math.floor(this.filas * this.columnas / 10);
     }
   }
 }
