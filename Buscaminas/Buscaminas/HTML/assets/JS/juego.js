@@ -28,6 +28,19 @@ const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
 const btnGuardar = document.getElementById("btnGuardar");
 
+async function obtenerUsuarioLogueado() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+        console.error("Error obteniendo usuario:", error);
+        return null;
+    }
+    if (!user) {
+        console.warn("No hay usuario logueado");
+        return null;
+    }
+    return user.id; // devuelve el UUID del usuario
+}
+
 // ========== UTILIDADES ==========
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, '0');
@@ -96,14 +109,23 @@ function detenerTemporizador() {
 }
 
 // ========== PARTIDA ==========
-async function iniciarJuego(dif) {
-    if (!usuarioId) {
-        const {
-            data: user
-        } = await supabase.auth.getUser();
-        usuarioId = user?.id;
-        if (!usuarioId) return alert("Usuario no logueado");
-    }
+async function iniciarJuego(dificultad) {
+    const usuarioId = await obtenerUsuarioLogueado();
+    if (!usuarioId) return; // no hay usuario logueado
+
+    ajustarFilasColumnas(dificultad);
+
+    juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
+
+    await dao.crearPartida(juego); // guarda partida nueva en DB
+
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
+    ocultarMensaje();
+    btnControl.textContent = "⏸ Pausar";
+}
+
 
     ajustarFilasColumnas(dif);
     juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dif]);
@@ -125,7 +147,6 @@ async function iniciarJuego(dif) {
     });
 
     btnControl.textContent = "⏸ Pausar";
-}
 
 function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
@@ -152,19 +173,14 @@ btnGuardar.onclick = async () => {
 
 // ========== CARGAR PARTIDA ==========
 async function cargarPartida() {
-    if (!usuarioId) {
-        const {
-            data: user
-        } = await supabase.auth.getUser();
-        usuarioId = user?.id;
-    }
-    const data = await dao.findPartidaActiva(usuarioId);
-    if (!data) return;
-    filas = data.filas;
-    columnas = data.columnas;
-    dificultadActual = data.dificultad;
+    const usuarioId = await obtenerUsuarioLogueado();
+    if (!usuarioId) return; // no hay usuario logueado, no continuar
 
-    juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultadActual]);
+    const data = await dao.findPartidaActiva(usuarioId);
+    if (!data) return; // no hay partida activa
+
+    // tu código de carga de partida:
+    juego = new Buscaminas(usuarioId, data.filas, data.columnas, Dificultad[data.dificultad]);
     juego.id = data.id;
     juego.tablero = data.tablero;
     juego.descubiertas = data.celdasDescubiertas;
@@ -174,18 +190,24 @@ async function cargarPartida() {
     actualizarTablero();
 }
 
+
 window.onload = cargarPartida;
 
-// ========== CONTROL ==========
-btnControl.onclick = () => {
-    if (!juego) iniciarJuego(selectDificultad.value);
-    else if (!juegoPausado) {
+btnControl.addEventListener('click', async () => {
+    if (!juego) {
+        await iniciarJuego(selectDificultad.value);
+        return;
+    }
+
+    if (!juegoPausado) {
         juegoPausado = true;
         detenerTemporizador();
         btnControl.textContent = "▶ Reanudar";
+        mostrarMensaje("⏸ Juego en pausa");
     } else {
         juegoPausado = false;
         iniciarTemporizador();
         btnControl.textContent = "⏸ Pausar";
+        ocultarMensaje();
     }
-};
+});
