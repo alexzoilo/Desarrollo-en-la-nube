@@ -9,6 +9,7 @@ function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
 }
+
 function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
@@ -58,11 +59,11 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        // 2️⃣ Insertar datos del juego en la tabla Usuarios
+        // 2️⃣ Insertar datos en tabla Usuarios (sin password)
         const { error: insertError } = await supabase
             .from("Usuarios")
             .insert({
-                id: data.user.id,
+                id: data.user.id,  // mismo UUID que Auth
                 nombre,
                 partidasGanadas: 0,
                 partidasPerdidas: 0
