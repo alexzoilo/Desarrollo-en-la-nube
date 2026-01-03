@@ -1,15 +1,8 @@
 import { supabase } from './Supabaseclient.js';
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 
 const form = document.getElementById("loginForm");
-const mensajeDiv = document.getElementById("mensaje");
 
-function mostrarMensaje(txt, tipo = "info") {
-    mensajeDiv.textContent = txt;
-    mensajeDiv.style.color = tipo === "error" ? "red" : "green";
-}
-function ocultarMensaje() {
-    mensajeDiv.textContent = "";
-}
 
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {

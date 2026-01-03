@@ -1,5 +1,4 @@
 export function mostrarMensaje(txt, tipo = "info", elemento = null) {
-    // Si no se pasa un elemento, buscar por id "mensaje"
     const mensajeDiv = elemento || document.getElementById("mensaje");
     if (!mensajeDiv) return;
 
