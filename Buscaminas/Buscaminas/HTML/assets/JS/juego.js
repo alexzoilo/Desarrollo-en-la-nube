@@ -155,7 +155,7 @@ btnControl.addEventListener("click", async () => {
         juegoPausado = true;
         detenerTemporizador();
         btnControl.textContent = "▶ Reanudar";
-        mostrarMensaje("⏸ Juego en pausa");
+        mostrarMensaje("⏸ Juego en pausa", "info");
     } else {
         juegoPausado = false;
         iniciarTemporizador();
