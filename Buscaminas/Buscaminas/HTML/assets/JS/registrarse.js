@@ -3,7 +3,7 @@ import { supabase } from './Supabaseclient.js';
 const form = document.getElementById("registerForm");
 const mensajeDiv = document.getElementById("mensaje");
 
-// Mostrar / ocultar mensajes
+// Mostrar mensajes
 function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
@@ -12,7 +12,7 @@ function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
 
-// Toggle contraseña
+// Mostrar/ocultar contraseña
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {
         const input = document.getElementById(btn.dataset.target);
@@ -58,7 +58,19 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
-        // 1️⃣ Crear usuario en Supabase Auth
+        // ✅ Comprobar si ya existe el nombre en la tabla Usuarios
+        const { data: nombreExistente } = await supabase
+            .from("Usuarios")
+            .select("id")
+            .eq("nombre", nombre)
+            .single();
+
+        if (nombreExistente) {
+            mostrarMensaje("❌ Nombre de usuario ya existente", "error");
+            return;
+        }
+
+        // 1️⃣ Registro en Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password
@@ -69,13 +81,13 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        // 2️⃣ Insertar datos del usuario en tabla Usuarios
+        // 2️⃣ Insertar en tabla Usuarios
         const { error: insertError } = await supabase
             .from("Usuarios")
             .insert({
-                id: authData.user.id, // UUID del Auth
+                id: authData.user.id,
                 nombre,
-                email,                // Guardamos email en la tabla
+                email,
                 partidasGanadas: 0,
                 partidasPerdidas: 0,
                 tiempoUltimaPartida: 0,
