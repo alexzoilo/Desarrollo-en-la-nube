@@ -1,15 +1,7 @@
-import {
-    Buscaminas
-} from "./Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "./Clases/Dificultad.js";
-import {
-    DAOBuscaminas
-} from "./DAO/DaoBuscaminas.js";
-import {
-    supabase
-} from "./Supabaseclient.js";
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
+import { supabase } from "./Supabaseclient.js";
 
 const dao = new DAOBuscaminas();
 let juego = null;
@@ -19,8 +11,8 @@ let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
 let timerInterval = null;
-let usuarioId = null;
 
+// DOM
 const tableroDiv = document.getElementById("tablero");
 const selectDificultad = document.getElementById("dificultad");
 const temporizadorSpan = document.getElementById("temporizador");
@@ -28,26 +20,7 @@ const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
 const btnGuardar = document.getElementById("btnGuardar");
 
-/* ==================== OBTENER USUARIO ==================== */
-async function obtenerUsuarioLogueado() {
-    const {
-        data: {
-            user
-        },
-        error
-    } = await supabase.auth.getUser();
-    if (error) {
-        console.error("Error obteniendo usuario:", error);
-        return null;
-    }
-    if (!user) {
-        console.warn("No hay usuario logueado");
-        return null;
-    }
-    return user.id; // UUID del usuario
-}
-
-/* ==================== UTILIDADES ==================== */
+// =================== UTILIDADES ===================
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
@@ -69,7 +42,7 @@ function ajustarFilasColumnas(dif) {
     selectDificultad.value = dificultadActual;
 }
 
-/* ==================== TABLERO ==================== */
+// =================== TABLERO ===================
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -100,7 +73,7 @@ function actualizarTablero() {
     }
 }
 
-/* ==================== TEMPORIZADOR ==================== */
+// =================== TEMPORIZADOR ===================
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
@@ -114,16 +87,27 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-/* ==================== PARTIDA ==================== */
+// =================== PARTIDA ===================
+async function obtenerUsuarioLogueado() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+        console.error("Error obteniendo usuario:", error);
+        return null;
+    }
+    return user?.id || null;
+}
+
 async function iniciarJuego(dificultad) {
-    usuarioId = await obtenerUsuarioLogueado();
-    if (!usuarioId) return;
+    const usuarioId = await obtenerUsuarioLogueado();
+    if (!usuarioId) {
+        mostrarMensaje("❌ Debes iniciar sesión primero");
+        return;
+    }
 
     ajustarFilasColumnas(dificultad);
-
     juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
 
-    // Guardar partida nueva
+    // Crear partida nueva en DB
     await dao.crearPartida(juego);
 
     crearTableroHTML();
@@ -137,6 +121,7 @@ function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
     const ok = juego.descubrir(f, c);
     actualizarTablero();
+
     if (!ok) finalizar("💥 Has perdido");
     else if (juego.verificarVictoria()) finalizar("🏆 Has ganado");
 }
@@ -149,52 +134,14 @@ async function finalizar(msg) {
     btnControl.textContent = "▶ Iniciar";
 }
 
-/* ==================== GUARDAR ==================== */
+// =================== GUARDAR ===================
 btnGuardar.onclick = async () => {
     if (!juego) return mostrarMensaje("❌ No hay partida");
     await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
     mostrarMensaje("💾 Partida guardada");
 };
 
-/* ==================== CARGAR ==================== */
-async function cargarPartida() {
-    usuarioId = await obtenerUsuarioLogueado();
-    if (!usuarioId) return;
-
-    // Aquí usamos Supabase JS correctamente para evitar 406
-    const {
-        data,
-        error
-    } = await supabase
-        .from("Buscaminas")
-        .select("*")
-        .eq("usuarioId", usuarioId)
-        .is("tiempoFin", null)
-        .order("tiempoInicio", {
-            ascending: false
-        })
-        .limit(1)
-        .single();
-
-    if (error) {
-        console.error("Error al cargar partida activa:", error);
-        return;
-    }
-    if (!data) return;
-
-    juego = new Buscaminas(usuarioId, data.filas, data.columnas, Dificultad[data.dificultad]);
-    juego.id = data.id;
-    juego.tablero = data.tablero;
-    juego.descubiertas = data.celdasDescubiertas;
-    juego.minas = data.minas;
-
-    crearTableroHTML();
-    actualizarTablero();
-}
-
-/* ==================== INICIALIZACIÓN ==================== */
-window.onload = cargarPartida;
-
+// =================== BOTÓN CONTROL ===================
 btnControl.addEventListener("click", async () => {
     if (!juego) {
         await iniciarJuego(selectDificultad.value);
