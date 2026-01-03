@@ -1,5 +1,5 @@
 
-btnGuardar.onclick = async () => {
+btnListaPartidas.onclick = async () => {
     try {
         // 1️⃣ Obtener usuario logueado
         const { data: { user }, error: userError } = await supabase.auth.getUser();

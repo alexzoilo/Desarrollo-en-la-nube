@@ -100,7 +100,6 @@ async function iniciarJuego(dificultad) {
     ajustarFilasColumnas(dificultad);
     selectDificultad.disabled = true;
 
-    // Crear instancia de Buscaminas
     juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
 
     try {
