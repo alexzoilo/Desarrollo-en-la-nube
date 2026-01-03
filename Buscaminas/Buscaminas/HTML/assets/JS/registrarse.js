@@ -14,20 +14,6 @@ function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
 
-// Mostrar/ocultar contraseñas
-document.querySelectorAll(".toggle-password").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const input = document.getElementById(btn.dataset.target);
-        if (input.type === "password") {
-            input.type = "text";
-            btn.textContent = "🔒";
-        } else {
-            input.type = "password";
-            btn.textContent = "🔓";
-        }
-    });
-});
-
 // Registro
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -74,8 +60,7 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        mostrarMensaje("Registro exitoso, redirigiendo...", "success");
-        setTimeout(() => window.location.href = "tablero.html", 1000);
+        window.location.href = "tablero.html"
 
     } catch (err) {
         console.error("Error inesperado:", err);
