@@ -1,6 +1,6 @@
 import { supabase } from './Supabaseclient.js';
 import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
-import { togglePassword, validarEmail } from './comprobaciones.js';
+import { togglePassword, validarEmail } from './extras/Comprobaciones.js';
 
 const form = document.getElementById("registerForm");
 
