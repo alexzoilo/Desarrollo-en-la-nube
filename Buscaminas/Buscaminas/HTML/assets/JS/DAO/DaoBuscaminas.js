@@ -7,7 +7,7 @@ export class DAOBuscaminas {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId, // UUID del usuario logueado
+        usuarioId: buscaminas.usuarioId,
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
@@ -51,8 +51,7 @@ export class DAOBuscaminas {
     const { data, error } = await supabase
       .from("Buscaminas")
       .select("*")
-      .eq("usuarioId", usuarioId)
-      .is("tiempoFin", null)
+      .match({ usuarioId, tiempoFin: null })
       .order("tiempoInicio", { ascending: false })
       .limit(1)
       .single();
