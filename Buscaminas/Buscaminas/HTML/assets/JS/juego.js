@@ -12,15 +12,12 @@ let juegoPausado = false;
 let segundosTotales = 0;
 let timerInterval = null;
 
-// ---------------- DOM ----------------
 const tableroDiv = document.getElementById("tablero");
 const selectDificultad = document.getElementById("dificultad");
 const temporizadorSpan = document.getElementById("temporizador");
 const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
-const btnGuardar = document.getElementById("btnGuardar");
 
-// ================== UTILIDADES ==================
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
@@ -37,7 +34,6 @@ function ajustarFilasColumnas(dif) {
     selectDificultad.value = dificultadActual;
 }
 
-// ================== OBTENER USUARIO LOGUEADO ==================
 async function obtenerUsuarioLogueado() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
@@ -48,10 +44,9 @@ async function obtenerUsuarioLogueado() {
         console.warn("No hay usuario logueado");
         return null;
     }
-    return user.id; // UUID del usuario logueado
+    return user.id;
 }
 
-// ================== TABLERO ==================
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -82,7 +77,6 @@ function actualizarTablero() {
     }
 }
 
-// ================== TEMPORIZADOR ==================
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
@@ -96,7 +90,6 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-// ================== PARTIDA ==================
 async function iniciarJuego(dificultad) {
     const usuarioId = await obtenerUsuarioLogueado();
     if (!usuarioId) {
@@ -105,13 +98,13 @@ async function iniciarJuego(dificultad) {
     }
 
     ajustarFilasColumnas(dificultad);
-    selectDificultad.disabled = true; // Bloquear dificultad mientras dure la partida
+    selectDificultad.disabled = true;
 
     // Crear instancia de Buscaminas
     juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
 
     try {
-        await dao.crearPartida(juego); // Guardar partida en Supabase
+        await dao.crearPartida(juego);
         console.log("Partida creada con id:", juego.id, "usuario:", usuarioId);
     } catch (e) {
         console.error("Error creando partida:", e);
@@ -152,84 +145,9 @@ async function finalizar(msg) {
 
     juego = null;
     btnControl.textContent = "▶ Iniciar";
-    selectDificultad.disabled = false; // desbloquear dificultad
+    selectDificultad.disabled = false;
 }
 
-btnGuardar.textContent = "📂 Cargar Partida";
-
-btnGuardar.onclick = async () => {
-    try {
-        // 1️⃣ Obtener usuario logueado
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            mostrarMensaje("❌ Debes iniciar sesión");
-            return;
-        }
-
-        const usuarioId = user.id;
-
-        // 2️⃣ Consultar partidas del usuario
-        const partidas = await dao.listarPartidas(usuarioId);
-        if (!partidas || partidas.length === 0) {
-            mostrarMensaje("❌ No tienes partidas guardadas");
-            return;
-        }
-
-        // 3️⃣ Mostrar lista de partidas
-        const listaDiv = document.createElement("div");
-        listaDiv.className = "lista-partidas";
-
-        partidas.forEach(p => {
-            const btn = document.createElement("button");
-            btn.textContent = `Partida ${p.id.slice(0, 8)} | ${p.dificultad} | ${new Date(p.tiempoInicio).toLocaleString()}`;
-            btn.onclick = () => cargarPartida(p, usuarioId); // pasamos usuarioId
-            listaDiv.appendChild(btn);
-        });
-
-        tableroDiv.innerHTML = "";
-        tableroDiv.appendChild(listaDiv);
-
-    } catch (e) {
-        console.error("Error cargando partidas:", e);
-        mostrarMensaje("❌ Error al cargar partidas");
-    }
-};
-
-// ---------------- FUNCION PARA CARGAR UNA PARTIDA ----------------
-function cargarPartida(partida, usuarioId) {
-    if (juego) {
-        detenerTemporizador();
-        juego = null;
-    }
-
-    juego = new Buscaminas(
-        usuarioId,
-        partida.filas,
-        partida.columnas,
-        Dificultad[partida.dificultad]
-    );
-
-    juego.id = partida.id;
-    juego.tablero = partida.tablero;
-    juego.descubiertas = partida.celdasDescubiertas;
-    juego.minas = partida.minas;
-
-    filas = partida.filas;
-    columnas = partida.columnas;
-    dificultadActual = partida.dificultad;
-
-    crearTableroHTML();
-    actualizarTablero();
-
-    segundosTotales = 0;
-    iniciarTemporizador();
-
-    btnControl.textContent = "⏸ Pausar";
-    selectDificultad.disabled = true;
-    ocultarMensaje();
-}
-
-// ================== BOTÓN CONTROL ==================
 btnControl.addEventListener("click", async () => {
     if (!juego) {
         await iniciarJuego(selectDificultad.value);
