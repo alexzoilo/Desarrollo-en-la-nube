@@ -1,57 +1,71 @@
-// juego.js
 import { supabase } from "./Supabaseclient.js";
 import { Buscaminas } from "./Clases/Buscaminas.js";
 import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 
-/* ================= VARIABLES ================= */
+const dao = new DAOBuscaminas();
+
 let juego = null;
+let partidaId = null;
 let timerInterval = null;
+
 let filas = 9;
 let columnas = 9;
 let dificultadActual = "FACIL";
 let juegoPausado = false;
 let segundosTotales = 0;
 
-const tableroDiv = document.getElementById('tablero');
-const selectDificultad = document.getElementById('dificultad');
-const temporizadorSpan = document.getElementById('temporizador');
-const mensajeDiv = document.getElementById('mensaje');
-const btnControl = document.getElementById('btnControl');
-const btnGuardar = document.getElementById('btnGuardar');
+const tableroDiv = document.getElementById("tablero");
+const selectDificultad = document.getElementById("dificultad");
+const temporizadorSpan = document.getElementById("temporizador");
+const mensajeDiv = document.getElementById("mensaje");
+const btnControl = document.getElementById("btnControl");
 
-/* ================= UTILIDADES ================= */
-function ajustarFilasColumnas(dif) {
-    dificultadActual = dif;
-    filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
-    selectDificultad.value = dificultadActual;
+/* =========================
+   UTILIDADES
+========================= */
+
+function ajustarFilasColumnas(dificultad) {
+    dificultadActual = dificultad;
+    if (dificultad === "FACIL") { filas = 10; columnas = 10; }
+    if (dificultad === "MEDIO") { filas = 15; columnas = 15; }
+    if (dificultad === "DIFICIL") { filas = 20; columnas = 20; }
 }
 
-function formatTiempo(seg) {
-    const h = String(Math.floor(seg / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seg % 3600) / 60)).padStart(2, '0');
-    const s = String(seg % 60).padStart(2, '0');
-    return `Cronómetro: ${h}:${m}:${s}`;
+function formatTiempo(segundos) {
+    const h = Math.floor(segundos / 3600);
+    const m = Math.floor((segundos % 3600) / 60);
+    const s = segundos % 60;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
 }
 
-function mostrarMensaje(txt) {
+function mostrarMensaje(txt, clase = "") {
     mensajeDiv.textContent = txt;
+    mensajeDiv.className = clase;
 }
 
 function ocultarMensaje() {
-    mensajeDiv.textContent = '';
+    mensajeDiv.textContent = "";
+    mensajeDiv.className = "";
 }
 
-/* ================= TABLERO ================= */
+/* =========================
+   TABLERO
+========================= */
+
 function crearTableroHTML() {
-    tableroDiv.innerHTML = '';
+    tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
 
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const c = document.createElement('div');
-            c.className = 'celda';
-            c.onclick = () => clickCelda(i, j);
-            tableroDiv.appendChild(c);
+            const d = document.createElement("div");
+            d.classList.add("celda");
+            d.dataset.fila = i;
+            d.dataset.col = j;
+
+            d.addEventListener("click", () => clickCelda(i, j));
+            tableroDiv.appendChild(d);
         }
     }
 }
@@ -59,20 +73,23 @@ function crearTableroHTML() {
 function actualizarTablero() {
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
-            const c = tableroDiv.children[i * columnas + j];
-            c.textContent = '';
-            c.classList.remove('revelada');
+            const celda = tableroDiv.children[i * columnas + j];
+            celda.textContent = "";
+            celda.className = "celda";
 
             if (juego.descubiertas[i][j]) {
-                c.classList.add('revelada');
-                if (juego.tablero[i][j] === -1) c.textContent = '💣';
-                else if (juego.tablero[i][j] > 0) c.textContent = juego.tablero[i][j];
+                celda.classList.add("revelada");
+                if (juego.tablero[i][j] === -1) celda.textContent = "💣";
+                else if (juego.tablero[i][j] > 0) celda.textContent = juego.tablero[i][j];
             }
         }
     }
 }
 
-/* ================= TEMPORIZADOR ================= */
+/* =========================
+   TEMPORIZADOR
+========================= */
+
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
@@ -86,151 +103,114 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-/* ================= API SUPABASE ================= */
-async function crearPartidaEnBD() {
+/* =========================
+   JUEGO
+========================= */
+
+async function iniciarJuego(dificultad) {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Usuario no logueado");
+    if (!user) return;
 
-    const { data, error } = await supabase
-        .from('Buscaminas')
-        .insert({
-            usuarioId: user.id,   // UUID del usuario logueado
-            filas,
-            columnas,
-            totalCeldas: filas * columnas,
-            celdasDescubiertas: juego.descubiertas,
-            dificultad: dificultadActual,
-            tiempoInicio: new Date().toISOString(),
-            tiempoFin: null,
-            tablero: juego.tablero,
-            minas: juego.minas
-        })
-        .select('id')
-        .single();
+    ajustarFilasColumnas(dificultad);
 
-    if (error) throw error;
-    juego.id = data.id;
-}
-
-async function guardarPartidaEnBD() {
-    if (!juego) return;
-    const { error } = await supabase
-        .from('Buscaminas')
-        .update({
-            celdasDescubiertas: juego.descubiertas,
-            tablero: juego.tablero
-        })
-        .eq('id', juego.id);
-
-    if (error) throw error;
-}
-
-async function finalizarPartidaEnBD() {
-    if (!juego) return;
-    const { error } = await supabase
-        .from('Buscaminas')
-        .update({ tiempoFin: new Date().toISOString() })
-        .eq('id', juego.id);
-
-    if (error) throw error;
-}
-
-async function cargarPartidaActiva() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-
-    const { data, error } = await supabase
-        .from('Buscaminas')
-        .select('*')
-        .eq('usuarioId', user.id)
-        .is('tiempoFin', null)
-        .order('tiempoInicio', { ascending: false })
-        .limit(1)
-        .single();
-
-    if (error || !data) return null;
-    return data;
-}
-
-/* ================= PARTIDA ================= */
-async function iniciarJuego(dif) {
-    ajustarFilasColumnas(dif);
-    juego = new Buscaminas(null, filas, columnas, Dificultad[dif]);
-    juego.descubiertas = Array.from({ length: filas }, () => Array(columnas).fill(false));
-    juego.minas = juego.generarMinas(); // función propia de la clase Buscaminas
+    juego = new Buscaminas(
+        null,
+        filas,
+        columnas,
+        Dificultad[dificultadActual]
+    );
 
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
     ocultarMensaje();
 
-    await crearPartidaEnBD();
+    const partida = await dao.crearPartida({
+        usuarioId: user.id,
+        filas,
+        columnas,
+        totalCeldas: filas * columnas,
+        dificultad: dificultadActual,
+        tablero: juego.tablero,
+        minas: juego.minas,
+        descubiertas: juego.descubiertas
+    });
+
+    partidaId = partida.id;
 }
 
-function clickCelda(f, c) {
-    if (!juego) return;
-    const exito = juego.descubrir(f, c);
+async function clickCelda(fila, col) {
+    if (!juego || juegoPausado) return;
+
+    const ok = juego.descubrir(fila, col);
     actualizarTablero();
 
-    if (!exito) perderJuego();
-    else if (juego.verificarVictoria()) ganarNivel();
+    await dao.guardarPartida(
+        partidaId,
+        juego.tablero,
+        juego.descubiertas
+    );
+
+    if (!ok) perder();
+    else if (juego.verificarVictoria()) ganar();
 }
 
-function perderJuego() {
+async function perder() {
     detenerTemporizador();
-    mostrarMensaje('💥 Has perdido');
-    finalizarPartidaEnBD();
-    juego = null;
-    btnControl.textContent = '▶ Iniciar';
+    mostrarMensaje("💥 Has perdido", "perdido");
+    await dao.finalizarPartida(partidaId);
+    resetJuego();
 }
 
-function ganarNivel() {
+async function ganar() {
     detenerTemporizador();
-    mostrarMensaje('🏆 Has ganado');
-    finalizarPartidaEnBD();
-    juego = null;
-    btnControl.textContent = '▶ Iniciar';
+    mostrarMensaje("🏆 Has ganado", "ganado");
+    await dao.finalizarPartida(partidaId);
+    resetJuego();
 }
 
-/* ================= EVENTOS ================= */
-btnControl.onclick = async () => {
-    if (!juego) {
-        await iniciarJuego(selectDificultad.value);
-    } else {
-        juegoPausado = !juegoPausado;
-        if (juegoPausado) {
-            detenerTemporizador();
-            btnControl.textContent = '▶ Reanudar';
-            mostrarMensaje('⏸ Juego en pausa');
-        } else {
-            iniciarTemporizador();
-            btnControl.textContent = '⏸ Pausar';
-            ocultarMensaje();
-        }
-    }
-};
+function resetJuego() {
+    juego = null;
+    partidaId = null;
+    segundosTotales = 0;
+}
 
-btnGuardar.onclick = async () => {
-    if (!juego) return mostrarMensaje('❌ No hay partida');
-    await guardarPartidaEnBD();
-    mostrarMensaje('💾 Partida guardada');
-};
+/* =========================
+   CARGAR PARTIDA ACTIVA
+========================= */
 
-/* ================= CARGA INICIAL ================= */
 window.onload = async () => {
-    const data = await cargarPartidaActiva();
-    if (!data) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-    juego = new Buscaminas(null, data.filas, data.columnas, Dificultad[data.dificultad]);
-    juego.id = data.id;
-    juego.tablero = data.tablero;
-    juego.descubiertas = data.celdasDescubiertas;
-    juego.minas = data.minas;
-    filas = data.filas;
-    columnas = data.columnas;
-    dificultadActual = data.dificultad;
+    const partida = await dao.cargarPartidaActiva(user.id);
+    if (!partida) return;
+
+    filas = partida.filas;
+    columnas = partida.columnas;
+    dificultadActual = partida.dificultad;
+    partidaId = partida.id;
+
+    juego = new Buscaminas(
+        partida.id,
+        filas,
+        columnas,
+        Dificultad[dificultadActual]
+    );
+
+    juego.tablero = partida.tablero;
+    juego.minas = partida.minas;
+    juego.descubiertas = partida.celdasDescubiertas;
 
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
 };
+
+/* =========================
+   BOTÓN
+========================= */
+
+btnControl.addEventListener("click", () => {
+    if (!juego) iniciarJuego(selectDificultad.value);
+});

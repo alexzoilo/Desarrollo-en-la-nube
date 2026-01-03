@@ -1,49 +1,41 @@
 import { supabase } from "../Supabaseclient.js";
-import { Buscaminas } from "../Clases/Buscaminas.js";
 
 export class DAOBuscaminas {
 
-  // Crear partida nueva
   async crearPartida(buscaminas) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .insert({
-        usuarioId: buscaminas.usuarioId,          // UUID del usuario logueado
+        usuarioId: buscaminas.usuarioId, // UUID DEL USER LOGUEADO
         filas: buscaminas.filas,
         columnas: buscaminas.columnas,
         totalCeldas: buscaminas.totalCeldas,
         dificultad: buscaminas.dificultad,
         tiempoInicio: new Date().toISOString(),
         tiempoFin: null,
-        tablero: JSON.stringify(buscaminas.tablero),
-        minas: JSON.stringify(buscaminas.minas),
-        celdasDescubiertas: JSON.stringify(buscaminas.descubiertas)
+        tablero: buscaminas.tablero,
+        minas: buscaminas.minas,
+        celdasDescubiertas: buscaminas.descubiertas
       })
-      .select("id")
-      .single();
+      .select()
+      .maybeSingle();
 
     if (error) throw error;
-    buscaminas.id = data.id;
-    return buscaminas;
+    return data;
   }
 
-  // Guardar partida (update)
-  async guardarPartida(id, celdasDescubiertas, tablero, minas=null) {
-    const payload = {
-      celdasDescubiertas: JSON.stringify(celdasDescubiertas),
-      tablero: JSON.stringify(tablero)
-    };
-    if (minas) payload.minas = JSON.stringify(minas);
-
+  async guardarPartida(id, tablero, celdasDescubiertas) {
     const { error } = await supabase
       .from("Buscaminas")
-      .update(payload)
+      .update({
+        tablero,
+        celdasDescubiertas
+      })
       .eq("id", id);
 
     if (error) throw error;
   }
 
-  // Finalizar partida
   async finalizarPartida(id) {
     const { error } = await supabase
       .from("Buscaminas")
@@ -53,8 +45,7 @@ export class DAOBuscaminas {
     if (error) throw error;
   }
 
-  // Última partida sin terminar del usuario
-  async findPartidaActiva(usuarioId) {
+  async cargarPartidaActiva(usuarioId) {
     const { data, error } = await supabase
       .from("Buscaminas")
       .select("*")
@@ -62,16 +53,9 @@ export class DAOBuscaminas {
       .is("tiempoFin", null)
       .order("tiempoInicio", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle(); // 🔥
 
-    if (error || !data) return null;
-
-    // Convertir JSONB a objetos
-    return {
-      ...data,
-      tablero: data.tablero ? JSON.parse(data.tablero) : [],
-      celdasDescubiertas: data.celdasDescubiertas ? JSON.parse(data.celdasDescubiertas) : [],
-      minas: data.minas ? JSON.parse(data.minas) : []
-    };
+    if (error) throw error;
+    return data;
   }
 }
