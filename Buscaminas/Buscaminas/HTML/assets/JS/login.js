@@ -31,7 +31,8 @@ function validarEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     return re.test(email);
 }
- // Login
+
+// Login
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     ocultarMensaje();
@@ -57,7 +58,8 @@ form.addEventListener("submit", async (e) => {
         });
 
         if (authError || !authData.user) {
-            mostrarMensaje("Credenciales incorrectas", "error");
+            mostrarMensaje("Credenciales incorrectas o email no confirmado", "error");
+            console.error("Error login:", authError);
             return;
         }
 
@@ -70,6 +72,7 @@ form.addEventListener("submit", async (e) => {
 
         if (usuarioError || !usuarioDB) {
             mostrarMensaje("Usuario no encontrado en la base de datos", "error");
+            console.error("Error usuarioDB:", usuarioError);
             return;
         }
 
