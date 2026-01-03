@@ -1,6 +1,7 @@
 import { Buscaminas } from "./Clases/Buscaminas.js";
 import { Dificultad } from "./Clases/Dificultad.js";
 import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
+import { supabase } from "./Supabaseclient.js";
 
 const dao = new DAOBuscaminas();
 let juego = null;
@@ -19,12 +20,6 @@ const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
 const btnGuardar = document.getElementById("btnGuardar");
 
-// ---------------- Usuario actual ----------------
-const usuarioActual = {
-    id: "082a2d69-baf6-440c-a321-abbd7919d240", // UUID de la tabla Usuarios
-    nombre: "ases"
-};
-
 // ================== UTILIDADES ==================
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
@@ -40,6 +35,20 @@ function ajustarFilasColumnas(dif) {
     dificultadActual = dif;
     filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
     selectDificultad.value = dificultadActual;
+}
+
+// ================== OBTENER USUARIO LOGUEADO ==================
+async function obtenerUsuarioLogueado() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+        console.error("Error obteniendo usuario:", error);
+        return null;
+    }
+    if (!user) {
+        console.warn("No hay usuario logueado");
+        return null;
+    }
+    return user.id; // UUID del usuario logueado
 }
 
 // ================== TABLERO ==================
@@ -89,26 +98,24 @@ function detenerTemporizador() {
 
 // ================== PARTIDA ==================
 async function iniciarJuego(dificultad) {
-    if (!usuarioActual?.id) {
-        mostrarMensaje("❌ No hay usuario registrado");
+    const usuarioId = await obtenerUsuarioLogueado();
+    if (!usuarioId) {
+        mostrarMensaje("❌ Debes iniciar sesión para jugar");
         return;
     }
 
     ajustarFilasColumnas(dificultad);
-
-    // Bloquea el select de dificultad mientras hay partida
-    selectDificultad.disabled = true;
+    selectDificultad.disabled = true; // Bloquear dificultad mientras dure la partida
 
     // Crear instancia de Buscaminas
-    juego = new Buscaminas(usuarioActual.id, filas, columnas, Dificultad[dificultad]);
+    juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
 
     try {
-        // Crear partida nueva en la BBDD
-        await dao.crearPartida(juego);
-        console.log("Partida creada con id:", juego.id);
+        await dao.crearPartida(juego); // Guardar partida en Supabase
+        console.log("Partida creada con id:", juego.id, "usuario:", usuarioId);
     } catch (e) {
         console.error("Error creando partida:", e);
-        mostrarMensaje("❌ No se pudo crear partida. Revisa la BBDD o el usuario.");
+        mostrarMensaje("❌ No se pudo crear la partida.");
         juego = null;
         selectDificultad.disabled = false;
         return;
@@ -145,8 +152,7 @@ async function finalizar(msg) {
 
     juego = null;
     btnControl.textContent = "▶ Iniciar";
-    // Rehabilita el select de dificultad al finalizar partida
-    selectDificultad.disabled = false;
+    selectDificultad.disabled = false; // desbloquear dificultad
 }
 
 // ================== GUARDAR PARTIDA ==================
