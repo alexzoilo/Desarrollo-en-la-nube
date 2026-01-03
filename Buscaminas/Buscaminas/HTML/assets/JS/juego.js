@@ -156,6 +156,82 @@ async function finalizar(msg) {
 }
 
 // ================== GUARDAR PARTIDA =================
+// ---------------- BOTÓN CARGAR PARTIDA ----------------
+btnGuardar.textContent = "📂 Cargar Partida"; // cambiamos el texto del botón
+
+btnGuardar.onclick = async () => {
+    if (!usuarioActual?.id) return mostrarMensaje("❌ Debes iniciar sesión");
+
+    try {
+        // 1️⃣ Consultar todas las partidas del usuario
+        const { data: partidas, error } = await dao.listarPartidas(usuarioActual.id);
+
+        if (error) throw error;
+
+        if (!partidas || partidas.length === 0) {
+            mostrarMensaje("❌ No tienes partidas guardadas");
+            return;
+        }
+
+        // 2️⃣ Crear una lista de partidas para seleccionar
+        const listaDiv = document.createElement("div");
+        listaDiv.className = "lista-partidas";
+
+        partidas.forEach(p => {
+            const btn = document.createElement("button");
+            btn.textContent = `Partida ${p.id.slice(0, 8)} | ${p.dificultad} | ${new Date(p.tiempoInicio).toLocaleString()}`;
+            btn.onclick = () => cargarPartida(p);
+            listaDiv.appendChild(btn);
+        });
+
+        // Limpiar el tablero y mostrar lista
+        tableroDiv.innerHTML = "";
+        tableroDiv.appendChild(listaDiv);
+
+    } catch (e) {
+        console.error("Error cargando partidas:", e);
+        mostrarMensaje("❌ Error al cargar partidas");
+    }
+};
+
+// ---------------- FUNCION PARA CARGAR UNA PARTIDA ----------------
+async function cargarPartida(partida) {
+    // Si ya hay juego en curso, finalizamos primero
+    if (juego) {
+        detenerTemporizador();
+        juego = null;
+    }
+
+    juego = new Buscaminas(
+        usuarioActual.id,
+        partida.filas,
+        partida.columnas,
+        Dificultad[partida.dificultad]
+    );
+
+    juego.id = partida.id;
+    juego.tablero = partida.tablero;
+    juego.descubiertas = partida.celdasDescubiertas;
+    juego.minas = partida.minas;
+
+    // Ajustamos filas y columnas actuales
+    filas = partida.filas;
+    columnas = partida.columnas;
+    dificultadActual = partida.dificultad;
+
+    // Crear tablero HTML y actualizar
+    crearTableroHTML();
+    actualizarTablero();
+
+    // Iniciar temporizador desde cero o desde el tiempo guardado
+    segundosTotales = 0;
+    iniciarTemporizador();
+
+    btnControl.textContent = "⏸ Pausar";
+    selectDificultad.disabled = true;
+    ocultarMensaje();
+}
+
 
 // ================== BOTÓN CONTROL ==================
 btnControl.addEventListener("click", async () => {

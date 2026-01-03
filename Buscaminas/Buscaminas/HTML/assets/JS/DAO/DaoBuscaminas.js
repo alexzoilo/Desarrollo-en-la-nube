@@ -8,7 +8,7 @@ export class DAOBuscaminas {
       const { data, error } = await supabase
         .from("Buscaminas")
         .insert([{
-          usuarioId: buscaminas.usuarioId,       // UUID del usuario actual
+          usuarioId: buscaminas.usuarioId,
           filas: buscaminas.filas,
           columnas: buscaminas.columnas,
           totalCeldas: buscaminas.totalCeldas,
@@ -31,8 +31,6 @@ export class DAOBuscaminas {
       throw e;
     }
   }
-
-  // Guardar partida (update parcial)
   async guardarPartida(id, celdasDescubiertas, tablero) {
     try {
       const { error } = await supabase
@@ -47,7 +45,6 @@ export class DAOBuscaminas {
     }
   }
 
-  // Finalizar partida (marcar tiempoFin)
   async finalizarPartida(id) {
     try {
       const { error } = await supabase
@@ -62,7 +59,6 @@ export class DAOBuscaminas {
     }
   }
 
-  // Obtener la última partida activa de un usuario (opcional)
   async findPartidaActiva(usuarioId) {
     try {
       const { data, error } = await supabase
@@ -74,7 +70,6 @@ export class DAOBuscaminas {
         .single();
 
       if (error) {
-        // Si no hay partida activa, devolvemos null
         if (error.code === "PGRST116") return null;
         throw error;
       }
@@ -85,4 +80,15 @@ export class DAOBuscaminas {
       return null;
     }
   }
+async listarPartidas(usuarioId) {
+    const { data, error } = await supabase
+        .from("Buscaminas")
+        .select("*")
+        .eq("usuarioId", usuarioId)
+        .order("tiempoInicio", { ascending: false });
+
+    if (error) throw error;
+    return data;
+}
+
 }
