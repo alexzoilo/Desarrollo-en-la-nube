@@ -86,7 +86,7 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-/* ================= API SUPABASE =================
+/* ================= API SUPABASE ================= */
 async function crearPartidaEnBD() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Usuario no logueado");
