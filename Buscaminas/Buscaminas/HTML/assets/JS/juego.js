@@ -1,7 +1,7 @@
-import { Buscaminas } from "../Clases/Buscaminas.js";
-import { Dificultad } from "../Clases/Dificultad.js";
-import { supabase } from "../Supabaseclient.js"; // asegurate de tenerlo importado
-import { DAOBuscaminas } from "../DAO/DaoBuscaminas.js";
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { supabase } from "./Supabaseclient.js"; // asegurate de tenerlo importado
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 
 const dao = new DAOBuscaminas();
 
