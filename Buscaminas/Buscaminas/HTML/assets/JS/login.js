@@ -3,7 +3,6 @@ import { supabase } from './Supabaseclient.js';
 const form = document.getElementById("loginForm");
 const mensajeDiv = document.getElementById("mensaje");
 
-// Mostrar / ocultar mensajes
 function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
@@ -12,7 +11,6 @@ function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
 
-// Toggle contraseña (igual que en registro)
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {
         const input = document.getElementById(btn.dataset.target);
@@ -26,13 +24,11 @@ document.querySelectorAll(".toggle-password").forEach(btn => {
     });
 });
 
-// Validar email
 function validarEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
     return re.test(email);
 }
 
-// Login
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     ocultarMensaje();
@@ -51,7 +47,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
-        // 1️⃣ Login con Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email,
             password
@@ -63,7 +58,6 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        // 2️⃣ Obtener datos de la tabla Usuarios
         const { data: usuarioDB, error: usuarioError } = await supabase
             .from("Usuarios")
             .select("*")
@@ -71,20 +65,18 @@ form.addEventListener("submit", async (e) => {
             .single();
 
         if (usuarioError || !usuarioDB) {
-            mostrarMensaje("Usuario no encontrado en la base de datos", "error");
+            mostrarMensaje("El Usuario no existe", "error");
             console.error("Error usuarioDB:", usuarioError);
             return;
         }
 
-        // 3️⃣ Guardar en sessionStorage
         sessionStorage.setItem("usuarioActual", JSON.stringify({
             id: authData.user.id,
             nombre: usuarioDB.nombre,
             email: usuarioDB.email
         }));
 
-        mostrarMensaje("Login correcto, redirigiendo...", "success");
-        setTimeout(() => window.location.href = "tablero.html", 1000);
+        window.location.href = "tablero.html";
 
     } catch (err) {
         console.error("Error inesperado:", err);

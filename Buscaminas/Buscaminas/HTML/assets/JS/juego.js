@@ -2,6 +2,7 @@ import { Buscaminas } from "./Clases/Buscaminas.js";
 import { Dificultad } from "./Clases/Dificultad.js";
 import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
 import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 
 const dao = new DAOBuscaminas();
 let juego = null;
@@ -24,9 +25,6 @@ function formatTiempo(s) {
     const ss = String(s % 60).padStart(2, "0");
     return `Cronómetro: ${h}:${m}:${ss}`;
 }
-
-function mostrarMensaje(txt) { mensajeDiv.textContent = txt; }
-function ocultarMensaje() { mensajeDiv.textContent = ""; }
 
 function ajustarFilasColumnas(dif) {
     dificultadActual = dif;
@@ -93,7 +91,7 @@ function detenerTemporizador() {
 async function iniciarJuego(dificultad) {
     const usuarioId = await obtenerUsuarioLogueado();
     if (!usuarioId) {
-        mostrarMensaje("❌ Debes iniciar sesión para jugar");
+        mostrarMensaje("Debes iniciar sesión para jugar");
         return;
     }
 
@@ -107,7 +105,7 @@ async function iniciarJuego(dificultad) {
         console.log("Partida creada con id:", juego.id, "usuario:", usuarioId);
     } catch (e) {
         console.error("Error creando partida:", e);
-        mostrarMensaje("❌ No se pudo crear la partida.");
+        mostrarMensaje("No se pudo crear la partida.");
         juego = null;
         selectDificultad.disabled = false;
         return;
@@ -126,13 +124,13 @@ function clickCelda(f, c) {
     const ok = juego.descubrir(f, c);
     actualizarTablero();
 
-    if (!ok) finalizar("💥 Has perdido");
-    else if (juego.verificarVictoria()) finalizar("🏆 Has ganado");
+    if (!ok) finalizar("💥 Has perdido","error");
+    else if (juego.verificarVictoria()) finalizar("🏆 Has ganado","correcto");
 }
 
-async function finalizar(msg) {
+async function finalizar(msg, tipo = "info") {
     detenerTemporizador();
-    mostrarMensaje(msg);
+    mostrarMensaje(msg, tipo);
 
     if (juego?.id) {
         try {
