@@ -1,14 +1,17 @@
-import { supabase } from './Supabaseclient.js';
+import {
+    supabase
+} from './Supabaseclient.js';
 
 // DOM
 const form = document.getElementById("registerForm");
-const mensajeDiv = document.getElementById("mensaje"); // div donde mostrar mensajes
+const mensajeDiv = document.getElementById("mensaje");
 
 // Funciones para mostrar/ocultar mensajes
 function mostrarMensaje(txt, tipo = "info") {
     mensajeDiv.textContent = txt;
     mensajeDiv.style.color = tipo === "error" ? "red" : "green";
 }
+
 function ocultarMensaje() {
     mensajeDiv.textContent = "";
 }
@@ -18,8 +21,13 @@ const toggleBtns = document.querySelectorAll(".toggle-password");
 toggleBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         const input = document.getElementById(btn.dataset.target);
-        if (input.type === "password") input.type = "text";
-        else input.type = "password";
+        if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "🙈"; // ojo cerrado
+        } else {
+            input.type = "password";
+            btn.textContent = "👁"; // ojo abierto
+        }
     });
 });
 
@@ -30,7 +38,7 @@ form.addEventListener("submit", async (e) => {
 
     const nombre = document.getElementById("nombre").value.trim();
     const password = document.getElementById("password").value.trim();
-    const repetir = document.getElementById("repetir").value.trim();
+    const repetir = document.getElementById("repeatpassword").value.trim();
 
     if (!nombre || !password || !repetir) {
         mostrarMensaje("❌ Debes completar todos los campos", "error");
@@ -44,7 +52,10 @@ form.addEventListener("submit", async (e) => {
 
     try {
         // 1️⃣ Registramos al usuario en Supabase Auth
-        const { data, error } = await supabase.auth.signUp({
+        const {
+            data,
+            error
+        } = await supabase.auth.signUp({
             email: `${nombre}@buscaminas.com`.toLowerCase(),
             password
         });
@@ -55,12 +66,14 @@ form.addEventListener("submit", async (e) => {
         }
 
         // 2️⃣ Insertamos en tabla Usuarios usando el mismo UUID de Auth
-        const { error: insertError } = await supabase
+        const {
+            error: insertError
+        } = await supabase
             .from("Usuarios")
             .insert({
-                id: data.user.id,       // ✅ Mismo UUID que Auth
+                id: data.user.id,
                 nombre: nombre,
-                password: password,     // opcional
+                password: password,
                 partidasGanadas: 0,
                 partidasPerdidas: 0
             });
@@ -69,7 +82,8 @@ form.addEventListener("submit", async (e) => {
             mostrarMensaje(`❌ ${insertError.message}`, "error");
             return;
         }
-        
+
+        mostrarMensaje("✅ Registro exitoso, redirigiendo...", "success");
         setTimeout(() => window.location.href = "tablero.html", 1000);
 
     } catch (err) {
