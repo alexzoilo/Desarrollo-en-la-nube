@@ -155,36 +155,37 @@ async function finalizar(msg) {
     selectDificultad.disabled = false; // desbloquear dificultad
 }
 
-// ================== GUARDAR PARTIDA =================
-// ---------------- BOTÓN CARGAR PARTIDA ----------------
-btnGuardar.textContent = "📂 Cargar Partida"; // cambiamos el texto del botón
+btnGuardar.textContent = "📂 Cargar Partida";
 
 btnGuardar.onclick = async () => {
-    if (!usuarioActual?.id) return mostrarMensaje("❌ Debes iniciar sesión");
-
     try {
-        // 1️⃣ Consultar todas las partidas del usuario
-        const { data: partidas, error } = await dao.listarPartidas(usuarioActual.id);
+        // 1️⃣ Obtener usuario logueado
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            mostrarMensaje("❌ Debes iniciar sesión");
+            return;
+        }
 
-        if (error) throw error;
+        const usuarioId = user.id;
 
+        // 2️⃣ Consultar partidas del usuario
+        const partidas = await dao.listarPartidas(usuarioId);
         if (!partidas || partidas.length === 0) {
             mostrarMensaje("❌ No tienes partidas guardadas");
             return;
         }
 
-        // 2️⃣ Crear una lista de partidas para seleccionar
+        // 3️⃣ Mostrar lista de partidas
         const listaDiv = document.createElement("div");
         listaDiv.className = "lista-partidas";
 
         partidas.forEach(p => {
             const btn = document.createElement("button");
             btn.textContent = `Partida ${p.id.slice(0, 8)} | ${p.dificultad} | ${new Date(p.tiempoInicio).toLocaleString()}`;
-            btn.onclick = () => cargarPartida(p);
+            btn.onclick = () => cargarPartida(p, usuarioId); // pasamos usuarioId
             listaDiv.appendChild(btn);
         });
 
-        // Limpiar el tablero y mostrar lista
         tableroDiv.innerHTML = "";
         tableroDiv.appendChild(listaDiv);
 
@@ -195,15 +196,14 @@ btnGuardar.onclick = async () => {
 };
 
 // ---------------- FUNCION PARA CARGAR UNA PARTIDA ----------------
-async function cargarPartida(partida) {
-    // Si ya hay juego en curso, finalizamos primero
+function cargarPartida(partida, usuarioId) {
     if (juego) {
         detenerTemporizador();
         juego = null;
     }
 
     juego = new Buscaminas(
-        usuarioActual.id,
+        usuarioId,
         partida.filas,
         partida.columnas,
         Dificultad[partida.dificultad]
@@ -214,16 +214,13 @@ async function cargarPartida(partida) {
     juego.descubiertas = partida.celdasDescubiertas;
     juego.minas = partida.minas;
 
-    // Ajustamos filas y columnas actuales
     filas = partida.filas;
     columnas = partida.columnas;
     dificultadActual = partida.dificultad;
 
-    // Crear tablero HTML y actualizar
     crearTableroHTML();
     actualizarTablero();
 
-    // Iniciar temporizador desde cero o desde el tiempo guardado
     segundosTotales = 0;
     iniciarTemporizador();
 
@@ -231,7 +228,6 @@ async function cargarPartida(partida) {
     selectDificultad.disabled = true;
     ocultarMensaje();
 }
-
 
 // ================== BOTÓN CONTROL ==================
 btnControl.addEventListener("click", async () => {
