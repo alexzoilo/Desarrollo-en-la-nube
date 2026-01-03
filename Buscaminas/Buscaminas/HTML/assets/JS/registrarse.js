@@ -69,8 +69,7 @@ form.addEventListener("submit", async (e) => {
             mostrarMensaje(`❌ ${insertError.message}`, "error");
             return;
         }
-
-        mostrarMensaje("✅ Registro exitoso, redirigiendo...", "success");
+        
         setTimeout(() => window.location.href = "tablero.html", 1000);
 
     } catch (err) {
