@@ -20,7 +20,6 @@ const btnControl = document.getElementById("btnControl");
 const btnGuardar = document.getElementById("btnGuardar");
 
 // ---------------- Usuario actual ----------------
-// Este es tu usuario que está logueado en tu sistema
 const usuarioActual = {
     id: "082a2d69-baf6-440c-a321-abbd7919d240", // UUID de la tabla Usuarios
     nombre: "ases"
@@ -31,7 +30,7 @@ function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
     const ss = String(s % 60).padStart(2, "0");
-    return `Cronometro: ${h}:${m}:${ss}`;
+    return `Cronómetro: ${h}:${m}:${ss}`;
 }
 
 function mostrarMensaje(txt) { mensajeDiv.textContent = txt; }
@@ -97,16 +96,21 @@ async function iniciarJuego(dificultad) {
 
     ajustarFilasColumnas(dificultad);
 
+    // Bloquea el select de dificultad mientras hay partida
+    selectDificultad.disabled = true;
+
     // Crear instancia de Buscaminas
     juego = new Buscaminas(usuarioActual.id, filas, columnas, Dificultad[dificultad]);
 
     try {
-        // Guardar partida nueva en Supabase
+        // Crear partida nueva en la BBDD
         await dao.crearPartida(juego);
         console.log("Partida creada con id:", juego.id);
     } catch (e) {
         console.error("Error creando partida:", e);
-        mostrarMensaje("❌ No se pudo crear partida");
+        mostrarMensaje("❌ No se pudo crear partida. Revisa la BBDD o el usuario.");
+        juego = null;
+        selectDificultad.disabled = false;
         return;
     }
 
@@ -130,16 +134,32 @@ function clickCelda(f, c) {
 async function finalizar(msg) {
     detenerTemporizador();
     mostrarMensaje(msg);
-    if (juego?.id) await dao.finalizarPartida(juego.id);
+
+    if (juego?.id) {
+        try {
+            await dao.finalizarPartida(juego.id);
+        } catch (e) {
+            console.error("Error finalizando partida:", e);
+        }
+    }
+
     juego = null;
     btnControl.textContent = "▶ Iniciar";
+    // Rehabilita el select de dificultad al finalizar partida
+    selectDificultad.disabled = false;
 }
 
 // ================== GUARDAR PARTIDA ==================
 btnGuardar.onclick = async () => {
-    if (!juego) return mostrarMensaje("❌ No hay partida");
-    await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
-    mostrarMensaje("💾 Partida guardada");
+    if (!juego) return mostrarMensaje("❌ No hay partida en curso");
+
+    try {
+        await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
+        mostrarMensaje("💾 Partida guardada");
+    } catch (e) {
+        console.error("Error guardando partida:", e);
+        mostrarMensaje("❌ Error al guardar partida");
+    }
 };
 
 // ================== BOTÓN CONTROL ==================
