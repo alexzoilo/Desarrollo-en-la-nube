@@ -155,18 +155,7 @@ async function finalizar(msg) {
     selectDificultad.disabled = false; // desbloquear dificultad
 }
 
-// ================== GUARDAR PARTIDA ==================
-btnGuardar.onclick = async () => {
-    if (!juego) return mostrarMensaje("❌ No hay partida en curso");
-
-    try {
-        await dao.guardarPartida(juego.id, juego.descubiertas, juego.tablero);
-        mostrarMensaje("💾 Partida guardada");
-    } catch (e) {
-        console.error("Error guardando partida:", e);
-        mostrarMensaje("❌ Error al guardar partida");
-    }
-};
+// ================== GUARDAR PARTIDA =================
 
 // ================== BOTÓN CONTROL ==================
 btnControl.addEventListener("click", async () => {
