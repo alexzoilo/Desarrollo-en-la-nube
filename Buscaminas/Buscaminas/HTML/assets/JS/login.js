@@ -16,49 +16,46 @@ form.addEventListener("submit", async (e) => {
     const email = `${nombre}@buscaminas.com`.toLowerCase();
 
     try {
-        // Login con Supabase Auth
-        const { data: { user }, error: loginError } = await supabase.auth.signInWithPassword({
+        // 1️⃣ Login con Supabase Auth
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
         });
 
-        if (loginError || !user) {
-            console.error("Error login:", loginError);
+        if (error) {
+            console.error("Error login:", error);
             alert("Credenciales incorrectas");
             return;
         }
 
-        console.log("Login correcto:", user);
+        const usuarioId = data.user.id; // ✅ UUID del usuario desde Auth
 
-        // Verificamos si el usuario ya existe en la tabla Usuarios
-        const { data: usuarios, error: usuarioError } = await supabase
+        // 2️⃣ Opcional: verificar que exista en tabla Usuarios
+        const { data: usuarioDB, error: usuarioError } = await supabase
             .from("Usuarios")
             .select("*")
-            .eq("id", user.id)
-            .limit(1);
+            .eq("id", usuarioId)
+            .single();
 
-        if (usuarioError) {
-            console.error("Error comprobando tabla Usuarios:", usuarioError);
+        if (usuarioError || !usuarioDB) {
+            alert("Usuario no encontrado en la base de datos");
+            console.error(usuarioError);
             return;
         }
 
-        // Si no existe, lo creamos
-        if (!usuarios || usuarios.length === 0) {
-            const { data: nuevoUsuario, error: crearError } = await supabase
-                .from("Usuarios")
-                .insert([{ id: user.id, nombre, password }]); // opcionalmente guarda hash real
-            if (crearError) {
-                console.error("Error creando usuario en BBDD:", crearError);
-                return;
-            }
-            console.log("Usuario creado en tabla Usuarios:", nuevoUsuario);
-        }
+        // 3️⃣ Guardar en sessionStorage para usar en tablero.js
+        sessionStorage.setItem("usuarioActual", JSON.stringify({
+            id: usuarioId,
+            nombre: usuarioDB.nombre
+        }));
 
-        // Redirigimos a tablero
+        console.log("Login correcto:", usuarioDB);
+
+        // 4️⃣ Redirigir a tablero
         window.location.href = "tablero.html";
 
     } catch (err) {
         console.error("Error inesperado:", err);
-        window.location.href = "login.html";
+        alert("Ocurrió un error, intenta de nuevo");
     }
 });
