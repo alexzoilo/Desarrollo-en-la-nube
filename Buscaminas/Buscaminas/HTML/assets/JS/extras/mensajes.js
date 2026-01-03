@@ -7,7 +7,7 @@ export function mostrarMensaje(txt, tipo = "info", elemento = null) {
 
     if (tipo === "error") mensajeDiv.style.color = "red";
     else if (tipo === "correcto") mensajeDiv.style.color = "green";
-    else mensajeDiv.style.color = "black";
+    else mensajeDiv.style.color = "white";
 }
 
 export function ocultarMensaje(elemento = null) {

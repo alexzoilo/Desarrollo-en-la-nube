@@ -16,7 +16,6 @@ let timerInterval = null;
 const tableroDiv = document.getElementById("tablero");
 const selectDificultad = document.getElementById("dificultad");
 const temporizadorSpan = document.getElementById("temporizador");
-const mensajeDiv = document.getElementById("mensaje");
 const btnControl = document.getElementById("btnControl");
 
 function formatTiempo(s) {
