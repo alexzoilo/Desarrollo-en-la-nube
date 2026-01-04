@@ -35,14 +35,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
 
-    // ⚡ Función que detecta cambios y habilita/deshabilita botón guardar
+    // ⚡ Detecta cambios y habilita/deshabilita botón Guardar
     function actualizarEstadoGuardar() {
-        // Botón se habilita si cambia el nombre o si hay algo escrito en la contraseña
         const hayCambios = nombreInput.value.trim() !== usuario.nombre || passwordInput.value.trim().length > 0;
         botonGuardar.disabled = !hayCambios;
     }
 
-    // Escuchar cambios en inputs
     nombreInput.addEventListener("input", actualizarEstadoGuardar);
     passwordInput.addEventListener("input", actualizarEstadoGuardar);
 
@@ -79,17 +77,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
 
-                usuario.nombre = nuevoNombre; // actualizar valor interno
+                usuario.nombre = nuevoNombre;
             }
 
             // 🔹 Actualizar contraseña si se ingresó
             if (nuevaPass.length >= 6) {
-                const { error: passError } = await supabase.auth.updateUser({ password: nuevaPass });
-                if (passError) throw passError;
+                try {
+                    await supabase.auth.updateUser({ password: nuevaPass });
+                } catch (err) {
+                    // Ignora error si es la misma contraseña
+                    if (!err.message.includes("New password should be different from the old password")) {
+                        throw err;
+                    } else {
+                        mostrarMensaje("La nueva contraseña es igual a la actual, no se cambió", "info");
+                    }
+                }
             }
 
             passwordInput.value = "";
-            botonGuardar.disabled = true; // deshabilitar nuevamente
+            botonGuardar.disabled = true;
             mostrarMensaje("Datos actualizados correctamente", "success");
 
         } catch (err) {
