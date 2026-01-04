@@ -3,7 +3,6 @@ import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 import { togglePassword } from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-    e.preventDefault();
     togglePassword();
 
     // Inputs y botones
