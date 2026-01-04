@@ -38,14 +38,9 @@ form.addEventListener("submit", async (e) => {
 
         if (usuariosExistentes && usuariosExistentes.length > 0) {
             const nombreExistente = usuariosExistentes.some(u => u.nombre === nombre);
-            const emailExistente = usuariosExistentes.some(u => u.email === email);
 
-            if (nombreExistente && emailExistente) {
-                mostrarMensaje("El nombre y el email ya existen", "error");
-            } else if (nombreExistente) {
+            if (nombreExistente) {
                 mostrarMensaje("El nombre de usuario ya está en uso", "error");
-            } else {
-                mostrarMensaje("El email ya existe", "error");
             }
             return;
         }
