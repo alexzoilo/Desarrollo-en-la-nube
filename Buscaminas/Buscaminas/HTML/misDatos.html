@@ -18,6 +18,10 @@
     </div>
 </nav>
 
+    <div class="grupo-input">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required placeholder="Email">
+            </div>
     <div class="panel-datos">
         <div class="grupo-dato">
             <label for="nombreUsuario">Nombre de usuario:</label>
@@ -25,13 +29,15 @@
         </div>
         <div class="grupo-dato">
             <label for="passwordUsuario">Contraseña:</label>
-            <input type="password" id="passwordUsuario" class="input-dato">
+            <input type="password" id="passwordUsuario" class="input-dato" placeholder="Nueva contraseña">
+
         </div>
 
         <div class="grupo-botones-datos">
             <button type="button" class="boton-guardar">Guardar</button>
             <button type="button" class="boton-eliminar">Eliminar cuenta</button>
         </div>
+        <div id="mensaje" class="mensaje-juego"></div>
     </div>
 
     <script type="module" src="./assets/JS/misDatos.js"></script>
