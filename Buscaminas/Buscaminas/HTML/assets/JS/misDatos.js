@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
 
+    // Modal elementos
+    const modal = document.getElementById("modal-confirmacion");
+    const btnConfirmar = document.getElementById("confirmar-eliminar");
+    const btnCancelar = document.getElementById("cancelar-eliminar");
+
     // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
@@ -28,9 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuario = usuarioData;
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
-    emailInput.disabled = true;
-
-
+    emailInput.disabled = true; // email no editable
 
     // 3️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
@@ -41,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
-        // Validaciones básicas
+        // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
             botonGuardar.disabled = false;
@@ -57,38 +60,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            // 🔹 Comprobar si ya existe otro usuario con el mismo nombre
-            const { data: usuariosExistentes } = await supabase
-                .from("Usuarios")
-                .select("id")
-                .eq("nombre", nuevoNombre)
-                .neq("id", userId) // Ignorar el usuario actual
-                .limit(1);
-
-            if (usuariosExistentes && usuariosExistentes.length > 0) {
-                mostrarMensaje("Datos existentes", "error");
-                botonGuardar.disabled = false;
-                botonEliminar.disabled = false;
-                return;
-            }
-
-            // 🔹 Actualizar nombre si cambió
+            // 🔹 Actualizar nombre
             if (nuevoNombre !== usuario.nombre) {
                 const { error: nombreError } = await supabase
                     .from("Usuarios")
                     .update({ nombre: nuevoNombre })
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
-
                 usuario.nombre = nuevoNombre;
             }
 
-            // 🔹 Actualizar contraseña si se ingresó
+            // 🔹 Actualizar contraseña
             if (nuevaPass.length >= 6) {
                 try {
                     await supabase.auth.updateUser({ password: nuevaPass });
                 } catch (err) {
-                    // Ignora error si es la misma contraseña
                     if (!err.message.includes("New password should be different from the old password")) {
                         throw err;
                     } else {
@@ -98,21 +84,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             passwordInput.value = "";
-            botonGuardar.disabled = true;
             mostrarMensaje("Datos actualizados correctamente", "success");
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al actualizar los datos", "error");
             console.error(err);
         } finally {
+            botonGuardar.disabled = false;
             botonEliminar.disabled = false;
         }
     });
 
-    // 4️⃣ Eliminar cuenta
-    botonEliminar.addEventListener("click", async () => {
-        if (!confirm("¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.")) return;
+    // 4️⃣ Mostrar modal de confirmación al eliminar
+    botonEliminar.addEventListener("click", () => {
+        modal.style.display = "flex"; // abrir modal
+    });
 
+    // Cancelar eliminación
+    btnCancelar.addEventListener("click", () => {
+        modal.style.display = "none"; // cerrar modal
+    });
+
+    // Confirmar eliminación
+    btnConfirmar.addEventListener("click", async () => {
+        modal.style.display = "none"; // cerrar modal
         botonGuardar.disabled = true;
         botonEliminar.disabled = true;
         ocultarMensaje();
@@ -125,12 +120,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (deleteError) throw deleteError;
 
             await supabase.auth.signOut();
-
-            window.location.href = "login.html";
+            mostrarMensaje("Cuenta eliminada correctamente", "success");
+            setTimeout(() => window.location.href = "login.html", 1000);
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al eliminar la cuenta", "error");
             console.error(err);
+            botonGuardar.disabled = false;
             botonEliminar.disabled = false;
         }
     });
