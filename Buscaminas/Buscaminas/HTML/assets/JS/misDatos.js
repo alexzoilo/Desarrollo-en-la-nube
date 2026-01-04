@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 try {
                     await supabase.auth.updateUser({ password: nuevaPass });
                 } catch (err) {
-                    if (!err.message.includes("New password should be different from the old password")) {
+                    if (!err.message.includes("La contrasseña no puede ser igual a la vieja")) {
                         throw err;
                     } else {
                         mostrarMensaje("La nueva contraseña es igual a la actual, no se cambió", "info");
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Confirmar eliminación
     btnConfirmar.addEventListener("click", async () => {
-        modal.style.display = "none"; // cerrar modal
+        modal.style.display = "none";
         botonGuardar.disabled = true;
         botonEliminar.disabled = true;
         ocultarMensaje();
