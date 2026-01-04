@@ -12,44 +12,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
 
-    botonGuardar.disabled = true; // 🔹 empieza deshabilitado
-    emailInput.disabled = true;   // email ineditable
+    // Email deshabilitado
+    emailInput.disabled = true;
+
+    // Botón guardar empieza deshabilitado
+    botonGuardar.disabled = true;
 
     // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        window.location.href = "login.html";
-        return;
-    }
+    if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
     // 2️⃣ Cargar datos del usuario
-    const { data: usuario, error: userError } = await supabase
+    const { data: usuarioData, error: userError } = await supabase
         .from("Usuarios")
         .select("nombre, email")
         .eq("id", userId)
         .single();
+    if (userError || !usuarioData) return mostrarMensaje("No se pudieron cargar tus datos", "error");
 
-    if (userError || !usuario) {
-        mostrarMensaje("No se pudieron cargar tus datos", "error");
-        return;
-    }
-
+    const usuario = usuarioData;
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
 
-    // 3️⃣ Función para habilitar botón Guardar si hay cambios
+    // ⚡ Función que detecta cambios y habilita/deshabilita botón guardar
     function actualizarEstadoGuardar() {
-        const nombreModificado = nombreInput.value.trim() !== usuario.nombre;
-        const passEscribiendo = passwordInput.value.trim().length > 0;
-        botonGuardar.disabled = !(nombreModificado || passEscribiendo);
+        const hayCambios = nombreInput.value.trim() !== usuario.nombre || passwordInput.value.trim().length > 0;
+        botonGuardar.disabled = !hayCambios;
     }
 
-    // Escuchar cambios
+    // Escuchar cambios en inputs
     nombreInput.addEventListener("input", actualizarEstadoGuardar);
     passwordInput.addEventListener("input", actualizarEstadoGuardar);
 
-    // 4️⃣ Guardar cambios
+    // 3️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         botonGuardar.disabled = true;
@@ -58,6 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
+        // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
             botonGuardar.disabled = false;
@@ -80,33 +77,32 @@ document.addEventListener("DOMContentLoaded", async () => {
                     .update({ nombre: nuevoNombre })
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
-                usuario.nombre = nuevoNombre; // actualizar valor local
+
+                usuario.nombre = nuevoNombre; // actualizar valor interno
             }
 
             // 🔹 Actualizar contraseña si se ingresó
             if (nuevaPass.length >= 6) {
-                const { error: passError } = await supabase.auth.updateUser({
-                    password: nuevaPass
-                });
+                const { error: passError } = await supabase.auth.updateUser({ password: nuevaPass });
                 if (passError) throw passError;
             }
 
-            mostrarMensaje("Datos actualizados correctamente", "success");
             passwordInput.value = "";
-            botonGuardar.disabled = true; // 🔹 vuelve a deshabilitar
+            botonGuardar.disabled = true; // deshabilitar nuevamente
+            mostrarMensaje("Datos actualizados correctamente", "success");
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al actualizar los datos", "error");
             console.error(err);
-            botonGuardar.disabled = false;
         } finally {
             botonEliminar.disabled = false;
         }
     });
 
-    // 5️⃣ Eliminar cuenta
+    // 4️⃣ Eliminar cuenta
     botonEliminar.addEventListener("click", async () => {
         if (!confirm("¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.")) return;
+
         botonGuardar.disabled = true;
         botonEliminar.disabled = true;
         ocultarMensaje();
@@ -125,7 +121,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (err) {
             mostrarMensaje(err.message || "Error al eliminar la cuenta", "error");
             console.error(err);
-            botonGuardar.disabled = true;  // se mantiene deshabilitado
             botonEliminar.disabled = false;
         }
     });
