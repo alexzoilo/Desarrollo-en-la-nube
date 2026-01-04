@@ -1,6 +1,6 @@
 import { supabase } from './Supabaseclient.js';
 import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
-import { togglePassword, validarEmail } from './extras/Comprobaciones.js';
+import { togglePassword } from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const passwordInput = document.getElementById("passwordUsuario");
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
+
+    // Comenzamos con botones deshabilitados
+    botonGuardar.disabled = true;
 
     // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -34,6 +37,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
+    emailInput.disabled = true; // Email ineditable
+
+    // 3️⃣ Detectar cambios para habilitar botón Guardar
+    function habilitarGuardar() {
+        const nombreModificado = nombreInput.value.trim() !== usuario.nombre;
+        const passEscribiendo = passwordInput.value.trim().length > 0;
+
+        botonGuardar.disabled = !(nombreModificado || passEscribiendo);
+    }
+
+    nombreInput.addEventListener("input", habilitarGuardar);
+    passwordInput.addEventListener("input", habilitarGuardar);
 
     // Función auxiliar para bloquear/desbloquear botones
     function bloquearBotones(bloquear = true) {
@@ -41,24 +56,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         botonEliminar.disabled = bloquear;
     }
 
-    // 3️⃣ Guardar cambios
+    // 4️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         bloquearBotones(true);
 
         const nuevoNombre = nombreInput.value.trim();
-        const nuevoEmail = emailInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
         // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
-            bloquearBotones(false);
-            return;
-        }
-
-        if (!validarEmail(nuevoEmail)) {
-            mostrarMensaje("Ingresa un email válido", "error");
             bloquearBotones(false);
             return;
         }
@@ -69,23 +77,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        let mensajeFinal = "Datos actualizados correctamente";
-
         try {
-            // 🔹 Actualizar nombre
-            const { error: nombreError } = await supabase
-                .from("Usuarios")
-                .update({ nombre: nuevoNombre })
-                .eq("id", userId);
-            if (nombreError) throw nombreError;
-
-            // 🔹 Actualizar email si cambió
-            if (nuevoEmail !== user.email) {
-                const { error: emailError } = await supabase.auth.updateUser({
-                    email: nuevoEmail
-                });
-                if (emailError) throw emailError;
-                mensajeFinal = "Revisa tu email para confirmar el cambio";
+            // 🔹 Actualizar nombre si cambió
+            if (nuevoNombre !== usuario.nombre) {
+                const { error: nombreError } = await supabase
+                    .from("Usuarios")
+                    .update({ nombre: nuevoNombre })
+                    .eq("id", userId);
+                if (nombreError) throw nombreError;
+                usuario.nombre = nuevoNombre; // actualizar valor local
             }
 
             // 🔹 Actualizar contraseña si se ingresó
@@ -96,18 +96,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (passError) throw passError;
             }
 
-            mostrarMensaje(mensajeFinal, nuevoEmail !== user.email ? "info" : "success");
+            mostrarMensaje("Datos actualizados correctamente", "success");
             passwordInput.value = "";
+            botonGuardar.disabled = true; // volver a deshabilitar hasta nuevo cambio
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al actualizar los datos", "error");
             console.error(err);
-        } finally {
             bloquearBotones(false);
         }
     });
 
-    // 4️⃣ Eliminar cuenta
+    // 5️⃣ Eliminar cuenta
     botonEliminar.addEventListener("click", async () => {
         if (!confirm("¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.")) return;
         bloquearBotones(true);
