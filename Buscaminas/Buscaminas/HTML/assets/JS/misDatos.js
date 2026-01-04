@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ⚡ Función que detecta cambios y habilita/deshabilita botón guardar
     function actualizarEstadoGuardar() {
+        // Botón se habilita si cambia el nombre o si hay algo escrito en la contraseña
         const hayCambios = nombreInput.value.trim() !== usuario.nombre || passwordInput.value.trim().length > 0;
         botonGuardar.disabled = !hayCambios;
     }
