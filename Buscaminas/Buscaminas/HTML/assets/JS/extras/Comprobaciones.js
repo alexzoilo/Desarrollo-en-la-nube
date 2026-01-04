@@ -2,6 +2,7 @@ export function togglePassword() {
     document.querySelectorAll(".toggle-password").forEach(btn => {
         btn.addEventListener("click", () => {
             const input = document.getElementById(btn.dataset.target);
+            if (!input) return; // seguridad
             if (input.type === "password") {
                 input.type = "text";
                 btn.textContent = "🔓";
@@ -12,6 +13,7 @@ export function togglePassword() {
         });
     });
 }
+
 
 export function validarEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/;
