@@ -2,7 +2,7 @@ export function togglePassword() {
     document.querySelectorAll(".toggle-password").forEach(btn => {
         btn.addEventListener("click", () => {
             const input = document.getElementById(btn.dataset.target);
-            if (!input) return; // seguridad
+            if (!input) return;
             if (input.type === "password") {
                 input.type = "text";
                 btn.textContent = "🔓";

@@ -5,7 +5,6 @@ import { togglePassword } from './extras/Comprobaciones.js';
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
 
-    // Inputs y botones
     const nombreInput = document.getElementById("nombreUsuario");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("passwordUsuario");
@@ -33,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuario = usuarioData;
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
-    emailInput.disabled = true; // email no editable
+    emailInput.disabled = true;
 
     // 3️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
@@ -60,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            // 🔹 Actualizar nombre
+            // 🔹 Actualizar nombre si cambió
             if (nuevoNombre !== usuario.nombre) {
                 const { error: nombreError } = await supabase
                     .from("Usuarios")
@@ -70,12 +69,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 usuario.nombre = nuevoNombre;
             }
 
-            // 🔹 Actualizar contraseña
+            // 🔹 Actualizar contraseña si se ingresó
             if (nuevaPass.length >= 6) {
                 try {
                     await supabase.auth.updateUser({ password: nuevaPass });
                 } catch (err) {
-                    if (!err.message.includes("La contrasseña no puede ser igual a la vieja")) {
+                    if (!err.message.includes("New password should be different from the old password")) {
                         throw err;
                     } else {
                         mostrarMensaje("La nueva contraseña es igual a la actual, no se cambió", "info");
@@ -95,17 +94,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // 4️⃣ Mostrar modal de confirmación al eliminar
+    // 4️⃣ Mostrar modal de confirmación
     botonEliminar.addEventListener("click", () => {
-        modal.style.display = "flex"; // abrir modal
+        modal.style.display = "flex";
     });
 
-    // Cancelar eliminación
     btnCancelar.addEventListener("click", () => {
-        modal.style.display = "none"; // cerrar modal
+        modal.style.display = "none";
     });
 
-    // Confirmar eliminación
+    // 5️⃣ Confirmar eliminación usando Edge Function
     btnConfirmar.addEventListener("click", async () => {
         modal.style.display = "none";
         botonGuardar.disabled = true;
@@ -113,13 +111,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         ocultarMensaje();
 
         try {
-            const { error: deleteError } = await supabase
-                .from("Usuarios")
-                .delete()
-                .eq("id", userId);
-            if (deleteError) throw deleteError;
+            // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
+            const response = await fetch('/functions/deleteUser', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
+            });
 
-            await supabase.auth.signOut();
+            const result = await response.json();
+            if (result.error) throw new Error(result.error);
+
             mostrarMensaje("Cuenta eliminada correctamente", "success");
             setTimeout(() => window.location.href = "login.html", 1000);
 
