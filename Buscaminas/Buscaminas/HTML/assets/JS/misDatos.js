@@ -28,15 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuario = usuarioData;
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
+    emailInput.disabled = true;
 
-    // ⚡ Detecta cambios y habilita/deshabilita botón Guardar
-    function actualizarEstadoGuardar() {
-        const hayCambios = nombreInput.value.trim() !== usuario.nombre || passwordInput.value.trim().length > 0;
-        botonGuardar.disabled = !hayCambios;
-    }
 
-    nombreInput.addEventListener("input", actualizarEstadoGuardar);
-    passwordInput.addEventListener("input", actualizarEstadoGuardar);
 
     // 3️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
@@ -47,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
-        // Validaciones
+        // Validaciones básicas
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
             botonGuardar.disabled = false;
@@ -63,6 +57,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
+            // 🔹 Comprobar si ya existe otro usuario con el mismo nombre
+            const { data: usuariosExistentes } = await supabase
+                .from("Usuarios")
+                .select("id")
+                .eq("nombre", nuevoNombre)
+                .neq("id", userId) // Ignorar el usuario actual
+                .limit(1);
+
+            if (usuariosExistentes && usuariosExistentes.length > 0) {
+                mostrarMensaje("Datos existentes", "error");
+                botonGuardar.disabled = false;
+                botonEliminar.disabled = false;
+                return;
+            }
+
             // 🔹 Actualizar nombre si cambió
             if (nuevoNombre !== usuario.nombre) {
                 const { error: nombreError } = await supabase
@@ -116,8 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (deleteError) throw deleteError;
 
             await supabase.auth.signOut();
-            mostrarMensaje("Cuenta eliminada correctamente", "success");
-            setTimeout(() => window.location.href = "login.html", 1000);
+
+            window.location.href = "login.html";
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al eliminar la cuenta", "error");
