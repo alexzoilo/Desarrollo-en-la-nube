@@ -3,6 +3,7 @@ import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 import { togglePassword } from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
+    e.preventDefault();
     togglePassword();
 
     // Inputs y botones
@@ -11,12 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const passwordInput = document.getElementById("passwordUsuario");
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
-
-    // Email deshabilitado
-    emailInput.disabled = true;
-
-    // Botón guardar empieza deshabilitado
-    botonGuardar.disabled = true;
 
     // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
