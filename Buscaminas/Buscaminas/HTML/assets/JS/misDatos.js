@@ -12,8 +12,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
 
-    // Comenzamos con botones deshabilitados
-    botonGuardar.disabled = true;
+    botonGuardar.disabled = true; // 🔹 empieza deshabilitado
+    emailInput.disabled = true;   // email ineditable
 
     // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -37,43 +37,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     nombreInput.value = usuario.nombre;
     emailInput.value = usuario.email;
-    emailInput.disabled = true; // Email ineditable
 
-    // 3️⃣ Detectar cambios para habilitar botón Guardar
-    function habilitarGuardar() {
+    // 3️⃣ Función para habilitar botón Guardar si hay cambios
+    function actualizarEstadoGuardar() {
         const nombreModificado = nombreInput.value.trim() !== usuario.nombre;
         const passEscribiendo = passwordInput.value.trim().length > 0;
-
         botonGuardar.disabled = !(nombreModificado || passEscribiendo);
     }
 
-    nombreInput.addEventListener("input", habilitarGuardar);
-    passwordInput.addEventListener("input", habilitarGuardar);
-
-    // Función auxiliar para bloquear/desbloquear botones
-    function bloquearBotones(bloquear = true) {
-        botonGuardar.disabled = bloquear;
-        botonEliminar.disabled = bloquear;
-    }
+    // Escuchar cambios
+    nombreInput.addEventListener("input", actualizarEstadoGuardar);
+    passwordInput.addEventListener("input", actualizarEstadoGuardar);
 
     // 4️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
-        bloquearBotones(true);
+        botonGuardar.disabled = true;
+        botonEliminar.disabled = true;
 
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
-        // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
-            bloquearBotones(false);
+            botonGuardar.disabled = false;
+            botonEliminar.disabled = false;
             return;
         }
 
         if (nuevaPass.length > 0 && nuevaPass.length < 6) {
             mostrarMensaje("La contraseña debe tener al menos 6 caracteres", "error");
-            bloquearBotones(false);
+            botonGuardar.disabled = false;
+            botonEliminar.disabled = false;
             return;
         }
 
@@ -98,19 +93,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             mostrarMensaje("Datos actualizados correctamente", "success");
             passwordInput.value = "";
-            botonGuardar.disabled = true; // volver a deshabilitar hasta nuevo cambio
+            botonGuardar.disabled = true; // 🔹 vuelve a deshabilitar
 
         } catch (err) {
             mostrarMensaje(err.message || "Error al actualizar los datos", "error");
             console.error(err);
-            bloquearBotones(false);
+            botonGuardar.disabled = false;
+        } finally {
+            botonEliminar.disabled = false;
         }
     });
 
     // 5️⃣ Eliminar cuenta
     botonEliminar.addEventListener("click", async () => {
         if (!confirm("¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.")) return;
-        bloquearBotones(true);
+        botonGuardar.disabled = true;
+        botonEliminar.disabled = true;
         ocultarMensaje();
 
         try {
@@ -127,7 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (err) {
             mostrarMensaje(err.message || "Error al eliminar la cuenta", "error");
             console.error(err);
-            bloquearBotones(false);
+            botonGuardar.disabled = true;  // se mantiene deshabilitado
+            botonEliminar.disabled = false;
         }
     });
 });
