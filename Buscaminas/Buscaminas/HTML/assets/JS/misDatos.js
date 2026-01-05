@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
-            const response = await fetch('api/DeleteUser', {
+            const response = await fetch('/api/DeleteUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId })
