@@ -11,17 +11,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
 
-    // Modal elementos
     const modal = document.getElementById("modal-confirmacion");
     const btnConfirmar = document.getElementById("confirmar-eliminar");
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
-    // 1️⃣ Comprobar sesión
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
-    // 2️⃣ Cargar datos del usuario
     const { data: usuarioData, error: userError } = await supabase
         .from("Usuarios")
         .select("nombre, email")
@@ -34,7 +31,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     emailInput.value = usuario.email;
     emailInput.disabled = true;
 
-    // 3️⃣ Guardar cambios
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         botonGuardar.disabled = true;
@@ -43,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
-        // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
             botonGuardar.disabled = false;
@@ -59,7 +54,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            // 🔹 Actualizar nombre si cambió
             if (nuevoNombre !== usuario.nombre) {
                 const { error: nombreError } = await supabase
                     .from("Usuarios")
@@ -69,12 +63,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 usuario.nombre = nuevoNombre;
             }
 
-            // 🔹 Actualizar contraseña si se ingresó
             if (nuevaPass.length >= 6) {
                 try {
                     await supabase.auth.updateUser({ password: nuevaPass });
                 } catch (err) {
-                    if (!err.message.includes("New password should be different from the old password")) {
+                    if (!err.message.includes("La contrasseña no puede ser igual a la vieja")) {
                         throw err;
                     } else {
                         mostrarMensaje("La nueva contraseña es igual a la actual, no se cambió", "info");
@@ -94,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // 4️⃣ Mostrar modal de confirmación
+
     botonEliminar.addEventListener("click", () => {
         modal.style.display = "flex";
     });
@@ -103,7 +96,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         modal.style.display = "none";
     });
 
-    // 5️⃣ Confirmar eliminación usando Edge Function
     btnConfirmar.addEventListener("click", async () => {
         modal.style.display = "none";
         botonGuardar.disabled = true;
@@ -111,16 +103,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         ocultarMensaje();
 
         try {
-            // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
-            const response = await fetch('/functions/deleteUser', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
-            });
+            const { error: deleteError } = await supabase
+                .from("Usuarios")
+                .delete()
+                .eq("id", userId);
+            if (deleteError) throw deleteError;
 
-            const result = await response.json();
-            if (result.error) throw new Error(result.error);
-
+            await supabase.auth.signOut();
             mostrarMensaje("Cuenta eliminada correctamente", "success");
             setTimeout(() => window.location.href = "login.html", 1000);
 
