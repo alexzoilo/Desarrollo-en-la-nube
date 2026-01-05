@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Juego - Buscaminas</title>
+<link rel="icon" type="image/png" href="./assets/img/Bomba.svg">
+<link rel="stylesheet" href="CSS/styles.css">
+</head>
+<body>
+
+<nav class="barra-navegacion">
+    <div class="botones-barra">
+        <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
+        <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
+        <span class="indicador"></span>
+    </div>
+</nav>
+
+<div id="Jugar-Buscaminas">
+    <div id="panel-controles">
+        <label for="dificultad">Dificultad:</label>
+        <select id="dificultad">
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+        <span id="temporizador">Cronometro: 00 : 00 : 00</span>
+        <button id="btnControl">▶ Iniciar</button>
+        <button id="btnListaPartidas">📂 Cargar Partida</button>
+    </div>
+
+    <div id="mensaje"></div>
+    <div id="tablero"></div>
+</div>
+
+<script type="module" src="./assets/JS/juego.js"></script>
+
+<script type="module" src="./assets/JS/extras/BarraNavegacion.js"></script>
+</body>
+</html>
