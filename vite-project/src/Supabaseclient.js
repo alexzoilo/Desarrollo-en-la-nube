@@ -6,4 +6,4 @@ export const supabase = createClient(
 )
 
 console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
-console.log('Supabase KEY:', import.meta.env.VITE_SUPABASE_ANON)
+console.log('Supabase KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY)
