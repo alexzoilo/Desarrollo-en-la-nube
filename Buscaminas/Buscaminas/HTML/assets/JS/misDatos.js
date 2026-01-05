@@ -1,6 +1,7 @@
 import { supabase } from './Supabaseclient.js';
 import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 import { togglePassword } from './extras/Comprobaciones.js';
+import { deleteUser } from '../api/DeleteUser.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
@@ -112,7 +113,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
             // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
-            const response = await fetch('/functions/deleteUser', {
+            const response = await fetch('/api/deleteUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId })
