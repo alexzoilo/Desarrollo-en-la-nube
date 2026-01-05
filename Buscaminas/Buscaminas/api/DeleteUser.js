@@ -6,9 +6,11 @@ const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_KEY
 );
+
 export default async function handler(req, res) {
     try {
-        console.log('Request body:', req.body); // Ver si userId llega bien
+        console.log('Request body:', req.body); // 🔹 Ver si userId llega
+        console.log('SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? 'OK' : 'MISSING');
 
         const {
             userId
@@ -36,7 +38,6 @@ export default async function handler(req, res) {
         res.status(200).json({
             success: true
         });
-
     } catch (err) {
         console.error('Server error:', err);
         res.status(500).json({
