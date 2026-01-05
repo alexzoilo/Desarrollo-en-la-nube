@@ -6,15 +6,10 @@ const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_KEY
 );
-
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({
-            error: 'Método no permitido'
-        });
-    }
-
     try {
+        console.log('Request body:', req.body); // Ver si userId llega bien
+
         const {
             userId
         } = req.body;
@@ -22,32 +17,29 @@ export default async function handler(req, res) {
             error: 'No se proporcionó userId'
         });
 
-        // 1️⃣ Borrar de Auth
         const {
             error: authError
         } = await supabase.auth.admin.deleteUser(userId);
+        console.log('Auth delete error:', authError);
         if (authError) return res.status(400).json({
             error: authError.message
         });
 
-        // 2️⃣ Borrar de la tabla Usuarios
         const {
             error: dbError
-        } = await supabase
-            .from('Usuarios')
-            .delete()
-            .eq('id', userId);
-
+        } = await supabase.from('Usuarios').delete().eq('id', userId);
+        console.log('DB delete error:', dbError);
         if (dbError) return res.status(400).json({
             error: dbError.message
         });
 
-        return res.status(200).json({
+        res.status(200).json({
             success: true
         });
 
     } catch (err) {
-        return res.status(500).json({
+        console.error('Server error:', err);
+        res.status(500).json({
             error: err.message
         });
     }
