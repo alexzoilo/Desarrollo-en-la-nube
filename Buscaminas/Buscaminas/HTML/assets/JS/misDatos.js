@@ -1,7 +1,6 @@
 import { supabase } from './Supabaseclient.js';
 import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 import { togglePassword } from './extras/Comprobaciones.js';
-import { deleteUser } from '../api/DeleteUser.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
