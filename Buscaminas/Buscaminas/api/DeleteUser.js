@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
     try {
-        console.log('Request body:', req.body); // 🔹 Ver si userId llega
+        console.log('Request body:', req.body);
         console.log('SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? 'OK' : 'MISSING');
 
         const {
