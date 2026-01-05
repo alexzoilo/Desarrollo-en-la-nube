@@ -1,6 +1,13 @@
-import { supabase } from './Supabaseclient.js';
-import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
-import { togglePassword } from './extras/Comprobaciones.js';
+import {
+    supabase
+} from './Supabaseclient.js';
+import {
+    mostrarMensaje,
+    ocultarMensaje
+} from './extras/mensajes.js';
+import {
+    togglePassword
+} from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
@@ -17,12 +24,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
     // 1️⃣ Comprobar sesión
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+        data: {
+            user
+        },
+        error: authError
+    } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
     // 2️⃣ Cargar datos del usuario
-    const { data: usuarioData, error: userError } = await supabase
+    const {
+        data: usuarioData,
+        error: userError
+    } = await supabase
         .from("Usuarios")
         .select("nombre, email")
         .eq("id", userId)
@@ -61,9 +76,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             // 🔹 Actualizar nombre si cambió
             if (nuevoNombre !== usuario.nombre) {
-                const { error: nombreError } = await supabase
+                const {
+                    error: nombreError
+                } = await supabase
                     .from("Usuarios")
-                    .update({ nombre: nuevoNombre })
+                    .update({
+                        nombre: nuevoNombre
+                    })
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
                 usuario.nombre = nuevoNombre;
@@ -72,7 +91,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             // 🔹 Actualizar contraseña si se ingresó
             if (nuevaPass.length >= 6) {
                 try {
-                    await supabase.auth.updateUser({ password: nuevaPass });
+                    await supabase.auth.updateUser({
+                        password: nuevaPass
+                    });
                 } catch (err) {
                     if (!err.message.includes("New password should be different from the old password")) {
                         throw err;
@@ -114,21 +135,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
             const response = await fetch('/api/DeleteUser', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId
+                })
             });
 
-            const result = await response.json();
+            const result = await response.json(); // ✅ Esto ahora siempre recibirá JSON
             if (result.error) throw new Error(result.error);
 
-            mostrarMensaje("Cuenta eliminada correctamente", "success");
-            setTimeout(() => window.location.href = "login.html", 1000);
-
+            // Usuario eliminado
+            alert("Cuenta eliminada correctamente");
         } catch (err) {
-            mostrarMensaje(err.message || "Error al eliminar la cuenta", "error");
             console.error(err);
-            botonGuardar.disabled = false;
-            botonEliminar.disabled = false;
+            alert(err.message || "Error al eliminar la cuenta");
         }
     });
 });
