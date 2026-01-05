@@ -1,8 +1,0 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-const supabaseURL = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-console.log(supabaseURL);
-
-export const supabase = createClient(supabaseURL, supabaseKey);
