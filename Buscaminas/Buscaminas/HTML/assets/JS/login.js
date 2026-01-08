@@ -2,6 +2,7 @@ import { supabase } from './Supabaseclient.js';
 import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 import { togglePassword, validarEmail } from './extras/Comprobaciones.js';
 
+
 const form = document.getElementById("loginForm");
 
 togglePassword();
@@ -30,7 +31,7 @@ form.addEventListener("submit", async (e) => {
         });
 
         if (authError || !authData.user) {
-            mostrarMensaje("Credenciales incorrectas o email no confirmado", "error");
+            mostrarMensaje("Credenciales incorrectas", "error");
             console.error("Error login:", authError);
             return;
         }
@@ -42,7 +43,7 @@ form.addEventListener("submit", async (e) => {
             .single();
 
         if (usuarioError || !usuarioDB) {
-            mostrarMensaje("El Usuario no existe", "error");
+            mostrarMensaje("El usuario no existe en la base de datos", "error");
             console.error("Error usuarioDB:", usuarioError);
             return;
         }
@@ -50,7 +51,7 @@ form.addEventListener("submit", async (e) => {
         sessionStorage.setItem("usuarioActual", JSON.stringify({
             id: authData.user.id,
             nombre: usuarioDB.nombre,
-            email: usuarioDB.email
+            email: email
         }));
 
         window.location.href = "tablero.html";
