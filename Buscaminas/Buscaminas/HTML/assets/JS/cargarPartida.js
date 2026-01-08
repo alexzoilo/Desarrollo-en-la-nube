@@ -1,72 +1,63 @@
+import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
 
-btnListaPartidas.onclick = async () => {
+const listaPartidas = document.getElementById('listaPartidas');
+const btnVolver = document.getElementById('btnVolver');
+
+// Usuario actual almacenado en sessionStorage
+const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
+
+if (!usuarioActual?.id) {
+    mostrarMensaje('No se detectó un usuario activo. Por favor inicia sesión.', 'error');
+} else {
+    cargarPartidas(usuarioActual.id);
+}
+
+// Función para obtener partidas del usuario
+async function cargarPartidas(usuarioId) {
+    ocultarMensaje();
     try {
-        // 1️⃣ Obtener usuario logueado
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) {
-            mostrarMensaje("❌ Debes iniciar sesión");
-            return;
-        }
+        const { data: partidas, error } = await supabase
+            .from('Buscaminas')
+            .select('id, filas, columnas, dificultad, tiempoInicio, tiempoFin')
+            .eq('usuarioId', usuarioId)
+            .order('tiempoInicio', { ascending: false });
 
-        const usuarioId = user.id;
+        if (error) throw error;
 
-        // 2️⃣ Consultar partidas del usuario
-        const partidas = await dao.listarPartidas(usuarioId);
         if (!partidas || partidas.length === 0) {
-            mostrarMensaje("❌ No tienes partidas guardadas");
+            mostrarMensaje('No tienes partidas guardadas', 'info');
             return;
         }
 
-        // 3️⃣ Mostrar lista de partidas
-        const listaDiv = document.createElement("div");
-        listaDiv.className = "lista-partidas";
-
-        partidas.forEach(p => {
-            const btn = document.createElement("button");
-            btn.textContent = `Partida ${p.id.slice(0, 8)} | ${p.dificultad} | ${new Date(p.tiempoInicio).toLocaleString()}`;
-            btn.onclick = () => cargarPartida(p, usuarioId); // pasamos usuarioId
-            listaDiv.appendChild(btn);
+        // Mostrar partidas en lista
+        listaPartidas.innerHTML = '';
+        partidas.forEach(partida => {
+            const li = document.createElement('li');
+            li.className = 'partida-item';
+            li.innerHTML = `
+                <span>Dificultad: ${partida.dificultad} | Filas: ${partida.filas} | Columnas: ${partida.columnas} | Inicio: ${new Date(partida.tiempoInicio).toLocaleString()}</span>
+                <button class="btn-cargar" data-id="${partida.id}">Cargar</button>
+            `;
+            listaPartidas.appendChild(li);
         });
 
-        tableroDiv.innerHTML = "";
-        tableroDiv.appendChild(listaDiv);
+        // Agregar evento para cargar partida
+        document.querySelectorAll('.btn-cargar').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idPartida = btn.dataset.id;
+                sessionStorage.setItem('cargarPartidaId', idPartida);
+                window.location.href = 'tablero.html'; // Redirige al tablero y carga la partida
+            });
+        });
 
-    } catch (e) {
-        console.error("Error cargando partidas:", e);
-        mostrarMensaje("❌ Error al cargar partidas");
+    } catch (err) {
+        console.error('Error al cargar partidas:', err);
+        mostrarMensaje('Error al cargar partidas', 'error');
     }
-};
-
-// ---------------- FUNCION PARA CARGAR UNA PARTIDA ----------------
-function cargarPartida(partida, usuarioId) {
-    if (juego) {
-        detenerTemporizador();
-        juego = null;
-    }
-
-    juego = new Buscaminas(
-        usuarioId,
-        partida.filas,
-        partida.columnas,
-        Dificultad[partida.dificultad]
-    );
-
-    juego.id = partida.id;
-    juego.tablero = partida.tablero;
-    juego.descubiertas = partida.celdasDescubiertas;
-    juego.minas = partida.minas;
-
-    filas = partida.filas;
-    columnas = partida.columnas;
-    dificultadActual = partida.dificultad;
-
-    crearTableroHTML();
-    actualizarTablero();
-
-    segundosTotales = 0;
-    iniciarTemporizador();
-
-    btnControl.textContent = "⏸ Pausar";
-    selectDificultad.disabled = true;
-    ocultarMensaje();
 }
+
+// Volver al tablero
+btnVolver.addEventListener('click', () => {
+    window.location.href = 'tablero.html';
+});
