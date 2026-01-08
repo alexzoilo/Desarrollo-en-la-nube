@@ -34,7 +34,6 @@ async function cargarPartidas(usuarioId) {
             const li = document.createElement('li');
             li.className = 'partida-item card';
 
-            // Contenedor principal de la partida
             li.innerHTML = `
                 <div class="partida-header">
                     <span class="partida-dificultad ${partida.dificultad.toLowerCase()}">
@@ -53,7 +52,6 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
-            // Event listener para cargar partida
             const btnCargar = li.querySelector('.btn-cargar');
             btnCargar.addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
