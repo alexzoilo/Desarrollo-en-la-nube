@@ -4,7 +4,7 @@ import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 
-// Usuario actual almacenado en sessionStorage
+// Recuperar usuario actual de sessionStorage
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
 if (!usuarioActual?.id) {
@@ -13,7 +13,7 @@ if (!usuarioActual?.id) {
     cargarPartidas(usuarioActual.id);
 }
 
-// Función para obtener partidas del usuario
+// ================== Cargar partidas desde Supabase ==================
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
     try {
@@ -36,18 +36,27 @@ async function cargarPartidas(usuarioId) {
             const li = document.createElement('li');
             li.className = 'partida-item';
             li.innerHTML = `
-                <span>Dificultad: ${partida.dificultad} | Filas: ${partida.filas} | Columnas: ${partida.columnas} | Inicio: ${new Date(partida.tiempoInicio).toLocaleString()}</span>
-                <button class="btn-cargar" data-id="${partida.id}">Cargar</button>
+                <span class="info-partida">
+                    <strong>Dificultad:</strong> ${partida.dificultad} | 
+                    <strong>Filas:</strong> ${partida.filas} | 
+                    <strong>Columnas:</strong> ${partida.columnas} | 
+                    <strong>Inicio:</strong> ${new Date(partida.tiempoInicio).toLocaleString()}
+                </span>
+                <button class="btn-cargar boton boton-principal" data-id="${partida.id}">Cargar</button>
             `;
             listaPartidas.appendChild(li);
         });
 
         // Agregar evento para cargar partida
         document.querySelectorAll('.btn-cargar').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 const idPartida = btn.dataset.id;
+
+                // Guardamos ID de partida para cargar en tablero
                 sessionStorage.setItem('cargarPartidaId', idPartida);
-                window.location.href = 'tablero.html'; // Redirige al tablero y carga la partida
+
+                // Redirigir al tablero
+                window.location.href = 'tablero.html';
             });
         });
 
@@ -57,7 +66,7 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-// Volver al tablero
+// ================== Botón volver ==================
 btnVolver.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });

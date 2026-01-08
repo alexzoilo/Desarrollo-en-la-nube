@@ -167,3 +167,57 @@ btnControl.addEventListener("click", async () => {
 btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
 });
+
+// Revisar si hay partida para cargar
+const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
+if (cargarPartidaId) {
+    cargarPartida(cargarPartidaId);
+}
+
+async function cargarPartida(idPartida) {
+    try {
+        const { data: partida, error } = await supabase
+            .from('Buscaminas')
+            .select('*')
+            .eq('id', idPartida)
+            .single();
+
+        if (error || !partida) {
+            mostrarMensaje('No se pudo cargar la partida', 'error');
+            return;
+        }
+
+        // Crear instancia de Buscaminas con los datos guardados
+        juego = new Buscaminas(
+            partida.usuarioId,
+            partida.filas,
+            partida.columnas,
+            partida.dificultad
+        );
+
+        // Restaurar tablero y descubiertas
+        juego.tablero = partida.tablero;
+        juego.descubiertas = partida.celdasDescubiertas;
+        juego.minas = partida.minas;
+        juego.totalCeldas = partida.totalCeldas;
+
+        filas = partida.filas;
+        columnas = partida.columnas;
+        dificultadActual = partida.dificultad;
+
+        selectDificultad.value = dificultadActual;
+        selectDificultad.disabled = true;
+
+        crearTableroHTML();
+        actualizarTablero();
+
+        mostrarMensaje('🎮 Partida cargada. ¡A jugar!', 'info');
+
+    } catch (e) {
+        console.error('Error cargando partida:', e);
+        mostrarMensaje('Error al cargar la partida', 'error');
+    } finally {
+        sessionStorage.removeItem('cargarPartidaId'); // Limpiamos para la próxima
+    }
+}
+
