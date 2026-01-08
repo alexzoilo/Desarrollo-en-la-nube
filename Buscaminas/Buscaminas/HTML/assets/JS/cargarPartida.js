@@ -4,7 +4,6 @@ import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 
-// Recuperar usuario actual de sessionStorage
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
 if (!usuarioActual?.id) {
@@ -13,7 +12,6 @@ if (!usuarioActual?.id) {
     cargarPartidas(usuarioActual.id);
 }
 
-// ================== Cargar partidas desde Supabase ==================
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
     try {
@@ -25,37 +23,40 @@ async function cargarPartidas(usuarioId) {
 
         if (error) throw error;
 
+        listaPartidas.innerHTML = '';
+
         if (!partidas || partidas.length === 0) {
             mostrarMensaje('No tienes partidas guardadas', 'info');
             return;
         }
 
-        // Mostrar partidas en lista
-        listaPartidas.innerHTML = '';
         partidas.forEach(partida => {
             const li = document.createElement('li');
-            li.className = 'partida-item';
+            li.className = 'partida-item card';
+
+            // Contenedor principal de la partida
             li.innerHTML = `
-                <span class="info-partida">
-                    <strong>Dificultad:</strong> ${partida.dificultad} | 
-                    <strong>Filas:</strong> ${partida.filas} | 
-                    <strong>Columnas:</strong> ${partida.columnas} | 
-                    <strong>Inicio:</strong> ${new Date(partida.tiempoInicio).toLocaleString()}
-                </span>
-                <button class="btn-cargar boton boton-principal" data-id="${partida.id}">Cargar</button>
+                <div class="partida-header">
+                    <span class="partida-dificultad ${partida.dificultad.toLowerCase()}">
+                        ${partida.dificultad.toUpperCase()}
+                    </span>
+                    <span class="partida-tiempo">
+                        ${new Date(partida.tiempoInicio).toLocaleString()}
+                    </span>
+                </div>
+                <div class="partida-body">
+                    <p><strong>Filas:</strong> ${partida.filas}</p>
+                    <p><strong>Columnas:</strong> ${partida.columnas}</p>
+                </div>
+                <button class="btn-cargar boton boton-principal">Cargar partida</button>
             `;
+
             listaPartidas.appendChild(li);
-        });
 
-        // Agregar evento para cargar partida
-        document.querySelectorAll('.btn-cargar').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const idPartida = btn.dataset.id;
-
-                // Guardamos ID de partida para cargar en tablero
-                sessionStorage.setItem('cargarPartidaId', idPartida);
-
-                // Redirigir al tablero
+            // Event listener para cargar partida
+            const btnCargar = li.querySelector('.btn-cargar');
+            btnCargar.addEventListener('click', () => {
+                sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
         });
@@ -66,7 +67,6 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-// ================== Botón volver ==================
 btnVolver.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });

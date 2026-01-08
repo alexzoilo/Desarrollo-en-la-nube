@@ -23,7 +23,7 @@ function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
     const ss = String(s % 60).padStart(2, "0");
-    return `Cronómetro: ${h}:${m}:${ss}`;
+    return `Cronometro: ${h}:${m}:${ss}`;
 }
 
 function ajustarFilasColumnas(dif) {
@@ -168,7 +168,6 @@ btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
 });
 
-// Revisar si hay partida para cargar
 const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
 if (cargarPartidaId) {
     cargarPartida(cargarPartidaId);
@@ -187,7 +186,6 @@ async function cargarPartida(idPartida) {
             return;
         }
 
-        // Crear instancia de Buscaminas con los datos guardados
         juego = new Buscaminas(
             partida.usuarioId,
             partida.filas,
@@ -195,7 +193,6 @@ async function cargarPartida(idPartida) {
             partida.dificultad
         );
 
-        // Restaurar tablero y descubiertas
         juego.tablero = partida.tablero;
         juego.descubiertas = partida.celdasDescubiertas;
         juego.minas = partida.minas;
@@ -211,13 +208,13 @@ async function cargarPartida(idPartida) {
         crearTableroHTML();
         actualizarTablero();
 
-        mostrarMensaje('🎮 Partida cargada. ¡A jugar!', 'info');
+        mostrarMensaje('Partida cargada. ¡A jugar!', 'info');
 
     } catch (e) {
         console.error('Error cargando partida:', e);
         mostrarMensaje('Error al cargar la partida', 'error');
     } finally {
-        sessionStorage.removeItem('cargarPartidaId'); // Limpiamos para la próxima
+        sessionStorage.removeItem('cargarPartidaId');
     }
 }
 
