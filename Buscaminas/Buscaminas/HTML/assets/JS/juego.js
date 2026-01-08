@@ -17,6 +17,7 @@ const tableroDiv = document.getElementById("tablero");
 const selectDificultad = document.getElementById("dificultad");
 const temporizadorSpan = document.getElementById("temporizador");
 const btnControl = document.getElementById("btnControl");
+const btnListaPartidas = document.getElementById('btnListaPartidas');
 
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
@@ -161,4 +162,8 @@ btnControl.addEventListener("click", async () => {
         btnControl.textContent = "⏸ Pausar";
         ocultarMensaje();
     }
+});
+
+btnListaPartidas.addEventListener('click', () => {
+    window.location.href = 'cargarPartida.html';
 });
