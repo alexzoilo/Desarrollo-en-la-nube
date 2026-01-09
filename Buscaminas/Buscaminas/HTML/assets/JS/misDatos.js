@@ -18,12 +18,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
 
-    // Modal elementos
     const modal = document.getElementById("modal-confirmacion");
     const btnConfirmar = document.getElementById("confirmar-eliminar");
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
-    // 1️⃣ Comprobar sesión
+ 
     const {
         data: {
             user
@@ -33,7 +32,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
-    // 2️⃣ Cargar datos del usuario
     const {
         data: usuarioData,
         error: userError
@@ -49,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     emailInput.value = usuario.email;
     emailInput.disabled = true;
 
-    // 3️⃣ Guardar cambios
+
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         botonGuardar.disabled = true;
@@ -58,7 +56,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nuevoNombre = nombreInput.value.trim();
         const nuevaPass = passwordInput.value.trim();
 
-        // Validaciones
         if (!nuevoNombre) {
             mostrarMensaje("El nombre no puede estar vacío", "error");
             botonGuardar.disabled = false;
@@ -74,7 +71,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            // 🔹 Actualizar nombre si cambió
             if (nuevoNombre !== usuario.nombre) {
                 const {
                     error: nombreError
@@ -115,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // 4️⃣ Mostrar modal de confirmación
+ 
     botonEliminar.addEventListener("click", () => {
         modal.style.display = "flex";
     });
@@ -124,7 +120,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         modal.style.display = "none";
     });
 
-    // 5️⃣ Confirmar eliminación usando Edge Function
     btnConfirmar.addEventListener("click", async () => {
         modal.style.display = "none";
         botonGuardar.disabled = true;
@@ -132,7 +127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         ocultarMensaje();
 
         try {
-            // 🔹 Llamar a la Edge Function para eliminar usuario de Auth y DB
+
             const response = await fetch('/api/DeleteUser', {
                 method: 'POST',
                 headers: {
@@ -143,10 +138,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 })
             });
 
-            const result = await response.json(); // ✅ Esto ahora siempre recibirá JSON
+            const result = await response.json();
             if (result.error) throw new Error(result.error);
 
-            // Usuario eliminado
             alert("Cuenta eliminada correctamente");
         } catch (err) {
             console.error(err);
