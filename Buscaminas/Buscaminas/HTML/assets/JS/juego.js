@@ -113,8 +113,10 @@ async function iniciarJuego(dificultad) {
     crearTableroHTML();
     actualizarTablero();
     iniciarTemporizador();
-    ocultarMensaje();
+
     btnControl.textContent = "⏸ Pausar";
+    selectDificultad.disabled = true;
+    ocultarMensaje();
     }
 
     function clickCelda(f, c) {
@@ -159,6 +161,7 @@ async function iniciarJuego(dificultad) {
             juegoPausado = false;
             iniciarTemporizador();
             btnControl.textContent = "⏸ Pausar";
+            selectDificultad.disabled = true;
             ocultarMensaje();
         }
     });
@@ -203,7 +206,7 @@ async function iniciarJuego(dificultad) {
             dificultadActual = partida.dificultad;
 
             selectDificultad.value = dificultadActual;
-            selectDificultad.disabled = true;
+            selectDificultad.disabled = false;
 
             crearTableroHTML();
             actualizarTablero();
