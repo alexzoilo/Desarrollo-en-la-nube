@@ -91,10 +91,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                         password: nuevaPass
                     });
                 } catch (err) {
-                    if (!err.message.includes("New password should be different from the old password")) {
+                    if (!err.message.includes("La nueva contrasseña tiene que ser diferente a la antigua")) {
                         throw err;
                     } else {
-                        mostrarMensaje("La nueva contraseña es igual a la actual, no se cambió", "info");
+                        mostrarMensaje("La nueva contrasseña tiene que ser diferente a la antigua", "info");
                     }
                 }
             }

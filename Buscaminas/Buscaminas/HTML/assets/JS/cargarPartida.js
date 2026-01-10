@@ -6,12 +6,69 @@ const btnVolver = document.getElementById('btnVolver');
 
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
-if (!usuarioActual?.id) {
-    mostrarMensaje('No se detectó un usuario activo. Por favor inicia sesión.', 'error');
-} else {
-    cargarPartidas(usuarioActual.id);
+// Variable para guardar la partida a eliminar
+let partidaAEliminar = null;
+
+// Modal y botones (se cargarán dinámicamente)
+let modal, btnConfirmar, btnCancelar, textoModal;
+
+// Cargar el modal desde un HTML externo
+async function cargarModal() {
+    try {
+        const response = await fetch('./modalConfirmacion.html');
+        const html = await response.text();
+        document.body.insertAdjacentHTML('beforeend', html);
+
+        modal = document.getElementById('modal-confirmacion');
+        btnConfirmar = document.getElementById('confirmar-eliminar');
+        btnCancelar = document.getElementById('cancelar-eliminar');
+        textoModal = document.getElementById('texto-modal');
+
+        // Eventos del modal
+        btnCancelar.addEventListener('click', () => {
+            modal.style.display = 'none';
+            partidaAEliminar = null;
+        });
+
+        btnConfirmar.addEventListener('click', async () => {
+            if (!partidaAEliminar) return;
+
+            try {
+                const { error } = await supabase
+                    .from('Buscaminas')
+                    .delete()
+                    .eq('id', partidaAEliminar)
+                    .eq('usuarioId', usuarioActual.id);
+
+                if (error) throw error;
+
+                modal.style.display = 'none';
+                partidaAEliminar = null;
+                cargarPartidas(usuarioActual.id);
+
+            } catch (err) {
+                console.error(err);
+                mostrarMensaje('Error al eliminar la partida', 'error');
+            }
+        });
+
+    } catch (err) {
+        console.error('Error cargando modal:', err);
+    }
 }
 
+// Inicializar
+(async function init() {
+    if (!usuarioActual?.id) {
+        mostrarMensaje('No se detectó un usuario activo. Por favor inicia sesión.', 'error');
+        return;
+    }
+
+    await cargarModal();
+    cargarPartidas(usuarioActual.id);
+})();
+
+// Función para cargar partidas
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
 
@@ -51,7 +108,7 @@ async function cargarPartidas(usuarioId) {
                 </div>
 
                 <div class="partida-acciones">
-                    <button class="boton boton-secundario boton-grande">Cargar partida</button>
+                    <button class="boton-guardar">Cargar partida</button>
                     <button class="boton-eliminar">Eliminar partida</button>
                 </div>
             `;
@@ -59,42 +116,26 @@ async function cargarPartidas(usuarioId) {
             listaPartidas.appendChild(li);
 
             // CARGAR PARTIDA
-            const btnCargar = li.querySelector('.boton boton-secundario boton-grande');
-            btnCargar.addEventListener('click', () => {
+            li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-            // ELIMINAR PARTIDA
-            const btnEliminar = li.querySelector('.boton-eliminar');
-            btnEliminar.addEventListener('click', async () => {
-                const confirmar = confirm('¿Seguro que deseas eliminar esta partida?');
-                if (!confirmar) return;
-
-                try {
-                    const { error } = await supabase
-                        .from('Buscaminas')
-                        .delete()
-                        .eq('id', partida.id)
-                        .eq('usuarioId', usuarioActual.id);
-
-                    if (error) throw error;
-
-                    mostrarMensaje('Partida eliminada correctamente', 'success');
-                    cargarPartidas(usuarioActual.id);
-                } catch (err) {
-                    console.error(err);
-                    mostrarMensaje('Error al eliminar la partida', 'error');
-                }
+            // MOSTRAR MODAL ELIMINAR
+            li.querySelector('.boton-eliminar').addEventListener('click', () => {
+                partidaAEliminar = partida.id;
+                textoModal.textContent = '¿Seguro que deseas eliminar esta partida? Esta acción es irreversible.';
+                modal.style.display = 'flex';
             });
         });
 
     } catch (err) {
-        console.error('Error al cargar partidas:', err);
+        console.error(err);
         mostrarMensaje('Error al cargar partidas', 'error');
     }
 }
 
+// Botón volver al tablero
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
