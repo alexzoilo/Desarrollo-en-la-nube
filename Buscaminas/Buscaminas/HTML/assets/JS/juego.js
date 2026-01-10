@@ -6,7 +6,6 @@ import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // === Variables Globales ===
     const dao = new DAOBuscaminas();
     let juego = null;
     let filas = 9;
@@ -22,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnControl = document.getElementById("btnControl");
     const btnListaPartidas = document.getElementById('btnListaPartidas');
 
-    // === Funciones de utilidad ===
     function formatTiempo(s) {
         const h = String(Math.floor(s / 3600)).padStart(2, "0");
         const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
@@ -88,33 +86,35 @@ document.addEventListener("DOMContentLoaded", () => {
         timerInterval = null;
     }
 
-    async function iniciarJuego(dificultad) {
-        const usuarioId = await obtenerUsuarioLogueado();
-        if (!usuarioId) {
-            mostrarMensaje("Debes iniciar sesión para jugar");
-            return;
-        }
+async function iniciarJuego(dificultad) {
+    const usuarioId = await obtenerUsuarioLogueado();
+    if (!usuarioId) {
+        mostrarMensaje("Debes iniciar sesión para jugar");
+        return;
+    }
 
-        ajustarFilasColumnas(dificultad);
-        selectDificultad.disabled = true;
+    ajustarFilasColumnas(dificultad);
+    selectDificultad.disabled = true;
 
+    if (!juego) {
         juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
 
         try {
             await dao.crearPartida(juego);
         } catch (e) {
-            console.error("Error creando partida:", e);
+            console.error("Error creando la partida:", e);
             mostrarMensaje("No se pudo crear la partida.");
             juego = null;
             selectDificultad.disabled = false;
             return;
         }
+    }
 
-        crearTableroHTML();
-        actualizarTablero();
-        iniciarTemporizador();
-        ocultarMensaje();
-        btnControl.textContent = "⏸ Pausar";
+    crearTableroHTML();
+    actualizarTablero();
+    iniciarTemporizador();
+    ocultarMensaje();
+    btnControl.textContent = "⏸ Pausar";
     }
 
     function clickCelda(f, c) {
@@ -144,7 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
         selectDificultad.disabled = false;
     }
 
-    // === Eventos ===
     btnControl.addEventListener("click", async () => {
         if (!juego) {
             await iniciarJuego(selectDificultad.value);
@@ -168,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = 'cargarPartida.html';
     });
 
-    // === Cargar partida si existe ID ===
+
     const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
     if (cargarPartidaId) {
         cargarPartida(cargarPartidaId);
@@ -194,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 partida.dificultad
             );
 
-            // Restaurar el estado
             if (partida.tablero) juego.tablero = partida.tablero;
             if (partida.celdasDescubiertas) juego.descubiertas = partida.celdasDescubiertas;
             if (partida.minas) juego.minas = partida.minas;
