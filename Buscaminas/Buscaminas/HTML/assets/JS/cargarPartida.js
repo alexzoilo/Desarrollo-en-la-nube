@@ -14,6 +14,7 @@ if (!usuarioActual?.id) {
 
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
+
     try {
         const { data: partidas, error } = await supabase
             .from('Buscaminas')
@@ -43,19 +44,48 @@ async function cargarPartidas(usuarioId) {
                         ${new Date(partida.tiempoInicio).toLocaleString()}
                     </span>
                 </div>
+
                 <div class="partida-body">
                     <p><strong>Filas:</strong> ${partida.filas}</p>
                     <p><strong>Columnas:</strong> ${partida.columnas}</p>
                 </div>
-                <button class="btn-cargar boton boton-principal">Cargar partida</button>
+
+                <div class="partida-acciones">
+                    <button class="btn-cargar boton boton-principal">Cargar partida</button>
+                    <button class="btn-eliminar boton boton-peligro">Eliminar partida</button>
+                </div>
             `;
 
             listaPartidas.appendChild(li);
 
+            // CARGAR PARTIDA
             const btnCargar = li.querySelector('.btn-cargar');
             btnCargar.addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
+            });
+
+            // ELIMINAR PARTIDA
+            const btnEliminar = li.querySelector('.btn-eliminar');
+            btnEliminar.addEventListener('click', async () => {
+                const confirmar = confirm('¿Seguro que deseas eliminar esta partida?');
+                if (!confirmar) return;
+
+                try {
+                    const { error } = await supabase
+                        .from('Buscaminas')
+                        .delete()
+                        .eq('id', partida.id)
+                        .eq('usuarioId', usuarioActual.id);
+
+                    if (error) throw error;
+
+                    mostrarMensaje('Partida eliminada correctamente', 'success');
+                    cargarPartidas(usuarioActual.id);
+                } catch (err) {
+                    console.error(err);
+                    mostrarMensaje('Error al eliminar la partida', 'error');
+                }
             });
         });
 
@@ -65,6 +95,6 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-btnVolver.addEventListener('click', () => {
+btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
