@@ -51,7 +51,7 @@ async function cargarPartidas(usuarioId) {
                 </div>
 
                 <div class="partida-acciones">
-                    <button class="boton-guardar">Cargar partida</button>
+                    <button class="boton boton-secundario boton-grande">Cargar partida</button>
                     <button class="boton-eliminar">Eliminar partida</button>
                 </div>
             `;
@@ -59,7 +59,7 @@ async function cargarPartidas(usuarioId) {
             listaPartidas.appendChild(li);
 
             // CARGAR PARTIDA
-            const btnCargar = li.querySelector('.boton-guardar');
+            const btnCargar = li.querySelector('.boton boton-secundario boton-grande');
             btnCargar.addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
