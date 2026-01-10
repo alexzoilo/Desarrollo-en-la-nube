@@ -66,7 +66,7 @@ async function cargarPartidas(usuarioId) {
             });
 
             // ELIMINAR PARTIDA
-            const btnEliminar = li.querySelector('.btn-eliminar');
+            const btnEliminar = li.querySelector('.boton-eliminar');
             btnEliminar.addEventListener('click', async () => {
                 const confirmar = confirm('¿Seguro que deseas eliminar esta partida?');
                 if (!confirmar) return;
