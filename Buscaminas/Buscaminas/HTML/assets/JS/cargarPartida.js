@@ -15,7 +15,7 @@ let modal, btnConfirmar, btnCancelar, textoModal;
 // Cargar el modal desde un HTML externo
 async function cargarModal() {
     try {
-        const response = await fetch('./modalConfirmacion.html');
+        const response = await fetch('./extras/modalConfirmacion.html');
         const html = await response.text();
         document.body.insertAdjacentHTML('beforeend', html);
 
