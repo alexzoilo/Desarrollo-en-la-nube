@@ -1,19 +1,10 @@
-import {
-    supabase
-} from "./Supabaseclient.js";
-import {
-    mostrarMensaje,
-    ocultarMensaje
-} from "./extras/mensajes.js";
+import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
 
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
-
-const modal = document.getElementById("modal-confirmacion");
-const btnConfirmar = document.getElementById("confirmar-eliminar");
-const btnCancelar = document.getElementById("cancelar-eliminar");
 
 if (!usuarioActual?.id) {
     mostrarMensaje('No se detectó un usuario activo. Por favor inicia sesión.', 'error');
@@ -25,16 +16,11 @@ async function cargarPartidas(usuarioId) {
     ocultarMensaje();
 
     try {
-        const {
-            data: partidas,
-            error
-        } = await supabase
+        const { data: partidas, error } = await supabase
             .from('Buscaminas')
             .select('id, filas, columnas, dificultad, tiempoInicio, tiempoFin')
             .eq('usuarioId', usuarioId)
-            .order('tiempoInicio', {
-                ascending: false
-            });
+            .order('tiempoInicio', { ascending: false });
 
         if (error) throw error;
 
@@ -65,7 +51,7 @@ async function cargarPartidas(usuarioId) {
                 </div>
 
                 <div class="partida-acciones">
-                    <button class="boton-guardar">Cargar partida</button>
+                    <button class="btn-cargar boton boton-principal">Cargar partida</button>
                     <button class="boton-eliminar">Eliminar partida</button>
                 </div>
             `;
@@ -86,9 +72,7 @@ async function cargarPartidas(usuarioId) {
                 if (!confirmar) return;
 
                 try {
-                    const {
-                        error
-                    } = await supabase
+                    const { error } = await supabase
                         .from('Buscaminas')
                         .delete()
                         .eq('id', partida.id)
@@ -96,6 +80,7 @@ async function cargarPartidas(usuarioId) {
 
                     if (error) throw error;
 
+                    mostrarMensaje('Partida eliminada correctamente', 'success');
                     cargarPartidas(usuarioActual.id);
                 } catch (err) {
                     console.error(err);
@@ -109,3 +94,7 @@ async function cargarPartidas(usuarioId) {
         mostrarMensaje('Error al cargar partidas', 'error');
     }
 }
+
+btnVolver?.addEventListener('click', () => {
+    window.location.href = 'tablero.html';
+});
