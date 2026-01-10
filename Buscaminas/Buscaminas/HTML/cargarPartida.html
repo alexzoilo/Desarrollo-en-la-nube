@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,32 +8,35 @@
     <link rel="icon" type="image/png" href="./assets/img/Bomba.svg">
     <link rel="stylesheet" href="CSS/styles.css">
 </head>
+
 <body>
 
-<nav class="barra-navegacion">
-    <div class="botones-barra">
-        <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
-        <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
-        <button class="nav-btn" data-target="cargarPartida.html">Cargar Partida</button>
-        <span class="indicador"></span>
-    </div>
-</nav>
+    <nav class="barra-navegacion">
+        <div class="botones-barra">
+            <button class="nav-btn" data-target="tablero.html">Jugar partida</button>
+            <button class="nav-btn" data-target="misDatos.html">Mis datos</button>
+            <button class="nav-btn" data-target="cargarPartida.html">Cargar Partida</button>
+            <span class="indicador"></span>
+        </div>
+    </nav>
 
     <div id="mensaje"></div>
     <ul id="listaPartidas" class="lista-partidas">
-</div>
-
-<div id="modal-confirmacion" class="modal">
-    <div class="modal-contenido">
-        <p>¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.</p>
-        <div class="modal-botones">
-            <button id="confirmar-eliminar">Sí, eliminar</button>
-            <button id="cancelar-eliminar">Cancelar</button>
         </div>
-    </div>
 
-<script type="module" src="./assets/JS/cargarPartida.js"></script>
-<script type="module" src="./assets/JS/extras/BarraNavegacion.js"></script>
+        <div id="modal-confirmacion" class="modal">
+            <div class="modal-contenido">
+                <p>¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.</p>
+                <div class="modal-botones">
+                    <button id="confirmar-eliminar">Sí, eliminar</button>
+                    <button id="cancelar-eliminar">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="./assets/JS/cargarPartida.js"></script>
+        <script type="module" src="./assets/JS/extras/BarraNavegacion.js"></script>
 
 </body>
+
 </html>
