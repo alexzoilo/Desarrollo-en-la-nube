@@ -6,11 +6,12 @@ const btnVolver = document.getElementById('btnVolver');
 
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
+// Modal de confirmación
 const modal = document.getElementById("modal-confirmacion");
 const btnConfirmar = document.getElementById("confirmar-eliminar");
 const btnCancelar = document.getElementById("cancelar-eliminar");
 
-// guardamos el id de la partida a eliminar
+// Guardamos el id de la partida que se quiere eliminar
 let partidaAEliminar = null;
 
 if (!usuarioActual?.id) {
@@ -19,6 +20,7 @@ if (!usuarioActual?.id) {
     cargarPartidas(usuarioActual.id);
 }
 
+// Función para cargar partidas
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
 
@@ -65,32 +67,35 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
-            // CARGAR PARTIDA
+            // Cargar partida
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-            // MOSTRAR MODAL ELIMINAR
+            // Mostrar modal para eliminar partida
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 partidaAEliminar = partida.id;
+                // Cambiar texto del modal para que sea específico
+                const texto = modal.querySelector('p');
+                texto.textContent = '¿Seguro que deseas eliminar esta partida? Esta acción es irreversible.';
                 modal.style.display = 'flex';
             });
         });
 
     } catch (err) {
-        console.error(err);
+        console.error('Error al cargar partidas:', err);
         mostrarMensaje('Error al cargar partidas', 'error');
     }
 }
 
-// CANCELAR MODAL
+// Cancelar modal
 btnCancelar.addEventListener('click', () => {
     modal.style.display = 'none';
     partidaAEliminar = null;
 });
 
-// CONFIRMAR ELIMINACIÓN
+// Confirmar eliminación
 btnConfirmar.addEventListener('click', async () => {
     if (!partidaAEliminar) return;
 
@@ -105,13 +110,17 @@ btnConfirmar.addEventListener('click', async () => {
 
         modal.style.display = 'none';
         partidaAEliminar = null;
+
+        // Recargar lista de partidas
         cargarPartidas(usuarioActual.id);
+
     } catch (err) {
-        console.error(err);
+        console.error('Error al eliminar partida:', err);
         mostrarMensaje('Error al eliminar la partida', 'error');
     }
 });
 
+// Botón volver al tablero
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
