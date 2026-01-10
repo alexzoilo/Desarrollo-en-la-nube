@@ -51,22 +51,22 @@ async function cargarPartidas(usuarioId) {
                 </div>
 
                 <div class="partida-acciones">
-                    <button class="boton boton-principal boton-grande">Cargar partida</button>
-                    <button class="boton boton-secundario boton-grande">Eliminar partida</button>
+                    <button class="boton-guardar">Cargar partida</button>
+                    <button class="boton-eliminar">Eliminar partida</button>
                 </div>
             `;
 
             listaPartidas.appendChild(li);
 
             // CARGAR PARTIDA
-            const btnCargar = li.querySelector('.boton boton-principal boton-grande');
+            const btnCargar = li.querySelector('.boton-guardar');
             btnCargar.addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
             // ELIMINAR PARTIDA
-            const btnEliminar = li.querySelector('.boton boton-secundario boton-grande');
+            const btnEliminar = li.querySelector('.boton-eliminar');
             btnEliminar.addEventListener('click', async () => {
                 const confirmar = confirm('¿Seguro que deseas eliminar esta partida?');
                 if (!confirmar) return;
