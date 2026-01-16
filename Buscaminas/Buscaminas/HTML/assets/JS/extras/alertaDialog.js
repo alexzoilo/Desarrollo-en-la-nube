@@ -15,7 +15,7 @@ botones.className = "modal-botones";
 
 const btnConfirmar = document.createElement("button");
 btnConfirmar.id = "confirmar-eliminar";
-btnConfirmar.textContent = "Sí, eliminar";
+btnConfirmar.textContent = "Eliminar";
 
 const btnCancelar = document.createElement("button");
 btnCancelar.id = "cancelar-eliminar";

@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 usuario.nombre = nuevoNombre;
             }
 
-            // 🔹 Actualizar contraseña si se ingresó
+  
             if (nuevaPass.length >= 6) {
                 try {
                     await supabase.auth.updateUser({
