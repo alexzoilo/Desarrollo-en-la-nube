@@ -5,9 +5,6 @@ const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
-
-// ================= MODAL =================
-
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -52,7 +49,6 @@ btnConfirmar.addEventListener("click", async () => {
 });
 
 
-// ================= CARGAR PARTIDAS =================
 
 if (!usuarioActual?.id) {
     mostrarMensaje('No se detectó un usuario activo.', 'error');
@@ -104,13 +100,11 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
-            // Cargar partida
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-            // Eliminar partida con modal
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
@@ -139,8 +133,6 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-
-// ================= VOLVER =================
 
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
