@@ -51,7 +51,7 @@ btnConfirmar.addEventListener("click", async () => {
 
 
 if (!usuarioActual?.id) {
-    mostrarMensaje('No se detectó un usuario activo.', 'error');
+    mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
     cargarPartidas(usuarioActual.id);
 }
@@ -71,7 +71,7 @@ async function cargarPartidas(usuarioId) {
         listaPartidas.innerHTML = '';
 
         if (!partidas?.length) {
-            mostrarMensaje('No tienes partidas guardadas', 'info');
+            mostrarMensaje('No tienes partidas guardadas', 'error');
             return;
         }
 
