@@ -1,23 +1,11 @@
 {
-  "name": "desarrollo-en-la-nube",
+  "name": "supabase-vercel",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node test.js"
+    "start": "vercel dev"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alexzoilo/Desarrollo-en-la-nube.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/alexzoilo/Desarrollo-en-la-nube/issues"
-  },
-  "homepage": "https://github.com/alexzoilo/Desarrollo-en-la-nube#readme",
   "dependencies": {
-    "@supabase/supabase-js": "^2.89.0"
+    "@supabase/supabase-js": "^2.37.0"
   }
 }
