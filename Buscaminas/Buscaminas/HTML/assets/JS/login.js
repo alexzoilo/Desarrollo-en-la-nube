@@ -43,7 +43,7 @@ form.addEventListener("submit", async (e) => {
             .single();
 
         if (usuarioError || !usuarioDB) {
-            mostrarMensaje("El usuario no existe en la base de datos", "error");
+            mostrarMensaje("El usuario no existe", "error");
             console.error("Error usuarioDB:", usuarioError);
             return;
         }
