@@ -7,7 +7,7 @@ const modalContenido = document.createElement("div");
 modalContenido.className = "modal-contenido";
 
 const texto = document.createElement("p");
-texto.textContent = "¿Seguro que deseas eliminar tu cuenta? Esta acción es irreversible.";
+texto.textContent = "¿Seguro que deseas eliminar tu cuenta? Esta accion es irreversible.";
 
 const botones = document.createElement("div");
 botones.className = "modal-botones";
