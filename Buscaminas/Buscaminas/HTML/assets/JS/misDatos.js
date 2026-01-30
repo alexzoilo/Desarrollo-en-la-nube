@@ -1,13 +1,6 @@
-import {
-    supabase
-} from './Supabaseclient.js';
-import {
-    mostrarMensaje,
-    ocultarMensaje
-} from './extras/mensajes.js';
-import {
-    togglePassword
-} from './extras/Comprobaciones.js';
+import { supabase } from './Supabaseclient.js';
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
+import { togglePassword } from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
@@ -22,24 +15,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnConfirmar = document.getElementById("confirmar-eliminar");
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
- 
-    const {
-        data: {
-            user
-        },
-        error: authError
-    } = await supabase.auth.getUser();
+    // Obtener usuario actual
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
-    const {
-        data: usuarioData,
-        error: userError
-    } = await supabase
+    // Cargar datos del usuario
+    const { data: usuarioData, error: userError } = await supabase
         .from("Usuarios")
         .select("nombre, email")
         .eq("id", userId)
         .single();
+
     if (userError || !usuarioData) return mostrarMensaje("No se pudieron cargar tus datos", "error");
 
     const usuario = usuarioData;
@@ -47,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     emailInput.value = usuario.email;
     emailInput.disabled = true;
 
-
+    // Guardar cambios
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         botonGuardar.disabled = true;
@@ -71,25 +58,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
+            // Actualizar nombre
             if (nuevoNombre !== usuario.nombre) {
-                const {
-                    error: nombreError
-                } = await supabase
+                const { error: nombreError } = await supabase
                     .from("Usuarios")
-                    .update({
-                        nombre: nuevoNombre
-                    })
+                    .update({ nombre: nuevoNombre })
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
                 usuario.nombre = nuevoNombre;
             }
 
-  
+            // Actualizar contraseña
             if (nuevaPass.length >= 6) {
                 try {
-                    await supabase.auth.updateUser({
-                        password: nuevaPass
-                    });
+                    await supabase.auth.updateUser({ password: nuevaPass });
                 } catch (err) {
                     if (!err.message.includes("La nueva contrasseña tiene que ser diferente a la antigua")) {
                         throw err;
@@ -111,15 +93,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
- 
+    // Mostrar modal de confirmación
     botonEliminar.addEventListener("click", () => {
         modal.style.display = "flex";
     });
 
+    // Cancelar eliminación
     btnCancelar.addEventListener("click", () => {
         modal.style.display = "none";
     });
 
+    // Confirmar eliminación
     btnConfirmar.addEventListener("click", async () => {
         modal.style.display = "none";
         botonGuardar.disabled = true;
@@ -127,24 +111,39 @@ document.addEventListener("DOMContentLoaded", async () => {
         ocultarMensaje();
 
         try {
-
             const response = await fetch('/api/DeleteUser', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userId
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId })
             });
 
-            const result = await response.json();
+            // Leer como texto primero
+            const text = await response.text();
+            console.log("Respuesta cruda del servidor:", text);
+
+            if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch {
+                throw new Error("La API no devolvió JSON válido");
+            }
+
             if (result.error) throw new Error(result.error);
 
             alert("Cuenta eliminada correctamente");
+
+            // Cerrar sesión y redirigir
+            await supabase.auth.signOut();
+            window.location.href = "login.html";
+
         } catch (err) {
-            console.error(err);
+            console.error("Error eliminar usuario:", err);
             alert(err.message || "Error al eliminar la cuenta");
+        } finally {
+            botonGuardar.disabled = false;
+            botonEliminar.disabled = false;
         }
     });
 });
