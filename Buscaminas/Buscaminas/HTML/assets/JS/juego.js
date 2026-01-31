@@ -143,7 +143,7 @@ function clickCelda(f, c) {
     else if (juego.verificarVictoria()) finalizar(true,"🏆 Has ganado","correcto");
 }
 
-async function finalizar(ganado, msg, tipo = "info") {
+async function finalizar(ganado,msg, tipo = "info") {
     detenerTemporizador();
     mostrarMensaje(msg, tipo);
 
@@ -155,21 +155,13 @@ async function finalizar(ganado, msg, tipo = "info") {
         }
     }
 
-    // calcular nueva dificultad
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
-
     juego = null;
-    juegoPausado = false;
+    juegoPausado = true;
     segundosTotales = 0;
+    btnControl.textContent = "▶ Iniciar";
     selectDificultad.disabled = false;
-
-    // esperar un poco para que el usuario vea el mensaje
-    setTimeout(() => {
-        ocultarMensaje();
-        iniciarJuego(nuevaDificultad);
-    }, 2000);
 }
-
 
 btnControl.addEventListener("click", async () => {
     if (!juego) {
