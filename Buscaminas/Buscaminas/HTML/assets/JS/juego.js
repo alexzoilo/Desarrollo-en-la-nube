@@ -139,14 +139,29 @@ function clickCelda(f, c) {
     const ok = juego.descubrir(f, c);
     actualizarTablero();
 
-    if (!ok) finalizar(false,"💥 Has perdido","error");
-    else if (juego.verificarVictoria()) finalizar(true,"🏆 Has ganado","correcto");
+    if (!ok) {
+        finalizar(false);
+    } else if (juego.verificarVictoria()) {
+        finalizar(true);
+    }
 }
 
-async function finalizar(ganado, msg, tipo = "info") {
+async function finalizar(ganado, tipo = "info") {
+    // Detener el temporizador
     detenerTemporizador();
-    mostrarMensaje(msg, tipo);
 
+    // Calcular la nueva dificultad según victoria o derrota
+    const nuevaDificultad = obtenerSiguienteDificultad(ganado);
+
+    // Mostrar mensaje bonito con el cambio de nivel
+    mostrarMensaje(
+        ganado
+            ? `🏆 Nivel superado → ${nuevaDificultad}`
+            : `💥 Bajas a ${nuevaDificultad}`,
+        tipo
+    );
+
+    // Guardar partida en la base de datos si existe
     if (juego?.id) {
         try {
             await dao.finalizarPartida(juego.id);
@@ -155,15 +170,16 @@ async function finalizar(ganado, msg, tipo = "info") {
         }
     }
 
-    const nuevaDificultad = obtenerSiguienteDificultad(ganado);
-
+    // Aplicar la nueva dificultad al selector
     dificultadActual = nuevaDificultad;
     selectDificultad.value = nuevaDificultad;
 
+    // Reset del estado del juego
     juego = null;
     juegoPausado = false;
     segundosTotales = 0;
 
+    // Botón listo para iniciar la siguiente partida manualmente
     btnControl.textContent = "▶ Iniciar";
     selectDificultad.disabled = false;
 }
