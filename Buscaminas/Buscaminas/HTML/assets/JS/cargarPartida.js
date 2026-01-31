@@ -47,13 +47,11 @@ btnConfirmar.addEventListener("click", async () => {
     accionConfirmar = null;
 });
 function obtenerFecha(fechaFormateada){
-    return fechaFormateada.substring(1,9);
-
+    return fechaFormateada.split(' ')[0];
 }
 
 function obtenerHora(fechaFormateada){
-    return fechaFormateada.substring(10,17);
-
+    return fechaFormateada.split(' ')[1];
 }
 
 
