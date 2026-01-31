@@ -123,6 +123,7 @@ async function iniciarJuego(dificultad) {
     ocultarMensaje();
 }
 
+// ---------------------- Click en celda ----------------------
 function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
 
@@ -160,9 +161,59 @@ async function finalizar(ganado) {
     selectDificultad.disabled = false;
 }
 
+// ---------------------- Cargar partida guardada ----------------------
+async function cargarPartida(idPartida) {
+    try {
+        const { data: partida, error } = await supabase
+            .from('Buscaminas')
+            .select('*')
+            .eq('id', idPartida)
+            .single();
+
+        if (error || !partida) {
+            mostrarMensaje('No se pudo cargar la partida', 'error');
+            return;
+        }
+
+        // Crear objeto Buscaminas con datos guardados
+        juego = new Buscaminas(partida.usuarioId, partida.filas, partida.columnas, partida.dificultad);
+        juego.tablero = partida.tablero;
+        juego.descubiertas = partida.celdasDescubiertas;
+        juego.minas = partida.minas;
+        juego.totalCeldas = partida.totalCeldas;
+
+        filas = partida.filas;
+        columnas = partida.columnas;
+        dificultadActual = partida.dificultad;
+
+        selectDificultad.value = dificultadActual;
+        selectDificultad.disabled = true;
+
+        crearTableroHTML();
+        actualizarTablero();
+
+        segundosTotales = partida.segundosTotales || 0;
+        juegoPausado = false;
+        btnControl.textContent = "⏸ Pausar";
+        iniciarTemporizador();
+
+        mostrarMensaje('Partida cargada. ¡A jugar!', 'info');
+        setTimeout(() => ocultarMensaje(), 3000);
+
+    } catch (e) {
+        console.error('Error cargando partida:', e);
+        mostrarMensaje('Error al cargar la partida', 'error');
+    } finally {
+        sessionStorage.removeItem('cargarPartidaId');
+    }
+}
+
 // ---------------------- Botones ----------------------
 btnControl.addEventListener("click", async () => {
-    if (!juego) { await iniciarJuego(selectDificultad.value); return; }
+    if (!juego) {
+        await iniciarJuego(selectDificultad.value);
+        return;
+    }
 
     if (!juegoPausado) {
         juegoPausado = true;
@@ -181,3 +232,8 @@ btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
 });
 
+// ---------------------- Inicialización ----------------------
+const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
+if (cargarPartidaId) {
+    cargarPartida(cargarPartidaId); // Cargar partida guardada
+}
