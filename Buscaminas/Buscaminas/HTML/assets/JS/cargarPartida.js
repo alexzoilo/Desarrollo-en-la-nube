@@ -5,9 +5,6 @@ const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
-// -----------------------
-// Modal de confirmación
-// -----------------------
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -49,10 +46,17 @@ btnConfirmar.addEventListener("click", async () => {
     if (accionConfirmar) await accionConfirmar();
     accionConfirmar = null;
 });
+function obtenerFecha(fechaFormateada){
+    return fechaFormateada.substring(1,9);
 
-// -----------------------
-// Cargar partidas
-// -----------------------
+}
+
+function obtenerHora(fechaFormateada){
+    return fechaFormateada.substring(11,17);
+
+}
+
+
 if (!usuarioActual?.id) {
     mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
@@ -107,13 +111,12 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
-            // Cargar partida
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-            // Eliminar partida
+
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
@@ -125,11 +128,10 @@ async function cargarPartidas(usuarioId) {
 
                         if (error) throw error;
 
-                        mostrarMensaje('Partida eliminada', 'success');
-                        // Eliminar solo este elemento de la lista
+                        mostrarMensaje('Partida eliminada', 'correcto');
+
                         li.remove();
 
-                        // Si no quedan partidas, mostrar mensaje
                         if (!listaPartidas.children.length) {
                             mostrarMensaje('No tienes partidas guardadas', 'error');
                         }
@@ -138,7 +140,7 @@ async function cargarPartidas(usuarioId) {
                         console.error(err);
                         mostrarMensaje('Error al eliminar', 'error');
                     }
-                }, `¿Eliminar la partida ${partida.dificultad.toUpperCase()} del ${fechaFormateada}?`);
+                }, `¿Eliminar la partida del ${obtenerFecha} hecha a las ${obtenerHora}?`);
             });
         });
 
@@ -148,9 +150,6 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-// -----------------------
-// Botón volver
-// -----------------------
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
