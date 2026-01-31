@@ -131,7 +131,7 @@ async function cargarPartidas(usuarioId) {
                         if (error) throw error;
 
                         mostrarMensaje('Partida eliminada', 'correcto');
-                        setTimeout(() => ocultarMensaje(), 5000);
+                        setTimeout(() => ocultarMensaje(), 3000);
 
                         li.remove();
 
