@@ -1,11 +1,11 @@
 import { supabase } from "./Supabaseclient.js";
 import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
-import { pulsadoBotonCargarPartida } from './juego.js';
 
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
+// ------------------- Modal de confirmación -------------------
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -23,11 +23,6 @@ btnConfirmar.textContent = "Eliminar";
 
 const btnCancelar = document.createElement("button");
 btnCancelar.textContent = "Cancelar";
-
-
-li.querySelector('.boton-guardar').addEventListener('click', () => {
-    pulsadoBotonCargarPartida(partida.id);
-});
 
 botones.append(btnConfirmar, btnCancelar);
 modalContenido.append(texto, botones);
@@ -52,15 +47,17 @@ btnConfirmar.addEventListener("click", async () => {
     if (accionConfirmar) await accionConfirmar();
     accionConfirmar = null;
 });
-function obtenerFecha(fechaFormateada){
+
+// ------------------- Funciones para fecha y hora -------------------
+function obtenerFecha(fechaFormateada) {
     return fechaFormateada.split(' ')[0];
 }
 
-function obtenerHora(fechaFormateada){
+function obtenerHora(fechaFormateada) {
     return fechaFormateada.split(' ')[1];
 }
 
-
+// ------------------- Cargar partidas -------------------
 if (!usuarioActual?.id) {
     mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
@@ -115,12 +112,13 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
+            // ------------------- Botón Cargar partida -------------------
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-
+            // ------------------- Botón Eliminar partida -------------------
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
@@ -133,8 +131,7 @@ async function cargarPartidas(usuarioId) {
                         if (error) throw error;
 
                         mostrarMensaje('Partida eliminada', 'correcto');
-
-                        setTimeout(() => ocultarMensaje(), 3000);
+                        setTimeout(() => ocultarMensaje(), 5000);
 
                         li.remove();
 
@@ -156,6 +153,7 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
+// ------------------- Volver al tablero -------------------
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
