@@ -49,12 +49,14 @@ btnConfirmar.addEventListener("click", async () => {
 });
 
 // ------------------- Funciones para fecha y hora -------------------
-function obtenerFecha(fechaFormateada) {
-    return fechaFormateada.split(' ')[0];
+function obtenerFecha(fechaUTC) {
+    const fecha = new Date(fechaUTC);
+    return fecha.toLocaleDateString('es-ES');
 }
 
-function obtenerHora(fechaFormateada) {
-    return fechaFormateada.split(' ')[1];
+function obtenerHora(fechaUTC) {
+    const fecha = new Date(fechaUTC);
+    return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 // ------------------- Cargar partidas -------------------
@@ -88,8 +90,7 @@ async function cargarPartidas(usuarioId) {
             const li = document.createElement('li');
             li.className = 'partida-item card';
 
-            const fecha = new Date(partida.tiempoInicio);
-            const fechaFormateada = `${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;
+            const fechaFormateada = `${obtenerFecha(partida.tiempoInicio)} ${obtenerHora(partida.tiempoInicio)}`;
 
             li.innerHTML = `
                 <div class="partida-header">
@@ -143,7 +144,7 @@ async function cargarPartidas(usuarioId) {
                         console.error(err);
                         mostrarMensaje('Error al eliminar', 'error');
                     }
-                }, `¿Eliminar la partida del ${obtenerFecha(fechaFormateada)} hecha a las ${obtenerHora(fechaFormateada)}?`);
+                }, `¿Eliminar la partida del ${obtenerFecha(partida.tiempoInicio)} hecha a las ${obtenerHora(partida.tiempoInicio)}?`);
             });
         });
 
