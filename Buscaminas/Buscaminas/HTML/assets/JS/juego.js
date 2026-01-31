@@ -162,13 +162,7 @@ async function finalizar(ganado) {
 
 // ---------------------- Botones ----------------------
 btnControl.addEventListener("click", async () => {
-    if (!juego) {
-        // Inicia solo si no hay partida cargada
-        if (!sessionStorage.getItem('cargarPartidaId')) {
-            await iniciarJuego(selectDificultad.value);
-        }
-        return;
-    }
+    if (!juego) { await iniciarJuego(selectDificultad.value); return; }
 
     if (!juegoPausado) {
         juegoPausado = true;
@@ -217,7 +211,6 @@ async function cargarPartida(idPartida) {
         crearTableroHTML();
         actualizarTablero();
 
-        // Usar el tiempo guardado si lo hay
         segundosTotales = partida.segundosTotales || 0;
         juegoPausado = false;
         btnControl.textContent = "⏸ Pausar";
