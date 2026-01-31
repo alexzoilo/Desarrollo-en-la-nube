@@ -1,8 +1,19 @@
-import { Buscaminas } from "./Clases/Buscaminas.js";
-import { Dificultad } from "./Clases/Dificultad.js";
-import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
-import { supabase } from "./Supabaseclient.js";
-import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
+import {
+    Buscaminas
+} from "./Clases/Buscaminas.js";
+import {
+    Dificultad
+} from "./Clases/Dificultad.js";
+import {
+    DAOBuscaminas
+} from "./DAO/DaoBuscaminas.js";
+import {
+    supabase
+} from "./Supabaseclient.js";
+import {
+    mostrarMensaje,
+    ocultarMensaje
+} from './extras/mensajes.js';
 
 const dao = new DAOBuscaminas();
 let juego = null;
@@ -19,21 +30,22 @@ const temporizadorSpan = document.getElementById("temporizador");
 const btnControl = document.getElementById("btnControl");
 const btnListaPartidas = document.getElementById('btnListaPartidas');
 
-const niveles = ["FACIL","MEDIO","DIFICIL"];
+const niveles = ["FACIL", "MEDIO", "DIFICIL"];
 
 
-function obtenerSiguienteDificultad(ganado){
+function obtenerSiguienteDificultad(ganado) {
     let index = niveles.indexOf(dificultadActual)
 
-    if(ganado && index < niveles.length -1){
+    if (ganado && index < niveles.length - 1) {
         index++
-    }else if(!ganado && index > 0){
+    } else if (!ganado && index > 0) {
         index--
     }
 
     return niveles[index];
 
 }
+
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
@@ -48,7 +60,12 @@ function ajustarFilasColumnas(dif) {
 }
 
 async function obtenerUsuarioLogueado() {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const {
+        data: {
+            user
+        },
+        error
+    } = await supabase.auth.getUser();
     if (error) {
         console.error("Error obteniendo usuario:", error);
         return null;
@@ -147,21 +164,18 @@ function clickCelda(f, c) {
 }
 
 async function finalizar(ganado, tipo = "info") {
-    // Detener el temporizador
+
     detenerTemporizador();
 
-    // Calcular la nueva dificultad según victoria o derrota
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
 
-    // Mostrar mensaje bonito con el cambio de nivel
     mostrarMensaje(
-        ganado
-            ? `🏆 Nivel superado → ${nuevaDificultad}`
-            : `💥 Bajas a ${nuevaDificultad}`,
-        tipo
+        ganado ?
+        `🏆 Nivel superado → ${nuevaDificultad}` :
+        `💥 Bajas a ${nuevaDificultad}`,
+        ganado ? "correcto" : "error"
     );
 
-    // Guardar partida en la base de datos si existe
     if (juego?.id) {
         try {
             await dao.finalizarPartida(juego.id);
@@ -170,16 +184,14 @@ async function finalizar(ganado, tipo = "info") {
         }
     }
 
-    // Aplicar la nueva dificultad al selector
     dificultadActual = nuevaDificultad;
     selectDificultad.value = nuevaDificultad;
 
-    // Reset del estado del juego
+
     juego = null;
     juegoPausado = false;
     segundosTotales = 0;
 
-    // Botón listo para iniciar la siguiente partida manualmente
     btnControl.textContent = "▶ Iniciar";
     selectDificultad.disabled = false;
 }
@@ -214,7 +226,10 @@ if (cargarPartidaId) {
 
 async function cargarPartida(idPartida) {
     try {
-        const { data: partida, error } = await supabase
+        const {
+            data: partida,
+            error
+        } = await supabase
             .from('Buscaminas')
             .select('*')
             .eq('id', idPartida)
@@ -256,4 +271,3 @@ async function cargarPartida(idPartida) {
         sessionStorage.removeItem('cargarPartidaId');
     }
 }
-

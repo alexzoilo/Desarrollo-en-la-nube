@@ -5,6 +5,9 @@ const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
+// -----------------------
+// Modal de confirmación
+// -----------------------
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -13,7 +16,6 @@ const modalContenido = document.createElement("div");
 modalContenido.className = "modal-contenido";
 
 const texto = document.createElement("p");
-texto.textContent = "¿Seguro que deseas eliminar esta partida?";
 
 const botones = document.createElement("div");
 botones.className = "modal-botones";
@@ -48,8 +50,9 @@ btnConfirmar.addEventListener("click", async () => {
     accionConfirmar = null;
 });
 
-
-
+// -----------------------
+// Cargar partidas
+// -----------------------
 if (!usuarioActual?.id) {
     mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
@@ -58,6 +61,7 @@ if (!usuarioActual?.id) {
 
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
+    listaPartidas.innerHTML = '<p>Cargando partidas...</p>';
 
     try {
         const { data: partidas, error } = await supabase
@@ -79,12 +83,15 @@ async function cargarPartidas(usuarioId) {
             const li = document.createElement('li');
             li.className = 'partida-item card';
 
+            const fecha = new Date(partida.tiempoInicio);
+            const fechaFormateada = `${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;
+
             li.innerHTML = `
                 <div class="partida-header">
                     <span class="partida-dificultad ${partida.dificultad.toLowerCase()}">
                         ${partida.dificultad.toUpperCase()}
                     </span>
-                    <span>${new Date(partida.tiempoInicio).toLocaleString()}</span>
+                    <span>${fechaFormateada}</span>
                 </div>
 
                 <div class="partida-body">
@@ -100,11 +107,13 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
+            // Cargar partida
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
+            // Eliminar partida
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
@@ -117,13 +126,19 @@ async function cargarPartidas(usuarioId) {
                         if (error) throw error;
 
                         mostrarMensaje('Partida eliminada', 'success');
-                        cargarPartidas(usuarioActual.id);
+                        // Eliminar solo este elemento de la lista
+                        li.remove();
+
+                        // Si no quedan partidas, mostrar mensaje
+                        if (!listaPartidas.children.length) {
+                            mostrarMensaje('No tienes partidas guardadas', 'error');
+                        }
 
                     } catch (err) {
                         console.error(err);
                         mostrarMensaje('Error al eliminar', 'error');
                     }
-                }, "¿Eliminar esta partida?");
+                }, `¿Eliminar la partida ${partida.dificultad.toUpperCase()} del ${fechaFormateada}?`);
             });
         });
 
@@ -133,7 +148,9 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-
+// -----------------------
+// Botón volver
+// -----------------------
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
