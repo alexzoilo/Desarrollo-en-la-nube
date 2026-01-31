@@ -19,6 +19,21 @@ const temporizadorSpan = document.getElementById("temporizador");
 const btnControl = document.getElementById("btnControl");
 const btnListaPartidas = document.getElementById('btnListaPartidas');
 
+const niveles = ["FACIL","MEDIO","DIFICIL"];
+
+
+function obtenerSiguienteDificultad(ganado){
+    let index = niveles.indexOf(dificultadActual)
+
+    if(ganado && index < niveles.length -1){
+        index++
+    }else if(!ganado && index > 0){
+        index--
+    }
+
+    return niveles[index];
+
+}
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
@@ -124,11 +139,11 @@ function clickCelda(f, c) {
     const ok = juego.descubrir(f, c);
     actualizarTablero();
 
-    if (!ok) finalizar("💥 Has perdido","error");
-    else if (juego.verificarVictoria()) finalizar("🏆 Has ganado","correcto");
+    if (!ok) finalizar(false,"💥 Has perdido","error");
+    else if (juego.verificarVictoria()) finalizar(true,"🏆 Has ganado","correcto");
 }
 
-async function finalizar(msg, tipo = "info") {
+async function finalizar(ganado, msg, tipo = "info") {
     detenerTemporizador();
     mostrarMensaje(msg, tipo);
 
@@ -140,10 +155,21 @@ async function finalizar(msg, tipo = "info") {
         }
     }
 
+    // calcular nueva dificultad
+    const nuevaDificultad = obtenerSiguienteDificultad(ganado);
+
     juego = null;
-    btnControl.textContent = "▶ Iniciar";
+    juegoPausado = false;
+    segundosTotales = 0;
     selectDificultad.disabled = false;
+
+    // esperar un poco para que el usuario vea el mensaje
+    setTimeout(() => {
+        ocultarMensaje();
+        iniciarJuego(nuevaDificultad);
+    }, 2000);
 }
+
 
 btnControl.addEventListener("click", async () => {
     if (!juego) {
