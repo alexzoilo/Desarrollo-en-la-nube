@@ -143,7 +143,7 @@ function clickCelda(f, c) {
     else if (juego.verificarVictoria()) finalizar(true,"🏆 Has ganado","correcto");
 }
 
-async function finalizar(ganado,msg, tipo = "info") {
+async function finalizar(ganado, msg, tipo = "info") {
     detenerTemporizador();
     mostrarMensaje(msg, tipo);
 
@@ -155,10 +155,18 @@ async function finalizar(ganado,msg, tipo = "info") {
         }
     }
 
+    // calcular nueva dificultad
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
+
+    // aplicar dificultad sin iniciar juego
+    dificultadActual = nuevaDificultad;
+    selectDificultad.value = nuevaDificultad;
+
+    // reset estado
     juego = null;
-    juegoPausado = true;
+    juegoPausado = false;
     segundosTotales = 0;
+
     btnControl.textContent = "▶ Iniciar";
     selectDificultad.disabled = false;
 }
