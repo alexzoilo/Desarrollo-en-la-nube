@@ -52,7 +52,7 @@ function obtenerFecha(fechaFormateada){
 }
 
 function obtenerHora(fechaFormateada){
-    return fechaFormateada.substring(11,17);
+    return fechaFormateada.substring(10,17);
 
 }
 
