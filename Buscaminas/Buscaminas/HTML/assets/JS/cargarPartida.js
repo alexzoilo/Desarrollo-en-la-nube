@@ -1,5 +1,6 @@
 import { supabase } from "./Supabaseclient.js";
 import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
+import { pulsadoBotonCargarPartida } from './juego.js';
 
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
@@ -22,6 +23,11 @@ btnConfirmar.textContent = "Eliminar";
 
 const btnCancelar = document.createElement("button");
 btnCancelar.textContent = "Cancelar";
+
+
+li.querySelector('.boton-guardar').addEventListener('click', () => {
+    pulsadoBotonCargarPartida(partida.id);
+});
 
 botones.append(btnConfirmar, btnCancelar);
 modalContenido.append(texto, botones);
