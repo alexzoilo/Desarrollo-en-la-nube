@@ -140,7 +140,7 @@ async function cargarPartidas(usuarioId) {
                         console.error(err);
                         mostrarMensaje('Error al eliminar', 'error');
                     }
-                }, `¿Eliminar la partida del ${obtenerFecha} hecha a las ${obtenerHora}?`);
+                }, `¿Eliminar la partida del ${obtenerFecha(fechaFormateada)} hecha a las ${obtenerHora(fechaFormateada)}?`);
             });
         });
 
