@@ -15,12 +15,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnConfirmar = document.getElementById("confirmar-eliminar");
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
-    // Obtener usuario actual
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
-    // Cargar datos del usuario
+
     const { data: usuarioData, error: userError } = await supabase
         .from("Usuarios")
         .select("nombre, email")
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     emailInput.value = usuario.email;
     emailInput.disabled = true;
 
-    // Guardar cambios
+
     botonGuardar.addEventListener("click", async () => {
         ocultarMensaje();
         botonGuardar.disabled = true;
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            // Actualizar nombre
+
             if (nuevoNombre !== usuario.nombre) {
                 const { error: nombreError } = await supabase
                     .from("Usuarios")
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 usuario.nombre = nuevoNombre;
             }
 
-            // Actualizar contraseña
+
             if (nuevaPass.length >= 6) {
                 try {
                     await supabase.auth.updateUser({ password: nuevaPass });
@@ -93,17 +93,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // Mostrar modal de confirmación
+
     botonEliminar.addEventListener("click", () => {
         modal.style.display = "flex";
     });
 
-    // Cancelar eliminación
+
     btnCancelar.addEventListener("click", () => {
         modal.style.display = "none";
     });
 
-    // Confirmar eliminación
+
     btnConfirmar.addEventListener("click", async () => {
         modal.style.display = "none";
         botonGuardar.disabled = true;
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 body: JSON.stringify({ userId })
             });
 
-            // Leer como texto primero
+
             const text = await response.text();
             console.log("Respuesta cruda del servidor:", text);
 
@@ -132,9 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (result.error) throw new Error(result.error);
 
-            alert("Cuenta eliminada correctamente");
 
-            // Cerrar sesión y redirigir
             await supabase.auth.signOut();
             window.location.href = "login.html";
 
