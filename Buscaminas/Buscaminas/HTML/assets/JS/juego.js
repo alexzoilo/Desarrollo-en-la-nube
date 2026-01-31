@@ -1,19 +1,8 @@
-import {
-    Buscaminas
-} from "./Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "./Clases/Dificultad.js";
-import {
-    DAOBuscaminas
-} from "./DAO/DaoBuscaminas.js";
-import {
-    supabase
-} from "./Supabaseclient.js";
-import {
-    mostrarMensaje,
-    ocultarMensaje
-} from './extras/mensajes.js';
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
+import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
 
 const dao = new DAOBuscaminas();
 let juego = null;
@@ -32,25 +21,19 @@ const btnListaPartidas = document.getElementById('btnListaPartidas');
 
 const niveles = ["FACIL", "MEDIO", "DIFICIL"];
 
-
+// ---------------------- Funciones Auxiliares ----------------------
 function obtenerSiguienteDificultad(ganado) {
-    let index = niveles.indexOf(dificultadActual)
-
-    if (ganado && index < niveles.length - 1) {
-        index++
-    } else if (!ganado && index > 0) {
-        index--
-    }
-
+    let index = niveles.indexOf(dificultadActual);
+    if (ganado && index < niveles.length - 1) index++;
+    else if (!ganado && index > 0) index--;
     return niveles[index];
-
 }
 
 function formatTiempo(s) {
     const h = String(Math.floor(s / 3600)).padStart(2, "0");
     const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
     const ss = String(s % 60).padStart(2, "0");
-    return `Cronometro: ${h}:${m}:${ss}`;
+    return `Cronómetro: ${h}:${m}:${ss}`;
 }
 
 function ajustarFilasColumnas(dif) {
@@ -60,23 +43,13 @@ function ajustarFilasColumnas(dif) {
 }
 
 async function obtenerUsuarioLogueado() {
-    const {
-        data: {
-            user
-        },
-        error
-    } = await supabase.auth.getUser();
-    if (error) {
-        console.error("Error obteniendo usuario:", error);
-        return null;
-    }
-    if (!user) {
-        console.warn("No hay usuario logueado");
-        return null;
-    }
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) { console.error("Error obteniendo usuario:", error); return null; }
+    if (!user) { console.warn("No hay usuario logueado"); return null; }
     return user.id;
 }
 
+// ---------------------- Tablero ----------------------
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -107,6 +80,7 @@ function actualizarTablero() {
     }
 }
 
+// ---------------------- Temporizador ----------------------
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
@@ -120,12 +94,10 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
+// ---------------------- Juego ----------------------
 async function iniciarJuego(dificultad) {
     const usuarioId = await obtenerUsuarioLogueado();
-    if (!usuarioId) {
-        mostrarMensaje("Debes iniciar sesión para jugar");
-        return;
-    }
+    if (!usuarioId) { mostrarMensaje("Debes iniciar sesión para jugar"); return; }
 
     ajustarFilasColumnas(dificultad);
     selectDificultad.disabled = true;
@@ -134,7 +106,6 @@ async function iniciarJuego(dificultad) {
 
     try {
         await dao.crearPartida(juego);
-        console.log("Partida creada con id:", juego.id, "usuario:", usuarioId);
     } catch (e) {
         console.error("Error creando partida:", e);
         mostrarMensaje("No se pudo crear la partida.");
@@ -145,9 +116,11 @@ async function iniciarJuego(dificultad) {
 
     crearTableroHTML();
     actualizarTablero();
+    segundosTotales = 0;
     iniciarTemporizador();
-    ocultarMensaje();
+    juegoPausado = false;
     btnControl.textContent = "⏸ Pausar";
+    ocultarMensaje();
 }
 
 function clickCelda(f, c) {
@@ -156,51 +129,40 @@ function clickCelda(f, c) {
     const ok = juego.descubrir(f, c);
     actualizarTablero();
 
-    if (!ok) {
-        finalizar(false);
-    } else if (juego.verificarVictoria()) {
-        finalizar(true);
-    }
+    if (!ok) finalizar(false);
+    else if (juego.verificarVictoria()) finalizar(true);
 }
 
-async function finalizar(ganado, tipo = "info") {
-
+// ---------------------- Finalizar partida ----------------------
+async function finalizar(ganado) {
     detenerTemporizador();
 
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
 
     mostrarMensaje(
-        ganado ?
-        `🏆 Nivel superado → ${nuevaDificultad}` :
-        `💥 Bajas a ${nuevaDificultad}`,
+        ganado ? `🏆 Nivel superado → ${nuevaDificultad}` : `💥 Bajas a ${nuevaDificultad}`,
         ganado ? "correcto" : "error"
     );
+    setTimeout(() => ocultarMensaje(), 4000);
 
     if (juego?.id) {
-        try {
-            await dao.finalizarPartida(juego.id);
-        } catch (e) {
-            console.error("Error finalizando partida:", e);
-        }
+        try { await dao.finalizarPartida(juego.id); } 
+        catch (e) { console.error("Error finalizando partida:", e); }
     }
 
     dificultadActual = nuevaDificultad;
     selectDificultad.value = nuevaDificultad;
 
-
     juego = null;
     juegoPausado = false;
     segundosTotales = 0;
-
     btnControl.textContent = "▶ Iniciar";
     selectDificultad.disabled = false;
 }
 
+// ---------------------- Botones ----------------------
 btnControl.addEventListener("click", async () => {
-    if (!juego) {
-        await iniciarJuego(selectDificultad.value);
-        return;
-    }
+    if (!juego) { await iniciarJuego(selectDificultad.value); return; }
 
     if (!juegoPausado) {
         juegoPausado = true;
@@ -219,34 +181,21 @@ btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
 });
 
+// ---------------------- Cargar partida guardada ----------------------
 const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
-if (cargarPartidaId) {
-    cargarPartida(cargarPartidaId);
-}
+if (cargarPartidaId) cargarPartida(cargarPartidaId);
 
 async function cargarPartida(idPartida) {
     try {
-        const {
-            data: partida,
-            error
-        } = await supabase
+        const { data: partida, error } = await supabase
             .from('Buscaminas')
             .select('*')
             .eq('id', idPartida)
             .single();
 
-        if (error || !partida) {
-            mostrarMensaje('No se pudo cargar la partida', 'error');
-            return;
-        }
+        if (error || !partida) { mostrarMensaje('No se pudo cargar la partida', 'error'); return; }
 
-        juego = new Buscaminas(
-            partida.usuarioId,
-            partida.filas,
-            partida.columnas,
-            partida.dificultad
-        );
-
+        juego = new Buscaminas(partida.usuarioId, partida.filas, partida.columnas, partida.dificultad);
         juego.tablero = partida.tablero;
         juego.descubiertas = partida.celdasDescubiertas;
         juego.minas = partida.minas;
@@ -262,7 +211,13 @@ async function cargarPartida(idPartida) {
         crearTableroHTML();
         actualizarTablero();
 
+        segundosTotales = partida.segundosTotales || 0;
+        juegoPausado = false;
+        btnControl.textContent = "⏸ Pausar";
+        iniciarTemporizador();
+
         mostrarMensaje('Partida cargada. ¡A jugar!', 'info');
+        setTimeout(() => ocultarMensaje(), 3000);
 
     } catch (e) {
         console.error('Error cargando partida:', e);
