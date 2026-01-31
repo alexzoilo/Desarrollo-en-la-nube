@@ -14,5 +14,3 @@ export function ocultarMensaje(elemento = null) {
     if (!mensajeDiv) return;
     mensajeDiv.textContent = "";
 }
-
-setTimeout(() => ocultarMensaje(), 3000);
