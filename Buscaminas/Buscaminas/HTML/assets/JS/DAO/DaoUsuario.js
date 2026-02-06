@@ -4,7 +4,6 @@ import { hashPassword, checkPassword } from "./supabase.js";
 
 export class DAOUsuario {
 
-  // Crear usuario (hash SHA-256)
   async crearUsuario(usuario) {
     const hashed = await hashPassword(usuario.contraseña);
 
@@ -28,7 +27,6 @@ export class DAOUsuario {
     return usuario;
   }
 
-  // Autenticar usuario
   async autenticar(nombre, contraseñaRaw) {
     const { data, error } = await supabase
       .from("Usuarios")
@@ -62,7 +60,6 @@ export class DAOUsuario {
     return u;
   }
 
-  // Actualizar estadísticas
   async actualizarEstadisticas(usuarioId, ganador, tiempoPartida) {
     const ganadoInc = ganador ? 1 : 0;
     const perdidoInc = ganador ? 0 : 1;
@@ -79,7 +76,6 @@ export class DAOUsuario {
     return !error;
   }
 
-  // Obtener usuario por ID
   async findById(id) {
     const { data, error } = await supabase
       .from("Usuarios")

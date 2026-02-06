@@ -2,7 +2,6 @@ import { supabase } from "../Supabaseclient.js";
 
 export class DAOBuscaminas {
 
-  // Crear partida nueva
   async crearPartida(buscaminas) {
     try {
       const { data, error } = await supabase

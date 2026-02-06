@@ -5,7 +5,6 @@ const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
-// ------------------- Modal de confirmación -------------------
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -48,7 +47,7 @@ btnConfirmar.addEventListener("click", async () => {
     accionConfirmar = null;
 });
 
-// ------------------- Funciones para fecha y hora -------------------
+//esto
 function obtenerFecha(fechaUTC) {
     const fecha = new Date(fechaUTC);
     return fecha.toLocaleDateString('es-ES');
@@ -59,7 +58,6 @@ function obtenerHora(fechaUTC) {
     return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-// ------------------- Cargar partidas -------------------
 if (!usuarioActual?.id) {
     mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
@@ -85,7 +83,7 @@ async function cargarPartidas(usuarioId) {
             mostrarMensaje('No tienes partidas guardadas', 'error');
             return;
         }
-
+// TODO: BUSCAR DE DONDE SE ALIMENTA EL TIEMPO DE INICIO I SUMARLE 1
         partidas.forEach(partida => {
             const li = document.createElement('li');
             li.className = 'partida-item card';
@@ -113,13 +111,11 @@ async function cargarPartidas(usuarioId) {
 
             listaPartidas.appendChild(li);
 
-            // ------------------- Botón Cargar partida -------------------
             li.querySelector('.boton-guardar').addEventListener('click', () => {
                 sessionStorage.setItem('cargarPartidaId', partida.id);
                 window.location.href = 'tablero.html';
             });
 
-            // ------------------- Botón Eliminar partida -------------------
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
@@ -154,7 +150,6 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-// ------------------- Volver al tablero -------------------
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
