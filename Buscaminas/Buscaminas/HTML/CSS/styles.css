@@ -278,42 +278,24 @@ body {
     flex-direction: column;
     gap: 20px;
 }
-
-.tiempo-total-jugado {
+.estadisticas-juego {
     position: fixed;      /* lo fija en la pantalla */
-    bottom: 20px;         /* 20px desde abajo */
-    right: 20px;          /* 20px desde la derecha */
-    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
+    bottom: 20px;         /* distancia desde abajo */
+    right: 20px;          /* distancia desde la derecha */
+    display: flex;
+    gap: 15px;            /* espacio entre los tres elementos */
+    z-index: 1000;        /* siempre encima */
+}
+
+.estadisticas-juego div {
+    background-color: rgba(0, 0, 0, 0.7); /* fondo semitransparente */
     color: white;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
-    z-index: 1000;        /* siempre arriba */
+    white-space: nowrap;  /* evita que se rompa el texto */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
-
-.Partidas-ganadas {
-    position: fixed;      /* lo fija en la pantalla */
-    bottom: 20px;         /* 20px desde abajo */
-    right: 200px;          /* 20px desde la derecha */
-    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    z-index: 1000;        /* siempre arriba */
-}
-.Partidas-perdidas {
-    position: fixed;      /* lo fija en la pantalla */
-    bottom: 20px;         /* 20px desde abajo */
-    right: 300px;          /* 20px desde la derecha */
-    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    z-index: 1000;        /* siempre arriba */
-}
-
 
 
 
