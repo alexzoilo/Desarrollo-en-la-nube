@@ -23,13 +23,15 @@ body {
     font-size: 60px;
     margin: 20px auto;
 }
-.desplegable {
+.desplegable-contenido {
     display: none;
+    margin-top: 10px;
 }
 
-.desplegable.abierto {
+#Desplegar.abierto .desplegable-contenido {
     display: block;
 }
+
 
 
 @keyframes fadeIn {

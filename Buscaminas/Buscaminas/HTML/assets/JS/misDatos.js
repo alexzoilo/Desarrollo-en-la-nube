@@ -178,6 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
+
     async function mostrarTiempoTotalJugado() {
         const {
             data: user,
