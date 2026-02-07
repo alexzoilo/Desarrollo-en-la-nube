@@ -288,6 +288,19 @@ body {
     gap: 20px;
 }
 
+.tiempo-total-jugado {
+    position: fixed;      /* lo fija en la pantalla */
+    bottom: 20px;         /* 20px desde abajo */
+    right: 20px;          /* 20px desde la derecha */
+    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;        /* siempre arriba */
+}
+
+
 .panel-datos h1 {
     text-align: center;
     margin-bottom: 10px;
