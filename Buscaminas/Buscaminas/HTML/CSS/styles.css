@@ -294,7 +294,7 @@ body {
 .Partidas-ganadas {
     position: fixed;      /* lo fija en la pantalla */
     bottom: 20px;         /* 20px desde abajo */
-    right: 40px;          /* 20px desde la derecha */
+    right: 140px;          /* 20px desde la derecha */
     background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
     color: white;
     padding: 8px 12px;
@@ -305,7 +305,7 @@ body {
 .Partidas-perdidas {
     position: fixed;      /* lo fija en la pantalla */
     bottom: 20px;         /* 20px desde abajo */
-    right: 40px;          /* 20px desde la derecha */
+    right: 900px;          /* 20px desde la derecha */
     background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
     color: white;
     padding: 8px 12px;
