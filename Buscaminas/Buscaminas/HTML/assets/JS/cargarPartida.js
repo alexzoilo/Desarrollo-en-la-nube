@@ -102,7 +102,7 @@ async function cargarPartidas(usuarioId) {
 
             const fechaFormateada = `${obtenerFecha(partida.tiempoInicio)} ${obtenerHora(partida.tiempoInicio)}`;
 
-            lli.innerHTML = `
+            li.innerHTML = `
     <div class="partida-header">
         <span class="partida-dificultad ${partida.dificultad.toLowerCase()} estadisticas-juego">
             ${partida.dificultad.toUpperCase()}
