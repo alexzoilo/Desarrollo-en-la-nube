@@ -15,6 +15,10 @@ import {
     ocultarMensaje
 } from './extras/mensajes.js';
 
+import {
+    mostrarEstadisticas
+} from './extras/Estadisticas.js';
+
 const dao = new DAOBuscaminas();
 
 let juego = null;
@@ -283,3 +287,4 @@ btnControl.addEventListener("click", async () => {
 btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
 });
+mostrarEstadisticas();

@@ -9,6 +9,10 @@ import {
     togglePassword
 } from './extras/Comprobaciones.js';
 
+import {
+    mostrarEstadisticas
+} from './extras/Estadisticas.js';
+
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
 
@@ -170,4 +174,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    mostrarEstadisticas();
 });
