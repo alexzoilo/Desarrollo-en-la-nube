@@ -11,6 +11,17 @@ body {
     min-height: 100vh;
 }
 
+.avatar {
+    width: 60px;
+    height: 60px;
+    background-color: #ccc; /* fondo gris claro */
+    border-radius: 50%;      /* lo hace redondo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;         /* tamaño del icono */
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
