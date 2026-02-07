@@ -231,7 +231,7 @@ async function finalizar(ganado) {
                 console.error("Error obteniendo estadísticas del usuario:", getError);
             } else {
                 const updateData = {
-                    tiempoUltimaPartida: formatTiempo(segundosTotales),
+                    tiempoUltimaPartida: segundosTotales,
                     tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
                     partidasGanadas: usuario.partidasGanadas + (ganado ? 1 : 0),
                     partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
