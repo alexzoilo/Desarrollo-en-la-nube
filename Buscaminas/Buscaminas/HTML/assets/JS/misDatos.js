@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const passwordInput = document.getElementById("passwordUsuario");
     const botonGuardar = document.querySelector(".boton-guardar");
     const botonEliminar = document.querySelector(".boton-eliminar");
+    const btn = document.getElementById("Desplegar");
+    const panel = document.getElementById("panelDesplegable");
 
     const modal = document.getElementById("modal-confirmacion");
     const btnConfirmar = document.getElementById("confirmar-eliminar");
@@ -169,9 +171,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             botonEliminar.disabled = false;
         }
     });
-
-const btn = document.getElementById("btnDesplegar");
-const panel = document.getElementById("panelDesplegable");
 
 btn.addEventListener("click", () => {
     panel.classList.toggle("abierto");
