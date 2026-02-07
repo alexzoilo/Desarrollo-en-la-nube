@@ -33,13 +33,12 @@ const btnListaPartidas = document.getElementById('btnListaPartidas');
 
 const niveles = ["FACIL", "MEDIO", "DIFICIL"];
 
-// ==================== Función para cargar partida desde botón ====================
 export function pulsadoBotonCargarPartida(idPartida) {
     sessionStorage.setItem('cargarPartidaId', idPartida);
     window.location.href = 'tablero.html';
 }
 
-// ==================== Funciones auxiliares ====================
+
 function obtenerSiguienteDificultad(ganado) {
     let index = niveles.indexOf(dificultadActual);
     if (ganado && index < niveles.length - 1) index++;
@@ -75,7 +74,6 @@ async function obtenerUsuarioLogueado() {
     return user.id;
 }
 
-// ==================== Tablero ====================
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -105,7 +103,7 @@ function actualizarTablero() {
     }
 }
 
-// ==================== Temporizador ====================
+
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
@@ -119,7 +117,6 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
-// ==================== Iniciar Juego ====================
 async function iniciarJuego(dificultad) {
     const usuarioId = await obtenerUsuarioLogueado();
     if (!usuarioId) {
@@ -150,7 +147,6 @@ async function iniciarJuego(dificultad) {
     ocultarMensaje();
 }
 
-// ==================== Click Celda ====================
 function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
     const ok = juego.descubrir(f, c);
@@ -159,7 +155,6 @@ function clickCelda(f, c) {
     else if (juego.verificarVictoria()) finalizar(true);
 }
 
-// ==================== Cargar Partida ====================
 const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
 if (cargarPartidaId) cargarPartida(cargarPartidaId);
 
@@ -208,7 +203,6 @@ async function cargarPartida(idPartida) {
     }
 }
 
-// ==================== Finalizar Juego ====================
 async function finalizar(ganado) {
     detenerTemporizador();
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
@@ -220,7 +214,6 @@ async function finalizar(ganado) {
 
     if (juego?.usuarioId) {
         try {
-            // Guardar estado de la partida
             if (juego.id) await dao.finalizarPartida(juego.id, ganado);
 
             // Actualizar estadísticas del usuario
@@ -238,7 +231,7 @@ async function finalizar(ganado) {
                 console.error("Error obteniendo estadísticas del usuario:", getError);
             } else {
                 const updateData = {
-                    tiempoUltimaPartida: segundosTotales,
+                    tiempoUltimaPartida: formatTiempo(segundosTotales),
                     tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
                     partidasGanadas: usuario.partidasGanadas + (ganado ? 1 : 0),
                     partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
@@ -271,7 +264,6 @@ async function finalizar(ganado) {
     selectDificultad.disabled = false;
 }
 
-// ==================== Botones ====================
 btnControl.addEventListener("click", async () => {
     if (!juego) {
         await iniciarJuego(selectDificultad.value);
