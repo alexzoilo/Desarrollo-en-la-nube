@@ -1,4 +1,6 @@
-async function mostrarEstadisticas() {
+import { supabase } from "../Supabaseclient.js";
+
+export async function mostrarEstadisticas() {
     const { data: user, error } = await supabase.auth.getUser();
     if (error || !user?.user) return;
 
@@ -15,24 +17,18 @@ async function mostrarEstadisticas() {
         return;
     }
 
-    // Tiempo total jugado
     const segundos = data.tiempoTotalJugado || 0;
     const h = Math.floor(segundos / 3600);
     const m = Math.floor((segundos % 3600) / 60);
     const s = segundos % 60;
     document.getElementById("tiempoTotalJugado").textContent =
-        `Tiempo total jugado: ${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+        `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
 
-    // Partidas ganadas
     const ganadas = data.partidasGanadas || 0;
     document.getElementById("partidasGanadas").textContent =
         `Partidas ganadas: ${ganadas}`;
 
-    // Partidas perdidas
     const perdidas = data.partidasPerdidas || 0;
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
 }
-
-// Llamar la función al cargar la página
-mostrarEstadisticas();
