@@ -278,23 +278,36 @@ body {
     flex-direction: column;
     gap: 20px;
 }
+
 .estadisticas-juego {
     position: fixed;      /* lo fija en la pantalla */
     bottom: 20px;         /* distancia desde abajo */
     right: 20px;          /* distancia desde la derecha */
     display: flex;
-    gap: 15px;            /* espacio entre los tres elementos */
-    z-index: 1000;        /* siempre encima */
+    gap: 15px;            /* espacio entre los elementos */
+    z-index: 1000;        /* siempre arriba */
 }
 
 .estadisticas-juego div {
     background-color: rgba(0, 0, 0, 0.7); /* fondo semitransparente */
-    color: white;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
-    white-space: nowrap;  /* evita que se rompa el texto */
+    white-space: nowrap;  /* evitar que se rompa el texto */
     box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    font-weight: bold;
+}
+
+#tiempoTotalJugado {
+    color: #ffffff; /* blanco */
+}
+
+#partidasGanadas {
+    color: #2ecc71; /* verde */
+}
+
+#partidasPerdidas {
+    color: #e74c3c; /* rojo */
 }
 
 
