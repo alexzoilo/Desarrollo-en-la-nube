@@ -216,8 +216,6 @@ async function finalizar(ganado) {
         try {
             if (juego.id) await dao.finalizarPartida(juego.id, ganado);
 
-            // Actualizar estadísticas del usuario
-            // Obtener los datos actuales del usuario
             const {
                 data: usuario,
                 error: getError
@@ -228,7 +226,7 @@ async function finalizar(ganado) {
                 .single();
 
             if (getError) {
-                console.error("Error obteniendo estadísticas del usuario:", getError);
+                console.error("Error obteniendo las estadísticas del usuario:", getError);
             } else {
                 const updateData = {
                     tiempoUltimaPartida: segundosTotales,
