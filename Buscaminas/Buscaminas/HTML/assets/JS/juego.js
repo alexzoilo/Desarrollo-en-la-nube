@@ -286,5 +286,5 @@ btnControl.addEventListener("click", async () => {
 
 btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
+    mostrarEstadisticas();
 });
-mostrarEstadisticas();
