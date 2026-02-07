@@ -1,6 +1,13 @@
-import { supabase } from './Supabaseclient.js';
-import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
-import { togglePassword } from './extras/Comprobaciones.js';
+import {
+    supabase
+} from './Supabaseclient.js';
+import {
+    mostrarMensaje,
+    ocultarMensaje
+} from './extras/mensajes.js';
+import {
+    togglePassword
+} from './extras/Comprobaciones.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     togglePassword();
@@ -16,12 +23,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnCancelar = document.getElementById("cancelar-eliminar");
 
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+        data: {
+            user
+        },
+        error: authError
+    } = await supabase.auth.getUser();
     if (authError || !user) return window.location.href = "login.html";
     const userId = user.id;
 
 
-    const { data: usuarioData, error: userError } = await supabase
+    const {
+        data: usuarioData,
+        error: userError
+    } = await supabase
         .from("Usuarios")
         .select("nombre, email")
         .eq("id", userId)
@@ -60,9 +75,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
 
             if (nuevoNombre !== usuario.nombre) {
-                const { error: nombreError } = await supabase
+                const {
+                    error: nombreError
+                } = await supabase
                     .from("Usuarios")
-                    .update({ nombre: nuevoNombre })
+                    .update({
+                        nombre: nuevoNombre
+                    })
                     .eq("id", userId);
                 if (nombreError) throw nombreError;
                 usuario.nombre = nuevoNombre;
@@ -71,7 +90,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (nuevaPass.length >= 6) {
                 try {
-                    await supabase.auth.updateUser({ password: nuevaPass });
+                    await supabase.auth.updateUser({
+                        password: nuevaPass
+                    });
                 } catch (err) {
                     if (!err.message.includes("La nueva contrasseña tiene que ser diferente a la antigua")) {
                         throw err;
@@ -113,8 +134,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const response = await fetch('/api/DeleteUser', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId
+                })
             });
 
 
@@ -144,4 +169,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             botonEliminar.disabled = false;
         }
     });
+
+    const avatarBtn = document.getElementById("avatarBtn");
+    const panelDatos = document.getElementById("panelDatos");
+
+    avatarBtn.addEventListener("click", () => {
+        panelDatos.classList.toggle("activo");
+    });
+
 });

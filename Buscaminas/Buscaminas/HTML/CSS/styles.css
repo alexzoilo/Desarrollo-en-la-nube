@@ -11,17 +11,36 @@ body {
     min-height: 100vh;
 }
 
+.perfil-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Avatar */
 .avatar {
-    width: 120px;
-    height: 120px;
-    background-color: gray;
+    width: 80px;
+    height: 80px;
+    background-color: #007bff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: black;
-    font-size: 60px;
-    margin: 20px auto;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+}
+
+/* Panel oculto */
+.desplegable {
+    display: none;
+    margin-top: 15px;
+}
+
+/* Panel visible */
+.desplegable.activo {
+    display: block;
 }
 
 @keyframes fadeIn {
