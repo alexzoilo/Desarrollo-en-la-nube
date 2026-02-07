@@ -12,15 +12,15 @@ body {
 }
 
 .avatar {
-    width: 100px;               /* tamaño del círculo */
-    height: 80px;
+    width: 120px;               /* tamaño del círculo */
+    height: 120px;
     background-color: gray; /* azul */
     border-radius: 50%;         /* círculo perfecto */
     display: flex;
     align-items: center;
     justify-content: center;
     color: black;
-    font-size: 50px;            /* tamaño del icono */
+    font-size: 60px;            /* tamaño del icono */
     margin: 20px auto;          /* centra horizontalmente y margen superior */
 }
 
