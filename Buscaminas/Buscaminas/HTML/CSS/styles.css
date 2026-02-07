@@ -11,7 +11,7 @@ body {
     min-height: 100vh;
 }
 
-.perfil-container {
+.desplegable-perfil {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,16 +32,17 @@ body {
     cursor: pointer;
 }
 
-/* Panel oculto */
-.desplegable {
+/* Contenido oculto */
+.contenido-perfil {
     display: none;
     margin-top: 15px;
 }
 
-/* Panel visible */
-.desplegable.activo {
+/* Cuando está abierto */
+.desplegable-perfil.abierto .contenido-perfil {
     display: block;
 }
+
 
 @keyframes fadeIn {
     from {
