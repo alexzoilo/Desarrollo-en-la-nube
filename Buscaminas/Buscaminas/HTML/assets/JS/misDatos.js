@@ -170,6 +170,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+const btn = document.getElementById("btnDesplegar");
+const panel = document.getElementById("panelDesplegable");
+
+btn.addEventListener("click", () => {
+    panel.classList.toggle("abierto");
+});
+
 
 
 });
