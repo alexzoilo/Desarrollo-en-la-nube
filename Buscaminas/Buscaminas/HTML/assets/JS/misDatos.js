@@ -170,15 +170,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    const btn = document.getElementById("Desplegar");
-
-    btn.addEventListener("click", () => {
-        btn.classList.toggle("abierto");
-    });
-
-
-
-
     async function mostrarTiempoTotalJugado() {
         const {
             data: user,

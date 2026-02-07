@@ -23,16 +23,6 @@ body {
     font-size: 60px;
     margin: 20px auto;
 }
-.desplegable-contenido {
-    display: none;
-    margin-top: 10px;
-}
-
-#Desplegar.abierto .desplegable-contenido {
-    display: block;
-}
-
-
 
 @keyframes fadeIn {
     from {
@@ -291,15 +281,15 @@ body {
 }
 
 .tiempo-total-jugado {
-    position: fixed;      /* lo fija en la pantalla */
-    bottom: 20px;         /* 20px desde abajo */
-    right: 20px;          /* 20px desde la derecha */
-    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0,0,0,0.7);
     color: white;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
-    z-index: 1000;        /* siempre arriba */
+    z-index: 1000;
 }
 
 
