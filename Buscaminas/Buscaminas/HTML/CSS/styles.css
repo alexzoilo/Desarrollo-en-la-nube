@@ -23,7 +23,6 @@ body {
     font-size: 60px;
     margin: 20px auto;
 }
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -281,16 +280,41 @@ body {
 }
 
 .tiempo-total-jugado {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: rgba(0,0,0,0.7);
+    position: fixed;      /* lo fija en la pantalla */
+    bottom: 20px;         /* 20px desde abajo */
+    right: 20px;          /* 20px desde la derecha */
+    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
     color: white;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
-    z-index: 1000;
+    z-index: 1000;        /* siempre arriba */
 }
+
+.Partidas-ganadas {
+    position: fixed;      /* lo fija en la pantalla */
+    bottom: 20px;         /* 20px desde abajo */
+    right: 40px;          /* 20px desde la derecha */
+    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;        /* siempre arriba */
+}
+.Partidas-perdidas {
+    position: fixed;      /* lo fija en la pantalla */
+    bottom: 20px;         /* 20px desde abajo */
+    right: 40px;          /* 20px desde la derecha */
+    background-color: rgba(0,0,0,0.7); /* fondo semitransparente */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;        /* siempre arriba */
+}
+
+
 
 
 .panel-datos h1 {
