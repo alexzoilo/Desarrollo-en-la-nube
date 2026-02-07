@@ -194,11 +194,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // actualizar el div
         const divTiempo = document.getElementById("tiempoTotalJugado");
         const segundos = data.tiempoTotalJugado || 0;
 
-        // convertir a h:m:s
+
         const h = Math.floor(segundos / 3600);
         const m = Math.floor((segundos % 3600) / 60);
         const s = segundos % 60;
@@ -206,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         divTiempo.textContent = `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
     }
 
-    // Llamar la función al cargar la página
+
     mostrarTiempoTotalJugado();
 
 
