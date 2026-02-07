@@ -47,7 +47,6 @@ btnConfirmar.addEventListener("click", async () => {
     accionConfirmar = null;
 });
 
-//esto
 function obtenerFecha(fechaUTC) {
     const fecha = new Date(fechaUTC);
     return fecha.toLocaleDateString('es-ES');
@@ -83,7 +82,6 @@ async function cargarPartidas(usuarioId) {
             mostrarMensaje('No tienes partidas guardadas', 'error');
             return;
         }
-// TODO: BUSCAR DE DONDE SE ALIMENTA EL TIEMPO DE INICIO I SUMARLE 1
         partidas.forEach(partida => {
             const li = document.createElement('li');
             li.className = 'partida-item card';
