@@ -116,39 +116,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    async function mostrarTiempoTotalJugado() {
-    const { data: user, error } = await supabase.auth.getUser();
-
-    if (error || !user?.user) return;
-
-    const usuarioId = user.user.id;
-
-    const { data, error: fetchError } = await supabase
-        .from('Usuarios')
-        .select('tiempoTotalJugado')
-        .eq('id', usuarioId)
-        .single();
-
-    if (fetchError || !data) {
-        console.error(fetchError);
-        return;
-    }
-
-    // actualizar el div
-    const divTiempo = document.getElementById("tiempoTotalJugado");
-    const segundos = data.tiempoTotalJugado || 0;
-
-    // convertir a h:m:s
-    const h = Math.floor(segundos / 3600);
-    const m = Math.floor((segundos % 3600) / 60);
-    const s = segundos % 60;
-
-    divTiempo.textContent = `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
-}
-
-// Llamar la función al cargar la página
-mostrarTiempoTotalJugado();
-
 
     botonEliminar.addEventListener("click", () => {
         modal.style.display = "flex";
@@ -208,5 +175,39 @@ mostrarTiempoTotalJugado();
     btn.addEventListener("click", () => {
         panel.classList.toggle("abierto");
     });
+
+        async function mostrarTiempoTotalJugado() {
+    const { data: user, error } = await supabase.auth.getUser();
+
+    if (error || !user?.user) return;
+
+    const usuarioId = user.user.id;
+
+    const { data, error: fetchError } = await supabase
+        .from('Usuarios')
+        .select('tiempoTotalJugado')
+        .eq('id', usuarioId)
+        .single();
+
+    if (fetchError || !data) {
+        console.error(fetchError);
+        return;
+    }
+
+    // actualizar el div
+    const divTiempo = document.getElementById("tiempoTotalJugado");
+    const segundos = data.tiempoTotalJugado || 0;
+
+    // convertir a h:m:s
+    const h = Math.floor(segundos / 3600);
+    const m = Math.floor((segundos % 3600) / 60);
+    const s = segundos % 60;
+
+    divTiempo.textContent = `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
+}
+
+// Llamar la función al cargar la página
+mostrarTiempoTotalJugado();
+
 
 });
