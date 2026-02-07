@@ -170,12 +170,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    const perfil = document.querySelector(".desplegable-perfil");
-const avatar = perfil.querySelector(".avatar");
+const btn = document.getElementById("btnDesplegar");
+const panel = document.getElementById("panelDesplegable");
 
-avatar.addEventListener("click", () => {
-    perfil.classList.toggle("abierto");
+btn.addEventListener("click", () => {
+    panel.classList.toggle("abierto");
 });
+
 
 
 });

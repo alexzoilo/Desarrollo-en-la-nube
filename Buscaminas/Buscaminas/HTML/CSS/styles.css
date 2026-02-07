@@ -11,35 +11,23 @@ body {
     min-height: 100vh;
 }
 
-.desplegable-perfil {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-}
-
-/* Avatar */
 .avatar {
-    width: 80px;
-    height: 80px;
-    background-color: #007bff;
+    width: 120px;
+    height: 120px;
+    background-color: gray;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 40px;
-    cursor: pointer;
+    color: black;
+    font-size: 60px;
+    margin: 20px auto;
 }
-
-/* Contenido oculto */
-.contenido-perfil {
+.desplegable {
     display: none;
-    margin-top: 15px;
 }
 
-/* Cuando está abierto */
-.desplegable-perfil.abierto .contenido-perfil {
+.desplegable.abierto {
     display: block;
 }
 

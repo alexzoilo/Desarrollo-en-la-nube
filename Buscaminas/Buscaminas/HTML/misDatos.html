@@ -21,43 +21,47 @@
         </div>
     </nav>
 
-<div class="avatar">
-    <i class="fa-solid fa-user"></i>
-</div>
+    <div class="avatar">
+        <i class="fa-solid fa-user"></i>
+    </div>
 
 
+    <button id="btnDesplegar">👤 Mis datos</button>
 
-    <div class="contenido-perfil">
-        <div class="grupo-dato">
-            <label for="email">Email</label>
-            <input type="text" id="email" class="input-dato" disabled>
-        </div>
-
-        <div class="grupo-dato">
-            <label for="nombreUsuario">Usuario:</label>
-            <input type="text" id="nombreUsuario" class="input-dato">
-        </div>
-
-        <div class="grupo-dato password-container">
-            <label for="passwordUsuario">Contraseña</label>
-            <div class="input-wrapper">
-                <input type="password" id="passwordUsuario" class="input-dato">
+    <div class="desplegable" id="panelDesplegable">
+        <div class="panel-datos">
+            <div class="grupo-dato">
+                <label for="email">Email</label>
+                <input type="text" id="email" class="input-dato" disabled>
             </div>
-        </div>
 
-        <div class="grupo-dato grupo-botones-datos">
-            <button class="boton-guardar">Guardar</button>
-            <button class="boton-eliminar">Eliminar</button>
+            <div class="grupo-dato">
+                <label for="nombreUsuario">Usuario:</label>
+                <input type="text" id="nombreUsuario" class="input-dato">
+            </div>
+
+            <div class="grupo-dato password-container">
+                <label for="passwordUsuario">Contraseña</label>
+                <div class="input-wrapper">
+                    <input type="password" id="passwordUsuario" class="input-dato" placeholder="Nueva contraseña">
+                    <span class="toggle-password">🔒</span>
+                </div>
+
+                <div class="grupo-dato grupo-botones-datos">
+                    <button class="boton-guardar">Guardar</button>
+                    <button class="boton-eliminar">Eliminar</button>
+                </div>
+
+                <div id="mensaje" class="mensaje-juego"></div>
+            </div>
         </div>
     </div>
 
-            <div id="mensaje" class="mensaje-juego"></div>
-        </div>
 
 
-        <script type="module" src="./assets/JS/extras/alertaDialog.js"></script>
-        <script type="module" src="./assets/JS/misDatos.js"></script>
-        <script type="module" src="./assets/JS/extras/BarraNavegacion.js"></script>
+    <script type="module" src="./assets/JS/extras/alertaDialog.js"></script>
+    <script type="module" src="./assets/JS/misDatos.js"></script>
+    <script type="module" src="./assets/JS/extras/BarraNavegacion.js"></script>
 </body>
 
 </html>
