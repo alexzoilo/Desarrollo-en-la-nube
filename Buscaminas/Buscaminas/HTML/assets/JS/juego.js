@@ -19,6 +19,8 @@ import {
     mostrarEstadisticas
 } from './extras/Estadisticas.js';
 
+mostrarEstadisticas();
+
 const dao = new DAOBuscaminas();
 
 let juego = null;
@@ -247,6 +249,7 @@ async function finalizar(ganado) {
                     .eq('id', juego.usuarioId);
 
                 if (updateError) console.error("Error actualizando estadísticas:", updateError);
+                await mostrarEstadisticas();
             }
 
 
@@ -286,5 +289,5 @@ btnControl.addEventListener("click", async () => {
 
 btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
-    mostrarEstadisticas();
+
 });
