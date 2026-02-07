@@ -22,13 +22,12 @@ const btnListaPartidas = document.getElementById('btnListaPartidas');
 
 const niveles = ["FACIL", "MEDIO", "DIFICIL"];
 
-// ==================== Función para cargar partida desde botón ====================
+
 export function pulsadoBotonCargarPartida(idPartida) {
     sessionStorage.setItem('cargarPartidaId', idPartida);
     window.location.href = 'tablero.html';
 }
 
-// ==================== Funciones auxiliares ====================
 function obtenerSiguienteDificultad(ganado) {
     let index = niveles.indexOf(dificultadActual);
     if (ganado && index < niveles.length - 1) index++;
@@ -56,7 +55,6 @@ async function obtenerUsuarioLogueado() {
     return user.id;
 }
 
-// ==================== Tablero ====================
 function crearTableroHTML() {
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
@@ -86,7 +84,6 @@ function actualizarTablero() {
     }
 }
 
-// ==================== Temporizador ====================
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(()=>{
@@ -186,10 +183,27 @@ async function finalizar(ganado){
     );
     setTimeout(()=>ocultarMensaje(),4000);
 
-    if(juego?.id){
-        try { await dao.finalizarPartida(juego.id); }
-        catch(e){ console.error(e); }
+    if (juego?.usuarioId) {
+    try {
+        await dao.finalizarPartida(juego.id);
+
+        // Actualizar estadísticas del usuario
+        const { data, error } = await supabase
+            .from('Usuarios')
+            .update({
+                partidasGanadas: ganado ? supabase.raw('partidasGanadas + 1') : undefined,
+                partidasPerdidas: !ganado ? supabase.raw('partidasPerdidas + 1') : undefined,
+                tiempoUltimaPartida: segundosTotales,
+                tiempoTotalJugado: supabase.raw(`tiempoTotalJugado + ${segundosTotales}`)
+            })
+            .eq('id', juego.usuarioId);
+
+        if(error) console.error("Error actualizando estadísticas:", error);
+
+    } catch(e) {
+        console.error(e);
     }
+}
 
     dificultadActual = nuevaDificultad;
     selectDificultad.value = nuevaDificultad;
