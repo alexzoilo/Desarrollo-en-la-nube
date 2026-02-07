@@ -12,14 +12,13 @@ body {
 }
 
 .avatar {
-    width: 60px;
-    height: 60px;
+    size: 60px;
     background-color: #007bff; /* azul */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white; /* icono blanco */
+    color: black; /* icono blanco */
     font-size: 30px;
 }
 
