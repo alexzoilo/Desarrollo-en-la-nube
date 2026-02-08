@@ -292,11 +292,11 @@ body {
 }
 
 .resultado.ganada {
-    color: #2ecc71; /* verde */
+    color: #2ecc71;
 }
 
 .resultado.perdida {
-    color: #e74c3c; /* rojo */
+    color: #e74c3c;
 }
 
 

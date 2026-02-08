@@ -1,5 +1,10 @@
-import { supabase } from "./Supabaseclient.js";
-import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
+import {
+    supabase
+} from "./Supabaseclient.js";
+import {
+    mostrarMensaje,
+    ocultarMensaje
+} from "./extras/mensajes.js";
 
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
@@ -54,7 +59,11 @@ function obtenerFecha(fechaUTC) {
 
 function obtenerHora(fechaUTC) {
     const fecha = new Date(fechaUTC);
-    return fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return fecha.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
 }
 
 if (!usuarioActual?.id) {
@@ -68,11 +77,16 @@ async function cargarPartidas(usuarioId) {
     listaPartidas.innerHTML = '<p>Cargando partidas...</p>';
 
     try {
-        const { data: partidas, error } = await supabase
+        const {
+            data: partidas,
+            error
+        } = await supabase
             .from('Buscaminas')
             .select('*')
             .eq('usuarioId', usuarioId)
-            .order('tiempoInicio', { ascending: false });
+            .order('tiempoInicio', {
+                ascending: false
+            });
 
         if (error) throw error;
 
@@ -89,23 +103,29 @@ async function cargarPartidas(usuarioId) {
             const fechaFormateada = `${obtenerFecha(partida.tiempoInicio)} ${obtenerHora(partida.tiempoInicio)}`;
 
             li.innerHTML = `
-                <div class="partida-header">
-                    <span class="partida-dificultad ${partida.dificultad.toLowerCase()}    estadisticas-juego ">
-                        ${partida.dificultad.toUpperCase()}
-                    </span>
-                    <span>${fechaFormateada}</span>
-                </div>
+    <div class="partida-header">
+        <span class="partida-dificultad ${partida.dificultad.toLowerCase()}">
+            ${partida.dificultad.toUpperCase()}
+        </span>
+        <span>${fechaFormateada}</span>
+    </div>
 
-                <div class="partida-body">
-                    <p><strong>Filas:</strong> ${partida.filas}</p>
-                    <p><strong>Columnas:</strong> ${partida.columnas}</p>
-                </div>
+    <div class="partida-body">
+        <p><strong>Filas:</strong> ${partida.filas}</p>
+        <p><strong>Columnas:</strong> ${partida.columnas}</p>
+        <p>
+            <strong>Resultado:</strong>
+            <span class="resultado ${resultadoClase}">
+                ${resultadoTexto}
+            </span>
+        </p>
+    </div>
 
-                <div class="partida-acciones">
-                    <button class="boton-guardar">Cargar partida</button>
-                    
-                </div>
-            `;
+    <div class="partida-acciones">
+        <button class="boton-guardar">Cargar partida</button>
+        <button class="boton-eliminar">Eliminar</button>
+    </div>
+`;
 
             listaPartidas.appendChild(li);
 
@@ -117,7 +137,9 @@ async function cargarPartidas(usuarioId) {
             li.querySelector('.boton-eliminar').addEventListener('click', () => {
                 abrirModal(async () => {
                     try {
-                        const { error } = await supabase
+                        const {
+                            error
+                        } = await supabase
                             .from('Buscaminas')
                             .delete()
                             .eq('id', partida.id)
