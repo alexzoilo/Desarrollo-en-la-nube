@@ -166,7 +166,7 @@ function renderizarPartidas() {
     });
 }
 
-// Cargar partidas desde Supabase
+
 async function cargarPartidas(usuarioId) {
     ocultarMensaje();
     listaPartidas.innerHTML = '<p>Cargando partidas...</p>';
