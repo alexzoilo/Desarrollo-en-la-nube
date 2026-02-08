@@ -20,6 +20,21 @@
         </div>
     </nav>
 
+    <div class="filtros-partidas">
+        <label for="filtroDificultad">Dificultad:</label>
+        <select id="filtroDificultad">
+            <option value="">Todas</option>
+            <option value="FACIL">Fácil</option>
+            <option value="MEDIO">Medio</option>
+            <option value="DIFICIL">Difícil</option>
+        </select>
+
+        <label for="filtroFecha">Fecha desde:</label>
+        <input type="date" id="filtroFecha">
+
+        <button id="btnFiltrar">Filtrar</button>
+    </div>
+
     <div id="mensaje"></div>
     <ul id="listaPartidas" class="lista-partidas">
         </div>
