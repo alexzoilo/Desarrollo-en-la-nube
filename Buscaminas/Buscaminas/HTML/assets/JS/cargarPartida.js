@@ -103,7 +103,7 @@ async function cargarPartidas(usuarioId) {
 
                 <div class="partida-acciones">
                     <button class="boton-guardar">Cargar partida</button>
-                    <button class="boton-eliminar">Eliminar</button>
+                    
                 </div>
             `;
 
