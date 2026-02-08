@@ -113,8 +113,9 @@ async function cargarPartidas(usuarioId) {
     <div class="partida-body">
         <p><strong>Filas:</strong> ${partida.filas}</p>
         <p><strong>Columnas:</strong> ${partida.columnas}</p>
-        <p><strong>Resultado:</strong> 
-            <span class="${partida.ganada ? 'ganada' : 'perdida'}">
+        <p>
+            <strong>Resultado:</strong>
+            <span class="resultado ${partida.ganada ? 'ganada' : 'perdida'}">
                 ${partida.ganada ? 'Ganada' : 'Perdida'}
             </span>
         </p>

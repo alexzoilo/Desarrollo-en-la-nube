@@ -287,6 +287,18 @@ body {
     gap: 15px;
     z-index: 1000;
 }
+.resultado {
+    font-weight: bold;
+}
+
+.resultado.ganada {
+    color: #2ecc71; /* verde */
+}
+
+.resultado.perdida {
+    color: #e74c3c; /* rojo */
+}
+
 
 .estadisticas-juego div {
     background-color: rgba(0, 0, 0, 0.7);
