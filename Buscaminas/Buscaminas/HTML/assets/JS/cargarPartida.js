@@ -90,8 +90,8 @@ async function cargarPartidas(usuarioId) {
 
             li.innerHTML = `
                 <div class="partida-header">
-                    <span class="partida-dificultad ${partida.dificultad.toLowerCase()}">
-                    ${partida.dificultad.toLowerCase()}
+                    <span class="partida-dificultad ${partida.dificultad.toLowerCase()}    estadisticas-juego ">
+                        ${partida.dificultad.toUpperCase()}
                     </span>
                     <span>${fechaFormateada}</span>
                 </div>
