@@ -21,14 +21,24 @@ export async function mostrarEstadisticas() {
     const h = Math.floor(segundos / 3600);
     const m = Math.floor((segundos % 3600) / 60);
     const s = segundos % 60;
+
     document.getElementById("tiempoTotalJugado").textContent =
         `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
 
     const ganadas = data.partidasGanadas || 0;
+    const perdidas = data.partidasPerdidas || 0;
+
     document.getElementById("partidasGanadas").textContent =
         `Partidas ganadas: ${ganadas}`;
 
-    const perdidas = data.partidasPerdidas || 0;
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
+
+    const puntos =
+        (ganadas * 10) +
+        (perdidas * -5) +
+        Math.floor(segundos / 600);
+
+    document.getElementById("puntos").textContent =
+        `Puntos: ${puntos}`;
 }
