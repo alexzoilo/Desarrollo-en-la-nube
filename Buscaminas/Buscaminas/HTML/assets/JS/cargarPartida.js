@@ -114,10 +114,6 @@ function renderizarPartidas() {
             <div class="partida-body">
                 <p><strong>Filas:</strong> ${partida.filas}</p>
                 <p><strong>Columnas:</strong> ${partida.columnas}</p>
-                <p>
-                    <strong>Resultado:</strong>
-                    <span class="resultado ${resultadoClase}">${resultadoTexto}</span>
-                </p>
             </div>
 
             <div class="partida-acciones">
