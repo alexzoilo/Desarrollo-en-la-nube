@@ -16,7 +16,7 @@ import {
 } from './extras/mensajes.js';
 
 import {
-    mostrarEstadisticas
+    mostrarEstadisticas,calcularPuntos
 } from './extras/Estadisticas.js';
 
 mostrarEstadisticas();
