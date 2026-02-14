@@ -35,13 +35,4 @@ export async function mostrarEstadisticas() {
 
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
-
-    // ⭐ CÁLCULO DE PUNTOS
-    const puntos =
-        (ganadas * 10) +
-        (perdidas * -5) +
-        Math.floor(segundos / 600); // 1 punto cada 10 min
-
-    document.getElementById("puntos").textContent =
-        `Puntos: ${puntos}`;
 }

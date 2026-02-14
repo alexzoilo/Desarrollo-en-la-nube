@@ -1,17 +1,14 @@
 import { supabase } from "./Supabaseclient.js";
 import { mostrarMensaje, ocultarMensaje } from "./extras/mensajes.js";
 
-// Referencias a DOM
 const listaPartidas = document.getElementById('listaPartidas');
 const btnVolver = document.getElementById('btnVolver');
 const filtroDificultad = document.getElementById('filtroDificultad');
 const filtroFecha = document.getElementById('filtroFecha');
 const btnFiltrar = document.getElementById('btnFiltrar');
 
-// Usuario actual desde sessionStorage
 const usuarioActual = JSON.parse(sessionStorage.getItem('usuarioActual'));
 
-// Modal de confirmación
 const modal = document.createElement("div");
 modal.className = "modal";
 modal.style.display = "none";
@@ -37,14 +34,12 @@ document.body.appendChild(modal);
 
 let accionConfirmar = null;
 
-// Abrir modal
 function abrirModal(callback, mensaje) {
     texto.textContent = mensaje;
     accionConfirmar = callback;
     modal.style.display = "flex";
 }
 
-// Cerrar modal
 btnCancelar.addEventListener("click", () => {
     modal.style.display = "none";
     accionConfirmar = null;
@@ -56,7 +51,6 @@ btnConfirmar.addEventListener("click", async () => {
     accionConfirmar = null;
 });
 
-// Formatear fecha y hora
 function obtenerFecha(fechaUTC) {
     const fecha = new Date(fechaUTC);
     return fecha.toLocaleDateString('es-ES');
@@ -71,10 +65,8 @@ function obtenerHora(fechaUTC) {
     });
 }
 
-// Array global de partidas cargadas
 let partidas = [];
 
-// Filtrar y renderizar partidas
 function renderizarPartidas() {
     listaPartidas.innerHTML = "";
     const dif = filtroDificultad.value;
@@ -128,13 +120,11 @@ function renderizarPartidas() {
 
         listaPartidas.appendChild(li);
 
-        // Botón Cargar
         li.querySelector('.boton-guardar').addEventListener('click', () => {
             sessionStorage.setItem('cargarPartidaId', partida.id);
             window.location.href = 'tablero.html';
         });
-
-        // Botón Eliminar
+        
         li.querySelector('.boton-eliminar').addEventListener('click', () => {
             abrirModal(async () => {
                 try {
@@ -148,8 +138,7 @@ function renderizarPartidas() {
 
                     mostrarMensaje('Partida eliminada', 'correcto');
                     setTimeout(() => ocultarMensaje(), 3000);
-
-                    // Remover partida del DOM y del array
+                    
                     partidas = partidas.filter(p => p.id !== partida.id);
                     li.remove();
 
@@ -192,17 +181,14 @@ async function cargarPartidas(usuarioId) {
     }
 }
 
-// Inicialización
 if (!usuarioActual?.id) {
     mostrarMensaje('No tienes partidas guardadas.', 'error');
 } else {
     cargarPartidas(usuarioActual.id);
 }
 
-// Filtrar por dificultad o fecha
 btnFiltrar.addEventListener('click', renderizarPartidas);
 
-// Volver a tablero
 btnVolver?.addEventListener('click', () => {
     window.location.href = 'tablero.html';
 });
