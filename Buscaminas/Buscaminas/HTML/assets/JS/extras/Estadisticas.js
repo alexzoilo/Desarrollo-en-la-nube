@@ -1,5 +1,20 @@
 import { supabase } from "../Supabaseclient.js";
 
+function calcularPuntos({ ganadas, perdidas, segundos, dificultad }) {
+    const puntosGanadas = ganadas * 10;
+    const penalizacionPerdidas = perdidas * 8;
+
+    const bonusTiempo = Math.floor(segundos / 200);
+
+    let multiplicador = 1;
+    if (dificultad === "MEDIO") multiplicador = 1.5;
+    if (dificultad === "DIFICIL") multiplicador = 2;
+
+    const puntosBase = puntosGanadas - penalizacionPerdidas + bonusTiempo;
+
+    return Math.max(0, Math.floor(puntosBase * multiplicador));
+}
+
 export async function mostrarEstadisticas() {
     const { data: user, error } = await supabase.auth.getUser();
     if (error || !user?.user) return;
@@ -8,7 +23,7 @@ export async function mostrarEstadisticas() {
 
     const { data, error: fetchError } = await supabase
         .from('Usuarios')
-        .select('tiempoTotalJugado, partidasGanadas, partidasPerdidas')
+        .select('tiempoTotalJugado, partidasGanadas, partidasPerdidas, dificultadPreferida')
         .eq('id', usuarioId)
         .single();
 
@@ -34,10 +49,9 @@ export async function mostrarEstadisticas() {
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
 
-    const puntos =
-        (ganadas * 10) +
-        (perdidas * -5) +
-        Math.floor(segundos / 600);
+    const dificultad = data.dificultadPreferida || "FACIL";
+
+    const puntos = calcularPuntos({ ganadas, perdidas, segundos, dificultad });
 
     document.getElementById("puntos").textContent =
         `Puntos: ${puntos}`;

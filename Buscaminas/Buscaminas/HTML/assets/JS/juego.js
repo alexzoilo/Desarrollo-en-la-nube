@@ -231,15 +231,24 @@ async function finalizar(ganado) {
                 .eq('id', juego.usuarioId)
                 .single();
 
-            if (getError) {
-                console.error("Error obteniendo las estadísticas del usuario:", getError);
-            } else {
+            if (!getError) {
                 const updateData = {
                     tiempoUltimaPartida: segundosTotales,
                     tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
                     partidasGanadas: usuario.partidasGanadas + (ganado ? 1 : 0),
-                    partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
+                    partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0),
                 };
+
+                // Calcular los puntos totales
+                const dificultad = dificultadActual;
+                const puntos = calcularPuntos({
+                    ganadas: updateData.partidasGanadas,
+                    perdidas: updateData.partidasPerdidas,
+                    segundos: updateData.tiempoTotalJugado,
+                    dificultad
+                });
+
+                updateData.puntosTotales = puntos; // <-- Guardamos puntos en DB
 
                 const {
                     error: updateError
@@ -249,8 +258,9 @@ async function finalizar(ganado) {
                     .eq('id', juego.usuarioId);
 
                 if (updateError) console.error("Error actualizando estadísticas:", updateError);
-                await mostrarEstadisticas();
+                await mostrarEstadisticas(); // <-- Actualizamos en pantalla
             }
+
 
 
         } catch (e) {

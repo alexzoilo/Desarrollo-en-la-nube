@@ -576,7 +576,6 @@ body {
     font-size: 14px;
 }
 
-/* Select e input */
 .filtros-partidas select,
 .filtros-partidas input[type="date"] {
     padding: 8px 12px;
@@ -610,8 +609,6 @@ body {
     transition: all 0.2s ease;
 }
 
-
-/* Responsive */
 @media (max-width: 600px) {
     .filtros-partidas {
         flex-direction: column;
@@ -622,7 +619,6 @@ body {
         width: 100%;
     }
 }
-
 
 @media (max-width: 480px) {
     .titulo-inicio {
