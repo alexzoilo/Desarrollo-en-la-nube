@@ -17,7 +17,6 @@ export async function mostrarEstadisticas() {
         return;
     }
 
-    // ⏱ Tiempo jugado
     const segundos = data.tiempoTotalJugado || 0;
     const h = Math.floor(segundos / 3600);
     const m = Math.floor((segundos % 3600) / 60);
@@ -26,7 +25,6 @@ export async function mostrarEstadisticas() {
     document.getElementById("tiempoTotalJugado").textContent =
         `Tiempo total jugado: ${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`;
 
-    // 🎮 Partidas
     const ganadas = data.partidasGanadas || 0;
     const perdidas = data.partidasPerdidas || 0;
 
@@ -35,4 +33,12 @@ export async function mostrarEstadisticas() {
 
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
+
+    const puntos =
+        (ganadas * 10) +
+        (perdidas * -5) +
+        Math.floor(segundos / 600);
+
+    document.getElementById("puntos").textContent =
+        `Puntos: ${puntos}`;
 }

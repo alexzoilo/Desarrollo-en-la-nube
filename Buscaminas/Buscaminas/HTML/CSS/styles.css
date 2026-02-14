@@ -556,6 +556,87 @@ body {
     transform: translateY(-2px);
 }
 
+.filtros-partidas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+
+    background: #1e1e2f;
+    padding: 20px;
+    border-radius: 14px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    margin: 25px 0;
+}
+
+/* Labels */
+.filtros-partidas label {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* Select e input */
+.filtros-partidas select,
+.filtros-partidas input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a3a55;
+
+    background: #2a2a40;
+    color: #ffffff;
+    font-size: 14px;
+
+    transition: all 0.2s ease;
+}
+
+/* Efecto focus */
+.filtros-partidas select:focus,
+.filtros-partidas input[type="date"]:focus {
+    outline: none;
+    border-color: #4e8cff;
+    box-shadow: 0 0 0 2px rgba(78, 140, 255, 0.3);
+}
+
+/* Botón */
+#btnFiltrar {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 8px;
+
+    background: linear-gradient(135deg, #4e8cff, #6a5cff);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+#btnFiltrar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(78, 140, 255, 0.4);
+}
+
+/* Active */
+#btnFiltrar:active {
+    transform: scale(0.96);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .filtros-partidas {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #btnFiltrar {
+        width: 100%;
+    }
+}
+
+
 @media (max-width: 480px) {
     .titulo-inicio {
         font-size: 2.5rem;
