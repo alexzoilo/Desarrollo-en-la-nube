@@ -1,24 +1,11 @@
-import {
-    Buscaminas
-} from "./Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "./Clases/Dificultad.js";
-import {
-    DAOBuscaminas
-} from "./DAO/DaoBuscaminas.js";
-import {
-    supabase
-} from "./Supabaseclient.js";
-import {
-    mostrarMensaje,
-    ocultarMensaje
-} from './extras/mensajes.js';
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
+import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
+import { mostrarEstadisticas, calcularPuntos } from './extras/Estadisticas.js';
 
-import {
-    mostrarEstadisticas
-} from './extras/Estadisticas.js';
-
+// Mostrar estadísticas al cargar la página
 mostrarEstadisticas();
 
 const dao = new DAOBuscaminas();
@@ -44,7 +31,7 @@ export function pulsadoBotonCargarPartida(idPartida) {
     window.location.href = 'tablero.html';
 }
 
-
+// Funciones auxiliares
 function obtenerSiguienteDificultad(ganado) {
     let index = niveles.indexOf(dificultadActual);
     if (ganado && index < niveles.length - 1) index++;
@@ -62,25 +49,17 @@ function formatTiempo(s) {
 function ajustarFilasColumnas(dif) {
     dificultadActual = dif;
     filas = columnas = dif === "FACIL" ? 10 : dif === "MEDIO" ? 15 : 20;
-    selectDificultad.value = dificultadActual;
+    if(selectDificultad) selectDificultad.value = dificultadActual;
 }
 
 async function obtenerUsuarioLogueado() {
-    const {
-        data: {
-            user
-        },
-        error
-    } = await supabase.auth.getUser();
-    if (error) {
-        console.error(error);
-        return null;
-    }
-    if (!user) return null;
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) return null;
     return user.id;
 }
 
 function crearTableroHTML() {
+    if(!tableroDiv) return;
     tableroDiv.innerHTML = "";
     tableroDiv.style.gridTemplateColumns = `repeat(${columnas}, 40px)`;
     for (let i = 0; i < filas; i++) {
@@ -94,7 +73,7 @@ function crearTableroHTML() {
 }
 
 function actualizarTablero() {
-    if (!juego) return;
+    if (!juego || !tableroDiv) return;
     for (let i = 0; i < filas; i++) {
         for (let j = 0; j < columnas; j++) {
             const c = tableroDiv.children[i * columnas + j];
@@ -109,8 +88,8 @@ function actualizarTablero() {
     }
 }
 
-
 function iniciarTemporizador() {
+    if(!temporizadorSpan) return;
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
     timerInterval = setInterval(() => {
         segundosTotales++;
@@ -123,6 +102,7 @@ function detenerTemporizador() {
     timerInterval = null;
 }
 
+// Iniciar nueva partida
 async function iniciarJuego(dificultad) {
     const usuarioId = await obtenerUsuarioLogueado();
     if (!usuarioId) {
@@ -131,7 +111,7 @@ async function iniciarJuego(dificultad) {
     }
 
     ajustarFilasColumnas(dificultad);
-    selectDificultad.disabled = true;
+    if(selectDificultad) selectDificultad.disabled = true;
 
     juego = new Buscaminas(usuarioId, filas, columnas, Dificultad[dificultad]);
     try {
@@ -140,7 +120,7 @@ async function iniciarJuego(dificultad) {
         console.error(e);
         mostrarMensaje("No se pudo crear la partida");
         juego = null;
-        selectDificultad.disabled = false;
+        if(selectDificultad) selectDificultad.disabled = false;
         return;
     }
 
@@ -149,10 +129,11 @@ async function iniciarJuego(dificultad) {
     segundosTotales = 0;
     iniciarTemporizador();
     juegoPausado = false;
-    btnControl.textContent = "⏸ Pausar";
+    if(btnControl) btnControl.textContent = "⏸ Pausar";
     ocultarMensaje();
 }
 
+// Click en celda
 function clickCelda(f, c) {
     if (!juego || juegoPausado) return;
     const ok = juego.descubrir(f, c);
@@ -161,15 +142,13 @@ function clickCelda(f, c) {
     else if (juego.verificarVictoria()) finalizar(true);
 }
 
+// Cargar partida desde sessionStorage
 const cargarPartidaId = sessionStorage.getItem('cargarPartidaId');
 if (cargarPartidaId) cargarPartida(cargarPartidaId);
 
 async function cargarPartida(idPartida) {
     try {
-        const {
-            data: partida,
-            error
-        } = await supabase
+        const { data: partida, error } = await supabase
             .from('Buscaminas')
             .select('*')
             .eq('id', idPartida)
@@ -190,13 +169,13 @@ async function cargarPartida(idPartida) {
         dificultadActual = partida.dificultad;
         segundosTotales = partida.segundosTotales || 0;
 
-        selectDificultad.value = dificultadActual;
-        selectDificultad.disabled = true;
+        if(selectDificultad) selectDificultad.value = dificultadActual;
+        if(selectDificultad) selectDificultad.disabled = true;
 
         crearTableroHTML();
         actualizarTablero();
         juegoPausado = false;
-        btnControl.textContent = "⏸ Pausar";
+        if(btnControl) btnControl.textContent = "⏸ Pausar";
         iniciarTemporizador();
 
         mostrarMensaje('Partida cargada. ¡A jugar!', 'info');
@@ -209,6 +188,7 @@ async function cargarPartida(idPartida) {
     }
 }
 
+// Finalizar partida
 async function finalizar(ganado) {
     detenerTemporizador();
     const nuevaDificultad = obtenerSiguienteDificultad(ganado);
@@ -222,18 +202,13 @@ async function finalizar(ganado) {
         try {
             if (juego.id) await dao.finalizarPartida(juego.id, ganado);
 
-            const {
-                data: usuario,
-                error: getError
-            } = await supabase
+            const { data: usuario, error: getError } = await supabase
                 .from('Usuarios')
                 .select('partidasGanadas, partidasPerdidas, tiempoTotalJugado')
                 .eq('id', juego.usuarioId)
                 .single();
 
-            if (getError) {
-                console.error("Error obteniendo las estadísticas del usuario:", getError);
-            } else {
+            if (!getError && usuario) {
                 const updateData = {
                     tiempoUltimaPartida: segundosTotales,
                     tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
@@ -241,9 +216,16 @@ async function finalizar(ganado) {
                     partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
                 };
 
-                const {
-                    error: updateError
-                } = await supabase
+                // Calcular puntos
+                const puntos = calcularPuntos({
+                    ganadas: updateData.partidasGanadas,
+                    perdidas: updateData.partidasPerdidas,
+                    segundos: updateData.tiempoTotalJugado,
+                    dificultad: dificultadActual
+                });
+                updateData.puntosTotales = puntos;
+
+                const { error: updateError } = await supabase
                     .from('Usuarios')
                     .update(updateData)
                     .eq('id', juego.usuarioId);
@@ -252,7 +234,6 @@ async function finalizar(ganado) {
                 await mostrarEstadisticas();
             }
 
-
         } catch (e) {
             console.error(e);
             mostrarMensaje('Error al finalizar la partida', 'error');
@@ -260,34 +241,34 @@ async function finalizar(ganado) {
     }
 
     dificultadActual = nuevaDificultad;
-    selectDificultad.value = nuevaDificultad;
+    if(selectDificultad) selectDificultad.value = nuevaDificultad;
 
     juego = null;
     juegoPausado = false;
     segundosTotales = 0;
-    btnControl.textContent = "▶ Iniciar";
-    selectDificultad.disabled = false;
+    if(btnControl) btnControl.textContent = "▶ Iniciar";
+    if(selectDificultad) selectDificultad.disabled = false;
 }
 
-btnControl.addEventListener("click", async () => {
+// Botones
+btnControl?.addEventListener("click", async () => {
     if (!juego) {
-        await iniciarJuego(selectDificultad.value);
+        await iniciarJuego(selectDificultad?.value || "FACIL");
         return;
     }
     if (!juegoPausado) {
         juegoPausado = true;
         detenerTemporizador();
-        btnControl.textContent = "▶ Reanudar";
+        if(btnControl) btnControl.textContent = "▶ Reanudar";
         mostrarMensaje("⏸ Juego en pausa", "info");
     } else {
         juegoPausado = false;
         iniciarTemporizador();
-        btnControl.textContent = "⏸ Pausar";
+        if(btnControl) btnControl.textContent = "⏸ Pausar";
         ocultarMensaje();
     }
 });
 
-btnListaPartidas.addEventListener('click', () => {
+btnListaPartidas?.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
-
 });
