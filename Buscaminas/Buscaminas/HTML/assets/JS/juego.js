@@ -15,9 +15,8 @@ import {
     ocultarMensaje
 } from './extras/mensajes.js';
 
-import {
-    mostrarEstadisticas,calcularPuntos
-} from './extras/Estadisticas.js';
+import { mostrarEstadisticas, calcularPuntos } from './extras/Estadisticas.js';
+
 
 mostrarEstadisticas();
 
