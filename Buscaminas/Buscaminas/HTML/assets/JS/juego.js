@@ -15,7 +15,10 @@ import {
     ocultarMensaje
 } from './extras/mensajes.js';
 
-import { mostrarEstadisticas, calcularPuntos } from './extras/Estadisticas.js';
+import {
+    mostrarEstadisticas,
+    calcularPuntos
+} from './extras/Estadisticas.js';
 
 
 mostrarEstadisticas();
@@ -239,7 +242,6 @@ async function finalizar(ganado) {
                 };
 
                 // Calcular los puntos totales
-                const dificultad = dificultadActual;
                 const puntos = calcularPuntos({
                     ganadas: updateData.partidasGanadas,
                     perdidas: updateData.partidasPerdidas,
@@ -247,7 +249,8 @@ async function finalizar(ganado) {
                     dificultad
                 });
 
-                updateData.puntosTotales = puntos; // <-- Guardamos puntos en DB
+                updateData.puntosTotales = puntos;
+
 
                 const {
                     error: updateError
