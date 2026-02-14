@@ -1,9 +1,9 @@
 import { supabase } from "../Supabaseclient.js";
 
-function calcularPuntos({ ganadas, perdidas, segundos, dificultad }) {
+// Exportamos la función para que otros módulos la puedan usar
+export function calcularPuntos({ ganadas, perdidas, segundos, dificultad }) {
     const puntosGanadas = ganadas * 10;
     const penalizacionPerdidas = perdidas * 8;
-
     const bonusTiempo = Math.floor(segundos / 200);
 
     let multiplicador = 1;
@@ -52,7 +52,5 @@ export async function mostrarEstadisticas() {
     const dificultad = data.dificultadPreferida || "FACIL";
 
     const puntos = calcularPuntos({ ganadas, perdidas, segundos, dificultad });
-
-    document.getElementById("puntos").textContent =
-        `Puntos: ${puntos}`;
+    document.getElementById("puntos").textContent = `Puntos: ${puntos}`;
 }

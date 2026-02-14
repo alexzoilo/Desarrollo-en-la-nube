@@ -1,23 +1,9 @@
-import {
-    Buscaminas
-} from "./Clases/Buscaminas.js";
-import {
-    Dificultad
-} from "./Clases/Dificultad.js";
-import {
-    DAOBuscaminas
-} from "./DAO/DaoBuscaminas.js";
-import {
-    supabase
-} from "./Supabaseclient.js";
-import {
-    mostrarMensaje,
-    ocultarMensaje
-} from './extras/mensajes.js';
-
-import {
-    mostrarEstadisticas
-} from './extras/Estadisticas.js';
+import { Buscaminas } from "./Clases/Buscaminas.js";
+import { Dificultad } from "./Clases/Dificultad.js";
+import { DAOBuscaminas } from "./DAO/DaoBuscaminas.js";
+import { supabase } from "./Supabaseclient.js";
+import { mostrarMensaje, ocultarMensaje } from './extras/mensajes.js';
+import { mostrarEstadisticas, calcularPuntos } from './extras/Estadisticas.js';
 
 mostrarEstadisticas();
 
@@ -44,7 +30,6 @@ export function pulsadoBotonCargarPartida(idPartida) {
     window.location.href = 'tablero.html';
 }
 
-
 function obtenerSiguienteDificultad(ganado) {
     let index = niveles.indexOf(dificultadActual);
     if (ganado && index < niveles.length - 1) index++;
@@ -66,12 +51,7 @@ function ajustarFilasColumnas(dif) {
 }
 
 async function obtenerUsuarioLogueado() {
-    const {
-        data: {
-            user
-        },
-        error
-    } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
         console.error(error);
         return null;
@@ -108,7 +88,6 @@ function actualizarTablero() {
         }
     }
 }
-
 
 function iniciarTemporizador() {
     temporizadorSpan.textContent = formatTiempo(segundosTotales);
@@ -166,10 +145,7 @@ if (cargarPartidaId) cargarPartida(cargarPartidaId);
 
 async function cargarPartida(idPartida) {
     try {
-        const {
-            data: partida,
-            error
-        } = await supabase
+        const { data: partida, error } = await supabase
             .from('Buscaminas')
             .select('*')
             .eq('id', idPartida)
@@ -222,28 +198,31 @@ async function finalizar(ganado) {
         try {
             if (juego.id) await dao.finalizarPartida(juego.id, ganado);
 
-            const {
-                data: usuario,
-                error: getError
-            } = await supabase
+            const { data: usuario, error: getError } = await supabase
                 .from('Usuarios')
                 .select('partidasGanadas, partidasPerdidas, tiempoTotalJugado')
                 .eq('id', juego.usuarioId)
                 .single();
 
-            if (getError) {
-                console.error("Error obteniendo las estadísticas del usuario:", getError);
-            } else {
+            if (!getError) {
                 const updateData = {
                     tiempoUltimaPartida: segundosTotales,
                     tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
                     partidasGanadas: usuario.partidasGanadas + (ganado ? 1 : 0),
-                    partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
+                    partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0),
                 };
 
-                const {
-                    error: updateError
-                } = await supabase
+                // Calcular puntos
+                const puntos = calcularPuntos({
+                    ganadas: updateData.partidasGanadas,
+                    perdidas: updateData.partidasPerdidas,
+                    segundos: updateData.tiempoTotalJugado,
+                    dificultad: dificultadActual
+                });
+
+                updateData.puntosTotales = puntos;
+
+                const { error: updateError } = await supabase
                     .from('Usuarios')
                     .update(updateData)
                     .eq('id', juego.usuarioId);
@@ -251,8 +230,6 @@ async function finalizar(ganado) {
                 if (updateError) console.error("Error actualizando estadísticas:", updateError);
                 await mostrarEstadisticas();
             }
-
-
         } catch (e) {
             console.error(e);
             mostrarMensaje('Error al finalizar la partida', 'error');
@@ -289,5 +266,4 @@ btnControl.addEventListener("click", async () => {
 
 btnListaPartidas.addEventListener('click', () => {
     window.location.href = 'cargarPartida.html';
-
 });
