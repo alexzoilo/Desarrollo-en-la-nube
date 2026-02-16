@@ -227,19 +227,32 @@ async function finalizar(ganado) {
                 error: getError
             } = await supabase
                 .from('Usuarios')
-                .select('partidasGanadas, partidasPerdidas, tiempoTotalJugado')
+                .select('partidasGanadas, partidasPerdidas, tiempoTotalJugado, puntos')
                 .eq('id', juego.usuarioId)
                 .single();
 
             if (getError) {
                 console.error("Error obteniendo las estadísticas del usuario:", getError);
             } else {
+                const nuevoTiempoTotal = (usuario.tiempoTotalJugado || 0) + segundosTotales;
+                const nuevasGanadas = (usuario.partidasGanadas || 0) + (ganado ? 1 : 0);
+                const nuevasPerdidas = (usuario.partidasPerdidas || 0) + (!ganado ? 1 : 0);
+
+                const nuevosPuntos =
+                    (ganado ? 10 : -5) +
+                    Math.floor(segundosTotales / 600);
+
+               
+                const puntosFinales = Math.max(0, (usuario.puntos || 0) + nuevosPuntos);
+
                 const updateData = {
                     tiempoUltimaPartida: segundosTotales,
-                    tiempoTotalJugado: (usuario.tiempoTotalJugado || 0) + segundosTotales,
-                    partidasGanadas: usuario.partidasGanadas + (ganado ? 1 : 0),
-                    partidasPerdidas: usuario.partidasPerdidas + (!ganado ? 1 : 0)
+                    tiempoTotalJugado: nuevoTiempoTotal,
+                    partidasGanadas: nuevasGanadas,
+                    partidasPerdidas: nuevasPerdidas,
+                    puntos: puntosFinales
                 };
+
 
                 const {
                     error: updateError

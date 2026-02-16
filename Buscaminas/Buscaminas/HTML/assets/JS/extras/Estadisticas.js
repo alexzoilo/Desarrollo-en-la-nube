@@ -8,7 +8,7 @@ export async function mostrarEstadisticas() {
 
     const { data, error: fetchError } = await supabase
         .from('Usuarios')
-        .select('tiempoTotalJugado, partidasGanadas, partidasPerdidas')
+        .select('tiempoTotalJugado, partidasGanadas, partidasPerdidas, puntos')
         .eq('id', usuarioId)
         .single();
 
@@ -34,11 +34,10 @@ export async function mostrarEstadisticas() {
     document.getElementById("partidasPerdidas").textContent =
         `Partidas perdidas: ${perdidas}`;
 
-    const puntos =
-        (ganadas * 10) +
-        (perdidas * -5) +
-        Math.floor(segundos / 600);
+    const puntos = data.puntos || 0;
 
-    document.getElementById("puntos").textContent =
-        `Puntos: ${puntos}`;
+document.getElementById("puntos").textContent =
+    `Puntos: ${puntos}`;
+
+
 }
