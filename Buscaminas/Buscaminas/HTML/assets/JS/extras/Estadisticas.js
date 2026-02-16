@@ -1,3 +1,6 @@
+
+import { supabase } from "../Supabaseclient.js";
+
 export async function mostrarEstadisticas() {
     const { data: user, error } = await supabase.auth.getUser();
     if (error || !user?.user) return;
