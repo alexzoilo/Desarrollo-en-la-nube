@@ -19,7 +19,6 @@ import {
     mostrarEstadisticas
 } from './extras/Estadisticas.js';
 
-mostrarEstadisticas();
 
 const dao = new DAOBuscaminas();
 
