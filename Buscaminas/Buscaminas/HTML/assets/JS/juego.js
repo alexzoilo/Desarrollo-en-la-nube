@@ -19,6 +19,10 @@ import {
     mostrarEstadisticas
 } from './extras/Estadisticas.js';
 
+document.addEventListener("DOMContentLoaded", () => {
+    mostrarEstadisticas();
+});
+
 
 const dao = new DAOBuscaminas();
 
